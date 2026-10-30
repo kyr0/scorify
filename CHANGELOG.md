@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+- Docs site and README: install from npm (bun, npm, pnpm, yarn) or, without a bundler, from jsDelivr with an import map (a Worker or AudioWorklet still comes from the page's own origin, via `workletUrl`). The `score-import` skill installs from a sparse clone of only `skill/` (about 2 MB instead of the whole repository), with a self-test and `git pull` to update. The footer links to the rendered docs on GitHub, the npm package and the issue tracker.
+- Docs site: the ukulele example strums its C chord (`rightHand: "strum"`); picked, its four notes exceed beginner's three picked notes per bar, so it returned `infeasible` in 0.3.0.
+
 ## 0.3.0 — 2026-10-30
 
 - Add a docs site (`docs/index.html`) built from defuss-shadcn v0.9.11: landing page, API overview and installation guide. Its playground arranges three hand-authored accompaniment studies (ukulele island strum, guitar bass and strum, guitar 3/4 arpeggio) in a module worker, draws the solver's fingerings with the Fretboard, Neck and Chord Chart components, and plays the validated performance.

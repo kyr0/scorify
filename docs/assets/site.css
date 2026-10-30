@@ -233,6 +233,9 @@
   /* half-width columns: wrap instead of cutting, with continuation lines hanging past the number column */
   .sc-use .mk-code-block code > span { white-space: pre-wrap; overflow-wrap: anywhere; }
   .sc-use .mk-code-block pre[data-numbers] code > span { padding-inline-start: 3rem; text-indent: -3rem; }
+  /* Long URLs (the CDN import map) scroll inside their block rather than wrap. */
+  .sc-use .sc-code-scroll pre { overflow-x: auto; }
+  .sc-use .sc-code-scroll code > span { white-space: pre; overflow-wrap: normal; }
   .sc-usage { display: flex; flex-direction: column; gap: 1.25rem; }
   .sc-sep-horizontal { display: none; }
   .sc-sep-wide { width: 100%; margin: 0; }

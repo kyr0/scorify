@@ -1,6 +1,6 @@
 # Validation record
 
-Date: 2026-10-30. Version: `0.3.0`, unpublished.
+Date: 2026-10-30. Version: `0.3.0`, published on npm.
 
 ## Cache version, engine paths, timing limits and practice sounds, 2026-10-30
 
@@ -195,4 +195,4 @@ Reproduce with `bun run benchmark`; raw data is [BENCHMARK.json](BENCHMARK.json)
 - Whole-result and per-adapter pitch-position caches are implemented. Phrase-local incremental recomputation and reusable structural analysis across worker requests are future optimizations.
 - `proven-in-model` describes the finite search objective and mechanics. It does not establish the best possible human fingering outside that model. Scoring hooks must be pure and versioned by the caller.
 
-No GitHub repository was created and no package was published. `private: true` remains until the owner chooses publication. Verify npm name availability/ownership at that time; the earlier registry lookup did not reserve a name.
+The owner published `scorify@0.3.0` on npm and the repository at https://github.com/kyr0/scorify on 2026-10-30. jsDelivr and unpkg serve the package; the import map of the docs' install section, pointing at jsDelivr, arranges a chord and renders it to WAV in Chromium from another origin. A sparse clone of only `skill/` is 1.7 MB, and the skill's tests pass from it.

@@ -10,7 +10,7 @@ Read `docs/IMPLEMENTATION_SPEC.md`, `docs/RESEARCH.md`, and `docs/VALIDATION.md`
 - Distinguish search budget exhaustion from proven infeasibility. Keep approximate and exact guarantees explicit.
 - Levels are versioned editable policies, not scientifically calibrated ability labels.
 - Add meaningful tests for music semantics and search counterexamples. Run `bun run check` before delivery; test the browser module graph when packaging changes.
-- Keep `private: true` until the owner explicitly requests publication. Repository setup does not authorize an npm release.
+- scorify is published on npm. Publishing a release is the owner's decision: never run `npm publish` or bump the version unasked.
 
 - Fidelity is the primary search objective; do not let ergonomic duration costs erase playable source notes.
 - Keep exhaustive and independent-replay fixtures, and ensure worker cancellation/stale-result semantics remain tested.

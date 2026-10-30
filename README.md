@@ -2,6 +2,26 @@
 
 Instrument-aware music arrangement, transposition, and fingering constraints for vanilla JavaScript. TypeScript source, browser-native ESM, no external runtime dependencies.
 
+## Install
+
+```sh
+npm install scorify        # or: bun add scorify · pnpm add scorify · yarn add scorify
+```
+
+Plain ESM with TypeScript declarations and no runtime dependencies. Without a bundler, an import map can load it from a CDN:
+
+```html
+<script type="importmap">
+{ "imports": {
+  "scorify": "https://cdn.jsdelivr.net/npm/scorify@0.3.0/dist/index.mjs",
+  "scorify/worker": "https://cdn.jsdelivr.net/npm/scorify@0.3.0/dist/worker.mjs",
+  "scorify/audio": "https://cdn.jsdelivr.net/npm/scorify@0.3.0/dist/audio.mjs"
+} }
+</script>
+```
+
+A Worker or an AudioWorklet must come from your page's own origin: copy the package's whole `dist/` folder next to your page for those (the entries share chunks) and pass `workletUrl` to the audio player. The `score-import` agent skill installs separately ([below](#importing-scores)).
+
 ## What works
 
 - Exact rational musical time, voices, rests, ties, gates, tempo/meter/key maps, and stable source identities.
@@ -18,7 +38,7 @@ Instrument-aware music arrangement, transposition, and fingering constraints for
 
 ## Arrange a score
 
-Import from `./dist/index.mjs` after building, or `scorify` after an npm release:
+Import from `scorify` (or from a built `./dist/index.mjs`):
 
 ```js
 import {
@@ -27,7 +47,7 @@ import {
   q,
   arrange,
   concertUkulele,
-} from "./dist/index.mjs";
+} from "scorify";
 
 const source = createScore(
   [
@@ -300,21 +320,25 @@ The [docs site](docs/index.html) re-arranges three accompaniment songs, each wri
 
 [`skill/`](skill/SKILL.md) holds `score-import`, a standalone agent skill and CLI (Python 3.9+, standard library) that finds scores on the web with CloakBrowser and converts MusicXML, MXL, ABC and MIDI into scorify Score JSON with lyrics and sung parts, recording where each file came from. `score.py bundle` packs several versions of one piece, each with its difficulty, into a score set. It honors robots.txt and stops at logins, paywalls and human checks. Its tests: `python3 -m unittest discover -s skill/tests`.
 
-The same skill works in Codex and Claude Code. To install for both on macOS/Linux, run from this checkout (the destination names must be unused):
+The same skill works in Codex and Claude Code. It is not part of the npm package. To install it for both on macOS/Linux, fetch only the `skill/` folder (about 2 MB, not the whole repository) and link it (the link names must be unused):
 
 ```sh
-mkdir -p "$HOME/.agents/skills" "$HOME/.claude/skills"
-ln -s "$PWD/skill" "$HOME/.agents/skills/score-import"
-ln -s "$PWD/skill" "$HOME/.claude/skills/score-import"
+git clone --depth 1 --filter=blob:none --sparse https://github.com/kyr0/scorify.git ~/.scorify
+git -C ~/.scorify sparse-checkout set skill
+mkdir -p ~/.agents/skills ~/.claude/skills
+ln -s ~/.scorify/skill ~/.agents/skills/score-import
+ln -s ~/.scorify/skill ~/.claude/skills/score-import
+bunx cloakbrowser install                              # the browser it drives
+python3 -m unittest discover -s ~/.scorify/skill/tests # self-test
 ```
 
-These links keep both installations current with this checkout; keep the checkout at this location. For an independent installation, copy the whole `skill/` directory to each destination instead. Invoke `$score-import` in Codex or `/score-import` in Claude Code, followed by the import request. Both also support automatic selection. Discovery locations and symlink support follow the [official OpenAI skill documentation](https://learn.chatgpt.com/docs/build-skills#where-codex-loads-local-skills) and [Claude Code skill documentation](https://code.claude.com/docs/en/skills#choose-where-skills-load).
+`git -C ~/.scorify pull` updates both. From a full checkout, link its `skill/` folder the same way. For an independent installation, copy the whole `skill/` directory to each destination instead. Invoke `$score-import` in Codex or `/score-import` in Claude Code, followed by the import request. Both also support automatic selection. Discovery locations and symlink support follow the [official OpenAI skill documentation](https://learn.chatgpt.com/docs/build-skills#where-codex-loads-local-skills) and [Claude Code skill documentation](https://code.claude.com/docs/en/skills#choose-where-skills-load).
 
 Use Bun 1.3.9 and Node 24. `pkgroll` builds ES2022 `.mjs`, declarations, source maps and third-party notices. `check` includes source typechecking, semantic tests, module-graph checks, and a real npm-tarball/declaration-consumer check. The browser check exercises native modules, the module worker, a live level change, actual audio playback and sample-exact worklet/offline parity at 44.1 and 48 kHz.
 
 Root exports cover the score/arrangement API; audio uses optional subpaths. Smaller subpaths are `model`, `theory`, `fretted`, `presets`, `profiles`, `transforms`, `analysis`, `quantize`, `fingering`, `arrange`, `validate`, `adapters`, `songs`, and `worker`. Optional subpaths are `performance`, `audio-dsp`, `audio-effects`, `audio-guide`, `audio`, `pitch-detect`, and `tuner`. `worker-entry.mjs`, `audio-worklet.mjs` and `pitch-worklet.mjs` are side-effect entries for their respective worker contexts.
 
-The package remains `private: true` until you choose to publish. After publication, native browser imports use an exact-version URL such as `https://unpkg.com/scorify@VERSION/dist/index.mjs`; all relative chunks must ship. Browser Worker URLs should be served from your app's origin. For CDN-only use, `arrangeAsync` works directly; bundle/self-host a worker bootstrap if your origin policy requires it.
+Native browser imports can use an exact-version CDN URL such as `https://cdn.jsdelivr.net/npm/scorify@0.3.0/dist/index.mjs`; the relative chunks are fetched from there. Browser Worker URLs should be served from your app's origin. For CDN-only use, `arrangeAsync` works directly; bundle/self-host a worker bootstrap if your origin policy requires it.
 
 ## Scope and evidence
 
