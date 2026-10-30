@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Docs playground: the metronome switch is called **Beat** and is on by default, as are Tape delay, Reverb and Saturation. The switches are remembered under new keys (`scorify-demo-practice-2`, `scorify-demo-effects-2`), so choices saved earlier do not hide the new defaults.
 - Docs site and README: install from npm (bun, npm, pnpm, yarn) or, without a bundler, from jsDelivr with an import map (a Worker or AudioWorklet still comes from the page's own origin, via `workletUrl`). The `score-import` skill installs from a sparse clone of only `skill/` (about 2 MB instead of the whole repository), with a self-test and `git pull` to update. The footer links to the rendered docs on GitHub, the npm package and the issue tracker.
 - Docs site: the ukulele example strums its C chord (`rightHand: "strum"`); picked, its four notes exceed beginner's three picked notes per bar, so it returned `infeasible` in 0.3.0.
 

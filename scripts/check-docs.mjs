@@ -293,9 +293,11 @@ try {
       assert.ok(Math.abs(still.position - halted.position) < 0.01, `a pause stays where it was (${halted.position.toFixed(2)} → ${still.position.toFixed(2)})`);
       await page.click("#stop");
       // The practice switches are remembered; the Loop swap plays the song again from the start when it ends.
+      assert.equal(await page.textContent("label[for=guide-metronome]"), "Beat");
+      assert.ok(await page.isChecked("#guide-metronome"), "the Beat is on by default");
       await page.click("label[for=guide-metronome]");
       await page.click(".sc-loop");
-      assert.deepEqual(await page.evaluate(() => JSON.parse(localStorage.getItem("scorify-demo-practice"))), { voice: true, metronome: true, loop: true });
+      assert.deepEqual(await page.evaluate(() => JSON.parse(localStorage.getItem("scorify-demo-practice-2"))), { voice: true, metronome: false, loop: true });
       assert.equal(await page.textContent(".sc-loop .swap-on"), "Loop");
       await page.evaluate((at) => document.getElementById("song-tab").api.setState("playing", { position: at }), last - beats);
       await countedIn();
@@ -547,11 +549,11 @@ try {
       assert.match(await page.textContent("#fact-search"), / · cached$/, "a stale browser entry does not hide the precomputed log");
       assert.equal(JSON.parse(await page.textContent("#result-json")).cache, "the precomputed cache");
 
-      // Sound effects: reverb on by default, switches remembered, the WAV rendered through the library's chain.
+      // Sound effects: every effect on by default, switches remembered, the WAV rendered through the library's chain.
       const fx = () => page.evaluate(() => Object.fromEntries([...document.querySelectorAll("[data-fx]")].map((i) => [i.dataset.fx, i.checked])));
-      assert.deepEqual(await fx(), { delay: false, reverb: true, saturation: false });
+      assert.deepEqual(await fx(), { delay: true, reverb: true, saturation: true });
       await page.click("label[for=fx-delay]");
-      assert.equal(JSON.parse(await page.evaluate(() => localStorage.getItem("scorify-demo-effects"))).delay, true);
+      assert.equal(JSON.parse(await page.evaluate(() => localStorage.getItem("scorify-demo-effects-2"))).delay, false);
       await play();
       await page.waitForTimeout(600);
       assert.equal(await page.evaluate(() => document.getElementById("playground").dataset.playback), "playing");
@@ -560,7 +562,7 @@ try {
       const bytes = await readFile(await wav.path());
       assert.equal(bytes.subarray(0, 4).toString(), "RIFF");
       await page.click("label[for=fx-delay]");
-      assert.deepEqual(await fx(), { delay: false, reverb: true, saturation: false });
+      assert.deepEqual(await fx(), { delay: true, reverb: true, saturation: true });
 
       // Print: the title, the tab at page width and every chord chart, then the page comes back as it was.
       await page.evaluate(() => { window.__prints = 0; window.print = () => { window.__prints++; }; });

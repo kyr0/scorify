@@ -133,8 +133,8 @@ try {
   const PRE = 0.05, RING = 4, FADE = 0.008, CHUNK = 6;
   // Sound effects after the rendered strings: scorify's effect chain (scorify/audio-effects), live in an AudioWorklet
   // node and offline in the WAV, so both sound alike. The echo is a dotted eighth at the tempo. The switches are
-  // remembered in this browser; reverb is on by default.
-  const EFFECTS_KEY = "scorify-demo-effects", effects = { delay: false, reverb: true, saturation: false };
+  // remembered in this browser (a new key, so earlier choices do not hide the defaults); every effect is on by default.
+  const EFFECTS_KEY = "scorify-demo-effects-2", effects = { delay: true, reverb: true, saturation: true };
   try {
     const stored = JSON.parse(localStorage.getItem(EFFECTS_KEY) ?? "{}");
     for (const id of Object.keys(effects)) if (typeof stored[id] === "boolean") effects[id] = stored[id];
@@ -153,8 +153,9 @@ try {
   // of a kick on the strong beats and a clap between. Both are rendered with every segment and switched by a gain, so a
   // switch takes effect at once. The voice sings through the effects, in the same room; the metronome stays dry.
   // Playback counts in one bar before it starts (not on a loop's next pass); the Loop swap plays the song again from
-  // the beginning when it ends. Remembered in this browser; the voice is on by default.
-  const PRACTICE_KEY = "scorify-demo-practice", practice = { voice: true, metronome: false, loop: false };
+  // the beginning when it ends. Remembered in this browser (a new key, as for the effects); the voice and the metronome
+  // (the Beat switch) are on by default.
+  const PRACTICE_KEY = "scorify-demo-practice-2", practice = { voice: true, metronome: true, loop: false };
   try {
     const stored = JSON.parse(localStorage.getItem(PRACTICE_KEY) ?? "{}");
     for (const id of Object.keys(practice)) if (typeof stored[id] === "boolean") practice[id] = stored[id];
