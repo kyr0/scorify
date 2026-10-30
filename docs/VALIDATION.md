@@ -1,0 +1,198 @@
+# Validation record
+
+Date: 2026-10-30. Version: `0.3.0`, unpublished.
+
+## Cache version, engine paths, timing limits and practice sounds, 2026-10-30
+
+- **Cache version.** The cache is keyed by `src/VERSION` instead of a hash of the build. Rebuilding the library with the version unchanged replays every cached configuration: `check:cache` reports 0 of 5,502 stale, and `--private --check` 0 of 6,788.
+- **Engine paths.** Paths share their past (persistent lists) instead of copying it at every step. Wicked Game's longest configuration takes 6 s instead of 50 s, another 23 s instead of 202 s. A full public run takes 13.5 minutes and 11,652 CPU-seconds, against 26.6 minutes and 24,868 CPU-seconds before. Compared with the previous cache request by request, 5,404 of 5,502 public results are identical; the other 98 are imported scores' amateur chord versions, changed on purpose (below).
+- **Timing is not fingering.** `createPerformance(…, { timeLimits: false })` lifts the attack rate, shift and finger speed and finger setup, and records `timeLimits: "lifted"` in the plan, which `validatePerformance` honours and checks. A beginner's eight open notes at 8× tempo fail by default and play with the limits lifted; a tampered plan fails validation. Rainbow on high-G ukulele plays at amateur ×1 and maestro ×2 through the docs modules. The page's message "This fingering cannot perform that timing" no longer occurs.
+- **Chord shapes for picked versions.** Since the picked-notes limit, the shape probe applied it too, and Wicked Game's and Rising Sun's baby versions found no Bm or Am shape. The probe now lifts both right-hand limits. A test that fails without the fix finds Bm and Am on guitar and Am on high-G ukulele at baby with a pick. After a follow-up run all 618 affected public configurations succeed, and every baby version plays as written.
+- **Amateur chord release.** An imported score's amateur chord version lets go a sixteenth before each strum. Bamboléo amateur now arranges in three keys tried by hand. The private library has 144 failures of 6,788, all Bamboléo (26 infeasible, 118 search-exhausted), down from 312.
+- **Practice sounds.** `scorify/audio-guide` has 11 tests: the voice's pitch, its lowpass (4th harmonic below 0.35×, fundamental above 0.85× of an unfiltered render), its level under the strings, and span parity to 1e-4; the metronome's patterns for 2/4, 3/4, 4/4, 3/8, 6/8 and 12/8, the count-in times, the kick's sweep, the clap's three bursts, and exact span parity. `check:docs` checks a count-in of about 3 s at 80 BPM with the playhead held at the start, the song loop wrapping without a second count-in, the remembered switches, and the Voice switch offered only for a sung part.
+- **Figures.** Public pieces: 5,502 configurations in twelve keys, 62 MB gzipped. In each piece's own key without capo every version plays as written except the two documented in `DEMO.md`; in other keys and with capo 116 of 5,166 play an easier version, and none fails. Local library: 6,788 configurations, 311 MB; a full run takes 88 minutes (84,740 CPU-seconds), and Bamboléo's follow-up run took 94 minutes.
+- **Metadata edits without a search.** Removing edition authors' names (and Wicked Game's cover credit) from the local charts and scores changed the cache keys of 6,116 configurations, and of every score piece's attempt fingerprints too, since a score's notation is part of its source. A one-off re-key replayed each cached log attempt by attempt for the edited piece, required the same sequence of attempts and the same replayed outcome with validation, and renamed the entries: 7 minutes instead of a full run. Seven configurations searched again for real (Rainbow, Wicked Game, Katyusha, Zvezda, Bamboléo; successes and an infeasible one) gave identical logs, fingerprints, notes and annotations. Kino's words changed only the cache keys: all 1,230 cached logs replayed with unchanged attempt fingerprints before the re-key.
+- **Tempo in place.** `check:docs` changes the tempo while Rainbow plays: playback goes on without a count-in from where it was, and a pause stays at its position through another change.
+- **Package contents.** `check:packed` allows only `dist/`, `package.json`, `README.md`, `LICENSE` and `THIRD-PARTY-LICENSES.txt`; adding `docs/DEMO.md` to `files` makes it fail.
+- `bun run check` passes **224 tests in 17 files**. `check:docs`, `check:browser`, `check-private-docs.mjs` and the skill's 22 tests (1 skipped, live) pass.
+
+## Picked notes, chords, playback tempo and keys, 2026-10-30
+
+- **Picked notes per bar.** Fixtures (`tests/adversarial.test.ts`): four notes picked one at a time pass a limit of 2; a bar of a two-note chord and one more note needs 3. Exact mode is infeasible at 2, and adaptive mode leaves out the doubled harmony note and keeps every moment. Strums count nothing. The validator reports `Picked notes per bar limit`.
+- **Keeping the tune's moments.** A fixture where the cheaper omission would empty a weak beat now leaves out the doubled note instead. With the penalty set to zero the same fixture empties the beat, so the test discriminates.
+- **Canon in D on standard guitar, before the rule.** The simplified ensemble kept 3 of 4 moments in bars 9–24 and 1–2 of 6–8 in bars 25–40 at amateur. The cause was not beam width: 8, 32 and 128 states gave the same result. Every combination that keeps all notes used up the per-frame candidate cap before a thinner one was tried.
+- **Canon in D on standard guitar, after the rule.** Amateur (242 notes), semi-pro (295) and pro (the solo, 556 of 750 notes) keep every moment of every bar. Expert and maestro play the concert solo with all 1,533 notes. Baby and beginner strum the inferred chords, D A Bm F#m | G D G A.
+- **Melody chords.** Only the top note of a chord in the melody voice is melody. Before that, the solo's melody dyads made doubles mandatory, and pro could not play the solo.
+- **Tempo is playback only.** A request at 110 BPM replays the 80 BPM log of Rainbow's pro version without a search, with the same frets, a scaled tempo map and its higher attack rate reported. `retime` moves the arrangement on show to 60 or 140 BPM and back to the identical result. The 7-string guitar falls back from expert to pro whatever tempo is asked.
+- **Keys.** Twelve keys, every instrument and difficulty, precomputed: see the cache figures above.
+
+## Canon in D in the local library, 2026-10-30
+
+Three guitar arrangements of Pachelbel's Canon (ensemble 468 notes, solo 750, concert solo 1,533) were downloaded as MusicXML, converted with the score-import skill and bundled as a score set with difficulties semi-pro, pro and expert. The skill's 21 tests pass, including new ones: a tablature staff repeating its notation staff is dropped and counted, a differing one is kept with a warning, and a tab-only score's unset key signature leaves the key unknown. The page and `precompute-docs.mjs --private` load the set alike: 56 new configurations, 0 of 180 stale. On standard guitar (the card's default) every difficulty succeeds: pro plays the solo, expert and maestro the concert solo with every note kept (adaptive: octave shifts of the drop-D bass notes), baby to semi-pro a simplification of the ensemble. On drop D the solos' same-onset unisons (one note shared by two voices) make exact mode fail; amateur and semi-pro are `search-exhausted`, the other levels play the simplified ensemble. Bisection on the solo with the unisons merged (not shipped) reached bar 54 of 61 before a stretch exceeded pro's limits. `check-private-docs.mjs` checks every difficulty of the set in Chromium: the version expected for it plays (only the easiest version may be simplified) and replays from the cache.
+
+## Cache freshness and replay speed, 2026-10-30
+
+Long songs were searched again after every library rebuild, although the precomputed cache was fresh: the page took a request's log from the first layer that had one, and a result this browser had saved in IndexedDB under an earlier build hid the precomputed one (its attempts no longer fingerprinted alike, so they were searched). The page now replays from memory, IndexedDB and the precomputed files together, keeps the build with each IndexedDB entry, and ignores and prunes entries of other builds. `check:docs` reproduces the case: an IndexedDB entry for Wicked Game's amateur key with the current build and a wrong fingerprint must still give way to the precomputed replay. Greensleeves' other voices (outer voices, melody only, all voices) are now precomputed too: 392 public configurations (2.9 MB gzipped) and 124 for the local library, 0 stale in `check:cache` for both.
+
+Replay time was dominated by `validateFrettedArrangement`, which filtered every note and every earlier attack at every frame. It now sweeps them forward when frames are strictly ordered, giving the same notes in the same order. On all 444 cached arrangements (public and local) the old and new validators return identical diagnostics, also for 1,332 perturbed copies (swapped first frames, a 3-attack density limit, polyphony 1; 1,204 of them invalid). The largest arrangement (2,510 notes) validates in 27 ms instead of 318 ms; all 444 take 1.8 s instead of 13.9 s. A new fixture (sustained note across later attacks, out-of-order note list, an attack exactly one second earlier, unordered frames) fails for each of three mutations of the sweep. Every cache was searched again for the new build: Greensleeves' outcomes per voice choice are 40 successes of 56 for outer voices and melody (infeasible at baby, search-exhausted at beginner) and 16 for all voices (guitars from semi-pro); everything else succeeds. In the browser on the local server, changing song or difficulty now replays in 150–300 ms for the long local songs (before: 0.5–0.85 s) and 23–43 ms for the public pieces, failures included. `bun run check` passes **205 tests in 16 files**; `check:docs` and `check-private-docs.mjs` pass.
+
+## Songs module, post effects and print view, 2026-10-30
+
+`bun run check` passes **204 tests in 16 files**, the type/build checks and packed-package checks. The arrangement layer the playground used (`docs/assets/songs.mjs`) is now the library subpath `scorify/songs`, a typed port with the same rules; the demo keeps its song content and the Fretboard tab. The demo's 9 tests pass unchanged through it, and 7 new library tests (`tests/songs.test.ts`) cover chord-book voicings, per-difficulty versions in exact mode, a proved-infeasible maestro version falling back with its reason, pre-search limits and stroke counting, replay only for equal inputs and build, the capo suggestion with shapes behind the capo, retime at a slower tempo, strokes and imported-score voices. The package check keeps `songs` (37 kB gzipped) and `audio-effects` (2.3 kB) out of the root graph, and the effects graph free of score and solver modules. Every cached arrangement was searched again for the new build: 0 stale of 280 public and 124 private configurations. Their fallbacks are exactly the documented ones (DEMO.md's table; the local library's alternating-bass and maestro fallbacks); the local library also falls back on 7- and 8-string guitar and mandolin at some difficulties, which its notes do not cover.
+
+Post effects (`scorify/audio-effects`) are tested for: no change with every effect off; identical samples in any block size and through `applyEffects` and `renderPerformance(…, { effects })`; unity gain for quiet signals and a 0.35–0.42 ceiling for a 0.9 peak under saturation; the first echo within 6 ms of the delay time, each repeat weaker, and repeats ringing on after the delay is switched off; a decaying stereo room (energy at 1.8–2.4 s under 1% of 0.05–0.4 s); no step larger than the signal's own when effects switch on mid-signal; the player worklet with effects equal to `renderPerformance` with them over 257-frame quanta; the effects processor equal to the chain over its input with a live switch, and still producing a tail without input. On a 16-note guitar render, the reverb adds about −11 dB and the delay −10 dB relative to the dry signal. In Chromium, the playground plays through the library's effects worklet without page errors, remembers the switches, and writes the WAV through the same chain.
+
+The print view (checked in Chromium, and as an A4 PDF from headless Chromium) shows the title, a line with credit, instrument, difficulty, tempo, meter and key, the tab at page width with lines kept whole, and every chord chart with grid and dots, static; the page prints light and returns to its theme and layout afterwards. The browser's own print dialog was not driven.
+
+## Cached arrangements, capo suggestions and custom mode, 2026-10-30
+
+`bun run check` passes **187 tests in 14 files**, the type/build checks and packed-package checks. `bun run check:docs` and `node scripts/check-private-docs.mjs` pass in Chromium headless shell 1243.
+
+The playground replays precomputed arrangements: 280 public configurations (every piece × eight instruments × seven difficulties at the piece's tempo, plus Wicked Game's suggested capo 2 at each; 3.1 MB gzipped) and 124 for the local library (5.3 MB, outside `docs/`). A cached attempt is replayed only when the fingerprint of its prepared source, options and scorify build matches what the page would search, and only after `validateFrettedArrangement` accepts the replayed fingering; otherwise it is searched. `precompute-docs.mjs --check` replays every configuration with a search that throws: 0 stale of 280 and 0 of 124, also after a rebuild of the unchanged library. The cached outcomes equal what the page searches, failures included (Greensleeves at baby and beginner remains `infeasible` and `search-exhausted` before its simplified fallback). Measured in headless Chromium: the first song draws 131 ms after load, another cached song about 75 ms, the capo toggle about 1 ms (its other side is prepared in a second worker); the private check now takes 14 s instead of several minutes of searching.
+
+Regression fixtures: the cache key ignores a piece's origin and cache location but separates capo, tempo and custom settings; a log replays without a search for equal inputs, does not apply to another tempo, and a tampered cached fret (one string one fret higher) is rejected by validation and searched again with the same result. The private cache route serves only `cache/index.json` and hex-named `*.json.gz` files inside the cache directory (symlink escapes, encoded traversal and other names give 404).
+
+Capo suggestions are a heuristic over the chord finder's first shape for each chord (open chord 1, other shape 3, barre 4, weighted by duration); a capo is suggested only when it leaves fewer non-open shapes and costs no more. Wicked Game in B minor gets capo 2 (Am, G, D shapes) on all eight instruments; the public Rainbow and Rising Sun get none; Rainbow transposed to E♭ on high-G ukulele gets capo 3 (C, Em, Am, F, G); the local Rainbow gets capo 5 on guitar, drop-D guitar and baritone ukulele for its colour-chord versions. With a capo, the test arrangement of Wicked Game still sounds B minor in bar 1 while every assignment's absolute fret is its capo-relative fret plus 2 and the first chord is fingered `x-0-2-2-1-x`. The suggestion is not a measured ease gain; its arrangement must play like any other, and the toggle is off by default.
+
+The playground opens at amateur, and maestro starts every piece 20% above its tempo (Rainbow 96, Wicked Game 130, Rising Sun 115 BPM, Greensleeves 48). The 40 public and 19 private maestro configurations were precomputed again; the rest stayed fresh. Public maestro outcomes are unchanged: every version plays as written except Wicked Game on high-G ukulele (expert, maestro infeasible). Locally, each song still plays every difficulty's own version on its own instrument (Rainbow on high-G ukulele at 96, Wicked Game on guitar at 114); at maestro, Rainbow on 8-string guitar and Wicked Game on mandolin now play the pro version (Wicked Game on high-G ukulele already did).
+
+(Superseded 2026-10-30: the tempo is now playback only, see below.) A tempo change kept the fingering on show when `validateFrettedArrangement` accepted it at the new tempo, the performance validates, and no harder version failed for a reason a slower tempo could remove. Measured on three songs × three instruments × four difficulties from 30 BPM slower to 25 faster: 411 retimed takes (three seeds each) passed the performance check, 7 tempos were declined, and each declined tempo, searched, played an easier version. Fixtures: a slower tempo keeps notes and assignments, scales the tempo map and attack density and names the searched tempo, also over a chain of changes; the retimed log replays at its tempo; Rainbow's pro fingering on low-G ukulele is declined at 110 BPM, where a search plays an easier version; a request differing in more than the tempo is declined; on a 7-string guitar, expert's fallback to pro is kept at a faster tempo and searched again at a slower one.
+
+Custom mode passes its limits to scorify as player overrides and adaptation permissions and never relaxes them: Rainbow transposed to E♭ with a fret span of 1 reports pro to beginner as infeasible and plays the baby version, saying so. Exported arrangement files (`scorify-arrangement-1`) reopen through the cache path, so their result is validated again.
+
+## Chord charts for the local scores, 2026-10-30
+
+The two local practice songs no longer adapt their editions' piano parts. Each plays a chord chart written for the edition's bars (`*.chart.json`, `scorify-chart-1`) under the imported voice and words: seven strummed versions, fingered in exact mode. `node scripts/check-private-docs.mjs` (Chromium headless shell 1243) checks, on each song's own instrument, that every difficulty plays the version written for it with every note kept (Rainbow on high-G ukulele: 348 to 1,076 notes; Wicked Game on guitar: 486 to 1,868), that the accompaniment is strummed, that every charted bar is played, that every displayed vocal pitch, onset, duration and lyric matches the import (after the documented Wicked Game verse correction), and playback, pause and stop. A Node replica of the page's search with the performance check found every version playing at its own difficulty on high-G, low-G and baritone ukulele and guitar, except Wicked Game's alternating-bass versions on high-G ukulele (expert and maestro: infeasible within the model) and baritone ukulele (expert), which fall back to pro.
+
+Strum-only chart versions count a strum as one stroke through an explicit `maxAttacksPerSecond` override (difficulty rate × strings), reported with every arrangement; scorify's per-string attack model is unchanged. The chord finder now ranks shapes within the fourth fret before shapes with more strings, and passes the chosen shapes to scorify as familiar shapes (except for versions with an alternating bass). Against a baseline of all public songs, levels and eight instruments, every public outcome is unchanged; public voicings changed only to chord-book shapes (guitar A `x02220`, Rising Sun's D `xx0232`, two 8-string shapes), and Wicked Game's maestro ending now gets its strum. New fixtures cover multi-chord bars, held and silent bars, simple charts, chart validation, stroke counting, the vocal correction and chart serving.
+
+The Wicked Game edition's voice part carries three sharps over a piano part without: bars 1–16 match Chris Isaak's B minor melody, a minor third below the D minor piano, while bars 18 onward are in D minor with explicit naturals. The chart's `vocalTranspose` shows bars 1–16 a minor third higher and says so; the imported file and MXL are unchanged.
+
+## Local score integration, 2026-10-29
+
+`bun run check` passes **182 tests in 14 files**, the type/build checks and packed-package checks. `bun run check:docs` passes the public playground regression in Chromium. `node scripts/check-private-docs.mjs` verifies the locally installed voice-and-piano editions of Somewhere Over the Rainbow (40 bars) and Wicked Game (56 bars).
+
+The independent source audit matches all 129/168 vocal notes, their exact pitches/onsets/durations and 10/34 vocal rests. Rainbow retains 127 English and 127 French lyric syllables; Wicked Game retains 131 English syllables. Its octave-clef warning was checked against the official MIDI: all 136 untied vocal attack pitches agree. No vocal transposition or omitted vocal notes were introduced.
+
+At the original tempos and maestro on standard guitar, the bounded adaptive search retains 483/489 and 672/673 accompaniment notes respectively, using 3,092,099 and 1,841,756 expansions. These are approximate results with reported octave shifts/omissions, not exact renditions of the piano parts. Browser checks compare every vocal pitch, onset, duration and lyric lane to the imports, validate the performed accompaniment, exercise play/pause/stop and the advancing clock, check persistence on reload, and inspect mobile/dark layout without page overflow or console errors. Reports and screenshots stay in ignored `work/private-scores/`.
+
+The new regression fixtures cover manifest allowlisting, symlink/traversal exclusion, absence of private-library references from static docs, separate vocal-pitch timing, pickup placement, melismas ending at rests and notated trailing rests. The UI shows pitch names and octaves; it does not render a vocal notation staff or synthesize a singer.
+
+## Implemented and checked
+
+The canonical score/time model, transformations, exact/adaptive fretted solver, all seven player levels, explicit musical-edit candidates, harmonic windows, known-map quantizer, source provenance, independent output replay, async/worker scheduling and source-preserving recomputation session are implemented. V0.2 adds performed-time validation, seeded humanization, strum compilation, persistent plucked-string synthesis, AudioWorklet playback and WAV export. The original research-stage specification is preserved in [DESIGN_V0.md](DESIGN_V0.md).
+
+| Check                          | Result                                                                                                                    |
+| ------------------------------ | ------------------------------------------------------------------------------------------------------------------------- |
+| Strict TypeScript source check | Passed                                                                                                                    |
+| Vitest semantic suite          | **148 tests passed**, 10 files                                                                                            |
+| pkgroll production build       | ESM, declarations, source maps and third-party notices emitted                                                            |
+| Module graph and Node imports  | Every entry resolves; no bare external imports or detected Node-only runtime globals                                      |
+| Bun frozen-lockfile install    | Passed                                                                                                                    |
+| Actual npm tarball             | 90 files; declarations, runtime entries, chunks and license notices present                                               |
+| Public declaration consumer    | Compiles against packed files, including browser Worker/AudioContext compatibility and expected invalid-input type errors |
+| Packed runtime behavior        | Exact arrangement, performance compilation, synthesis and WAV succeeded; packed bytes match the local build               |
+| Native browser and worker      | Chromium 153.0.8010.0, passed                                                                                             |
+| Dynamic level change           | Same 24-note source: expert retains 23 notes; baby retains 16                                                             |
+| Local benchmark fixtures       | All successful outputs independently replayed                                                                             |
+
+The packaged byte inspection and declaration/runtime consumer check are automated by `scripts/check-packed.mjs`; its temporary tarball is deleted after checking. No npm publication is performed. The committed CI workflow runs the checks and installs Chromium; it has not been executed on GitHub in this session.
+
+Tested runtime/tool versions: Node 24.22.1, Bun 1.3.9, pkgroll 2.29.0, TypeScript 5.9.3, Vitest 4.0.17 and Playwright 1.62.1. The manifest retains the inspected project convention of Volta Node 24.13.1; that exact patch version was not tested here.
+
+## Semantic and adversarial coverage
+
+- Rational normalization/overflow, tuplets, JSON preservation, pitch spelling and modulation-aware note/key/chord transposition.
+- Tempo-map integration/inversion and tempo changes inside finger movement intervals.
+- High-G physical order, low-G register, alternate tuning, absolute/relative/per-string capo behavior.
+- Six open guitar strings, six-string barre, open-string/barre conflicts, duplicate string occupancy and independent overlapping unisons.
+- Held notes that rule out locally attractive positions; contiguous tied fragments without reattacks; fixed barre footprints after partial releases.
+- Immediate hand changes that fail; rests or explicit gates that supply release time; geometry-dependent reach and finger-pair limits.
+- Strumming across unintended strings and explicit muting capability; no silent unsupported bends or harmonics.
+- All level policies, explicit overrides, required chromatic melody, source locks, omission/octave/gate/rhythm provenance, permitted melody skeletons, and explicit rest conflicts.
+- Faithful maestro retention even when a long note accumulates ergonomic cost; hard limits cannot be bypassed by scoring hooks.
+- Exact DP/exhaustive-reference agreement across small finite cases; unpruned beam agreement; deterministic fixed budgets and honest truncation/cancellation statuses.
+- Independent replay detects tampered frets, note identities, attack metadata and missing release boundaries.
+- Arpeggiated/ambiguous harmony, actual sounding bass, sparse evidence and supplied intent separated from realized harmony.
+- Known-map triplets across bars, tempo changes, simultaneous attacks, repeated-note collisions, intentional voice overlap, positive durations and bounded candidate construction.
+- Original-source recomputation, isolated cached results, worker cancellation, superseded requests and stale-response rejection.
+- A synthetic non-string adapter exercises the generic contract; this does not claim a shipped keyboard fingering model.
+
+These are original synthetic fixtures. They do not constitute musician calibration, GuitarSet evaluation, physiological validation or a listening study.
+
+## Native-browser evidence
+
+The smoke test serves plain HTML and the emitted module graph over HTTP, without an application bundler or import map. It validates spelling (`C#4 + 3M = E#4`), high-G positions, chord candidates, an exact arrangement in a dedicated module worker, a live expert → baby recomputation, actual AudioContext playback, cancellation/disposal, and AudioWorklet rendering in OfflineAudioContext. The page made 34 observed local requests; no page/request errors or external runtime requests were observed. The demo now includes playback, strum/humanization controls, four original WAV studies and a tested WAV download.
+
+The headless Chromium executable came from the npm-distributed `@sparticuz/chromium` development tool, with GPU rendering disabled in this environment. That executable is not included in the library or ZIP. On a normal machine run `bunx playwright install chromium` followed by `bun run check:browser`. Existing binaries can be supplied using `SCORIFY_CHROMIUM_PATH` and JSON `SCORIFY_CHROMIUM_ARGS`.
+
+Firefox/WebKit, real devices, production CSP configurations and live UNPKG delivery were not tested. Browser Worker scripts should follow the host application's same-origin/module-worker policy; the package does not promise arbitrary cross-origin Worker constructors.
+
+## Audio-specific evidence
+
+- **52 added tests** cover physical down/up order on high-G ukulele, partial/muted strokes, seeded repeatability and stable identity, bounded non-accumulating jitter, ties/locks, tempo maps/concert tuning, per-string tone, safe timing reduction and strict-mode failure.
+- Actual-time replay rejects same-string overlaps and insufficient released-finger travel after jitter consumes a nominally adequate gap. It preserves notated duration/trailing rests separately from sounding gates. Malformed/tampered timing, seed, pitch, stroke and contact provenance is rejected.
+- Analytical loop-phase tests include damping and fractional-delay phase. Autocorrelation estimates over 24 rate/pitch combinations (44.1/48/96 kHz; about 82–1319 Hz) found **0.277 cents maximum absolute error** on the original sustained-tone fixtures. Unit tests require less than 5 cents over their tested subset. These are not measurements of every register, preset, attack transient or extreme setting.
+- Variable block sizes yield identical PCM. Repeated plucks preserve ringing state; fresh seeds alter excitation. Release/muted decay, timbre controls, physical stereo order, finite output and WAV structure are tested.
+- Real Chromium worklet output matches the pure renderer **sample for sample** at 44.1 and 48 kHz, including a start at frame 777 inside a render block. Both maximum absolute errors were zero. Real-time analyser output was nonzero; stopping, superseding requests, disposal and the downloadable WAV passed.
+- Unit protocols additionally cover stale starts, invalid loads, missed deadlines, fade completion, cancelled resume/preparation, module-load retry, context closure and fatal processor errors. Inputs are snapshotted before async playback setup.
+- Four original WAV studies are included in `examples/audio/`; all preserve the source notes, use full requested timing variation when enabled, and have zero clipped samples at default gain. Their metadata is in `examples/audio/RENDERED.json`.
+
+- **Pitch detection.** Pure tones from 41 to 1397 Hz are found within 1 cent; harmonic-rich tones (sawtooth-like, square-like, and a fundamental at a third of the octave's level) at 82–392 Hz within 2 cents, with no octave errors; every open string of guitar and high- and low-G ukulele plucked by scorify's own synth, in tune and 20 cents sharp or 35 cents flat, to the nearest cent. Silence, quiet hiss and white noise give no confident pitch. The worklet posts the same readings as the offline tracker for the same samples. In Chromium, sawtooth tones through `createPitchInput` and the real worklet on an OfflineAudioContext read E2 0, A2 +29.9, G3 −12.1 and E4 −0.3 cents against 0, +30, −12 and 0. The docs check drives the tuner through a synthetic microphone stream. The tracker costs about 26 ms of CPU per second of 48 kHz audio over the default 40–1500 Hz range, 14 ms over a guitar's range and 4 ms over a high-G ukulele's (Node, one host). Recorded instruments, room noise, real microphones and other engines are not measured.
+
+The current DSP input graph is **4,354 gzip bytes**; the worklet graph is **5,591 gzip bytes**. The graph check verifies that root imports do not load audio and that the DSP/worklet does not load score/fingering/search modules. Root graph growth from v0.1 is 45 gzip bytes for the public realization helper, not inclusion of the audio engine.
+
+Ten seconds of synthetic audio in 128-frame blocks took a median **39.78 ms for four strings** and **45.40 ms for six strings** on this Node host (one warmup, three measured runs). Preparation took about 0.60/0.99 ms for 80/120 attacks. These offline CPU numbers do not establish low-latency performance on phones, under competing worklet loads, or on other engines. Full tuning and CPU records: [AUDIO_BENCHMARK.json](AUDIO_BENCHMARK.json). Browser and package evidence: [BROWSER_CHECK.json](BROWSER_CHECK.json), [PACKAGE_CHECK.json](PACKAGE_CHECK.json).
+
+No controlled listening study or physical instrument fitting was performed. Synthetic body modes, decay/brightness controls and random distributions remain hand-chosen approximations. No Firefox/WebKit/device compatibility claim or recorded-guitar realism claim is made. See [AUDIO.md](AUDIO.md) for bounds and unsupported playback/technique features.
+
+## Measured browser transfer size
+
+Each value sums separately gzip-compressed files in an entry's transitive module graph, counting shared files once. It excludes source maps, headers and cache effects. Native browser imports do not perform bundler tree shaking. Reproduce with `bun run check:package`; full records are in [BUNDLE_SIZE.json](BUNDLE_SIZE.json).
+
+| Entry             | Gzip bytes | Modules |
+| ----------------- | ---------: | ------: |
+| `.`               |     29,511 |      16 |
+| `./theory`        |      5,056 |       2 |
+| `./fretted`       |      2,850 |       2 |
+| `./presets`       |      3,417 |       3 |
+| `./model`         |      6,250 |       3 |
+| `./transforms`    |      7,382 |       4 |
+| `./profiles`      |      2,837 |       2 |
+| `./analysis`      |     10,526 |       5 |
+| `./quantize`      |      8,142 |       4 |
+| `./adapters`      |        107 |       1 |
+| `./fingering`     |     10,225 |       5 |
+| `./arrange`       |     24,437 |      11 |
+| `./worker`        |     25,989 |      12 |
+| `./worker-entry`  |     26,244 |      13 |
+| `./validate`      |     13,030 |       7 |
+| `./performance`   |     18,997 |       9 |
+| `./audio`         |     24,414 |      11 |
+| `./audio-dsp`     |      4,354 |       2 |
+| `./audio-worklet` |      5,591 |       3 |
+
+## Measured search time
+
+Original synthetic study; one warmup and median of three runs on this execution host, Node v24.22.1. Times include arrangement processing and its internal validation. They are not a real-time or worst-case guarantee. Exact/polyphonic search can be exponential and bounded search may miss solutions.
+
+| Fixture                        | Input → output notes | Median ms | Expansion operations | Optimality      |
+| ------------------------------ | -------------------: | --------: | -------------------: | --------------- |
+| ukulele 8-note exact           |                8 → 8 |    531.12 |               89,133 | proven-in-model |
+| ukulele 64-note beam           |              64 → 64 |    200.54 |               30,604 | best-found      |
+| guitar 64-note beam            |              64 → 64 |    530.31 |               77,929 | best-found      |
+| baby reduction 128 input notes |             128 → 64 |    293.34 |               36,580 | best-found      |
+
+Reproduce with `bun run benchmark`; raw data is [BENCHMARK.json](BENCHMARK.json). Quantization's expansion budget also covers timing-grid/pair construction and compatibility checks, preventing an overly broad tolerance from generating an unbounded candidate product.
+
+## Remaining limits and external gates
+
+- The four-finger contact model, ordinal finger ordering, fixed held-barre footprints, constant string spacing, movement-speed surrogate and simplified muting/picking assumptions are explicit approximations. No model-valid result certifies human comfort.
+- Level names and numerical thresholds remain **uncalibrated**. Musician-reviewed fixtures and recognizability/difficulty ratings (research experiment E9) are still needed.
+- Harmony is a bass-aware window heuristic. Timing quantization needs supplied tempo, meter and voice hints; it does not infer rubato, swing or meter.
+- Rhythmic adaptation delays onsets and lengthens untied note values on a grid; hold changes are separate explicit gates. It does not perform general rhythmic recomposition.
+- Advanced techniques, audio transcription, MIDI/MusicXML import/export, generated ornaments, keyboard mechanics and learned scoring remain later scope. V0.2 adds synthesized audio/WAV export, not audio-to-score transcription.
+- Whole-result and per-adapter pitch-position caches are implemented. Phrase-local incremental recomputation and reusable structural analysis across worker requests are future optimizations.
+- `proven-in-model` describes the finite search objective and mechanics. It does not establish the best possible human fingering outside that model. Scoring hooks must be pure and versioned by the caller.
+
+No GitHub repository was created and no package was published. `private: true` remains until the owner chooses publication. Verify npm name availability/ownership at that time; the earlier registry lookup did not reserve a name.

@@ -1,0 +1,325 @@
+# scorify
+
+Instrument-aware music arrangement, transposition, and fingering constraints for vanilla JavaScript. TypeScript source, browser-native ESM, no external runtime dependencies.
+
+## What works
+
+- Exact rational musical time, voices, rests, ties, gates, tempo/meter/key maps, and stable source identities.
+- Spelled note/key/chord transposition and tempo-map scaling, with unconstrained, exact, and adaptive modes.
+- Configurable fretted strings, tunings, capos and geometry; concert ukulele high G/low G and classical guitar presets.
+- Four-finger assignments, open strings, barres, sustained-note contact, released-finger travel, static reach, and picking/strumming checks.
+- Joint musical-edit and fingering search: exhaustive reference, exact dynamic programming, or bounded beam search.
+- Baby → beginner → amateur → semi-pro → pro → expert → maestro profiles; independent complexity, flexibility and capability overrides.
+- Optional octave revoicing, marked-ornament/accompaniment omission, rhythm simplification and explicit earlier releases, with an edit log.
+- Window-based harmony candidates, including arpeggios, and known-tempo/meter performance quantization with timing alternatives.
+- Async cancellation/progress, a dedicated-worker entry, latest-request handling and source-preserving recomputation sessions.
+- A separate public replay validator, tests, package checks, benchmarks and a runnable vanilla-browser example.
+- Optional ukulele/guitar waveguide synthesis, physical-order strums, seeded humanization, actual-time fingering replay, AudioWorklet playback and offline WAV export.
+
+## Arrange a score
+
+Import from `./dist/index.mjs` after building, or `scorify` after an npm release:
+
+```js
+import {
+  createScore,
+  parsePitch,
+  q,
+  arrange,
+  concertUkulele,
+} from "./dist/index.mjs";
+
+const source = createScore(
+  [
+    {
+      id: "melody",
+      pitch: parsePitch("C4"),
+      onset: q(0),
+      duration: q(1),
+      partId: "song",
+      voiceId: "melody",
+      role: "melody",
+    },
+    {
+      id: "decoration",
+      pitch: parsePitch("E4"),
+      onset: q(0),
+      duration: q(1),
+      partId: "song",
+      voiceId: "harmony",
+      role: "ornament",
+    },
+  ],
+  {
+    tempoMap: [{ at: q(0), quarterBpm: 100 }],
+    keyMap: [{ at: q(0), tonic: "C", mode: "major" }],
+  },
+);
+
+const instrument = concertUkulele({ tuning: "lowG" });
+const result = arrange(source, {
+  instrument,
+  mode: "adaptive",
+  transform: { interval: "2M", tempoScale: 0.75 },
+  player: { level: "beginner", overrides: { allowBarre: false } },
+  adaptation: {
+    preserveMelody: true,
+    allowOctaveShift: true,
+    allowAccompanimentOmission: true,
+  },
+});
+
+if (result.status === "success") {
+  console.log(result.score, result.annotations, result.edits);
+  console.log(result.sourceHarmony, result.realizedHarmony);
+} else {
+  console.log(result.status, result.diagnostics);
+}
+```
+
+All pitches are **sounding** pitches. A guitar's written octave belongs in `Part.writtenToSounding`; it must not shift fret calculations. Time is a normalized `[numerator, denominator]` measured in quarter notes. `q(1, 3)` is one third of a quarter, independent of meter. `createScore` explicitly defaults to 120 quarter BPM, 4/4 and A=440; it never infers a key.
+
+A note's `duration` is its notation. Optional `gateDuration` declares an earlier sounding release. Without a gate, the full duration must be sustained. Contiguous `tieGroupId` fragments become one physical sounding note while retaining every notated event.
+
+## Modes and results
+
+| Mode              | Behavior                                                                                    |
+| ----------------- | ------------------------------------------------------------------------------------------- |
+| `unconstrained`   | Transform the symbolic score without requiring an instrument or assigning fingers.          |
+| `exact` (default) | Preserve transformed pitches, multiplicity, timing and holds; search physical realizations. |
+| `adaptive`        | Jointly select permitted score edits and physical realizations.                             |
+
+`success` includes output score, fingerings, separate source/realized harmony, edits, source mapping, difficulty components, model versions, effective profile, and search statistics. Ranking first minimizes musical loss, then the total ergonomic/transition/style cost. Even maestro cannot bypass a hard physical limit.
+
+`infeasible` means an exhaustive search proved no path **within this finite model**. `search-exhausted` means candidate pruning or a resource limit prevented finding a complete path. Other statuses are `invalid-input`, `unsupported`, and `cancelled`. `optimality` is `proven-in-model` only when nothing was truncated; otherwise it is `best-found`. No partial prefix is emitted as a successful arrangement.
+
+`arrange` defaults to beam width 64, 128 realization candidates per parent/frame, 500,000 expansion operations, 10,000 input notes, 20,000 total score events/map entries, and 10,000 frames. `search.strategy: 'exact'` performs dominance-pruned dynamic programming without beam/candidate pruning by default, but still observes the expansion budget. `'exhaustive'` disables dominance merging for tiny reference cases. Larger exact searches can grow exponentially.
+
+## Instruments and player profiles
+
+```js
+import {
+  concertUkulele,
+  classicalGuitar,
+  createFrettedInstrument,
+} from "./dist/presets.mjs";
+
+const highG = concertUkulele(); // G4 C4 E4 A4
+const lowG = concertUkulele({ tuning: "lowG" }); // G3 C4 E4 A4
+const guitar = classicalGuitar({ capoFret: 2 }); // E2 A2 D3 G3 B3 E4 before capo
+const custom = createFrettedInstrument("custom", "My tuning", [
+  "D4",
+  "G4",
+  "B4",
+  "E5",
+]);
+const measured = { ...guitar, scaleLengthMm: 650, stringSpacingMm: 11 };
+```
+
+Strings stay in physical bass-edge → treble-edge order; reentrant tuning is never pitch-sorted. The editable default fret count is 19. Per-string configuration accepts `openPitch`, `capoFret`, `fretCount`, stable `id`, and tab `number`. Frets are absolute from the original nut; displayed relative fret = absolute fret − that string's capo. Geometry values must describe your instrument or an explicitly chosen nominal model.
+
+`player.complexity` in `[0,1]` limits the fraction of marked ornament sounding events retained in adaptive mode. It never generates ornaments or decides that an unmarked non-chord tone is disposable. `player.flexibility` in `[0,1]` controls fret span, movement speed and setup-time defaults. Overrides include:
+
+- `maxFretSpan`, `maxReachMm`, `fingerPairMaxMm`, `maxFret`.
+- `maxShiftFretsPerSecond`, `maxFingerSpeedMmPerSecond`, `fingerSetupSeconds`.
+- `maxPolyphony`, `maxVoices`, `maxAttacksPerSecond`, `minDuration`, `rhythmGrid`.
+- `allowBarre`, `maxBarreStrings`, `rightHand: 'pick' | 'strum'`, `allowMutedStrum`, and `familiarShapes`.
+
+Millimetre limits require both scale length and string spacing. The geometric model approximates frets and contact points; it does not model wrists, tissue, or individual anatomy. A familiar shape is its physical string-order fret signature, e.g. `0-0-0-3`; `x` marks an unused string.
+
+Tempo changes are explicit. `autoTempo: true` lowers the highest tempo segment to the selected level's suggested ceiling while preserving tempo-map ratios. It never speeds up a score, and cannot be combined with an explicit tempo transformation.
+
+## Adaptation permissions
+
+Marked-ornament omission is allowed by default in adaptive mode; all other musical changes require explicit permission. Melody is retained by default. Use note locks (`keep`, `pitch`, `onset`, `duration`) and `protectedNoteIds` for essential material. Locks constrain adaptation after the requested global transformation.
+
+| Permission                                      | Candidate edits                                                                                    |
+| ----------------------------------------------- | -------------------------------------------------------------------------------------------------- |
+| `allowOrnamentOmission`                         | Omit notes explicitly marked `ornament`.                                                           |
+| `allowAccompanimentOmission`                    | Omit notes explicitly marked `harmony` or `bass`.                                                  |
+| `allowMelodyOmission` + `preserveMelody: false` | Permit a melody skeleton; locked/protected anchors remain.                                         |
+| `allowOctaveShift`                              | Revoice retained notes by `octaveShifts` (default −1/+1).                                          |
+| `allowRhythmSimplification`                     | Delay onsets to `rhythmGrid` within `maxOnsetDelay`, and lengthen untied note values to that grid. |
+| `allowHoldShortening`                           | Select explicit earlier gates using `gateRatios` (default 0.5/0.75).                               |
+
+These are finite, reported edits. Rhythm and gate edits currently apply to untied notes only. Rhythm edits cannot overlap an explicit rest in the same voice. `maxOmissions` caps omitted sounding events. `allowAddedOrnaments` must remain false; generation of new ornaments is outside v0.2. Unknown roles are never silently reclassified as accompaniment.
+
+## Harmony and performance timing
+
+```js
+import { analyzeHarmony, quantizePerformance, q } from "./dist/index.mjs";
+
+const harmony = analyzeHarmony(source); // meter-sized windows by default
+const quantized = quantizePerformance(
+  [
+    {
+      id: "n1",
+      pitch: "C4",
+      onsetSeconds: 0.01,
+      durationSeconds: 0.49,
+      partId: "song",
+      voiceId: "melody",
+    },
+  ],
+  {
+    tempoMap: [{ at: q(0), quarterBpm: 120 }],
+    meterMap: [{ at: q(0), numerator: 4, denominator: 4 }],
+    subdivisions: [1, 2, 3, 4, 6, 8], // subdivisions per quarter
+    toleranceSeconds: 0.05,
+  },
+);
+```
+
+Harmony windows collect sounding notes and arpeggios, use the actual bass, and preserve alternative labels. Provided harmony remains authoritative in the source layer. `respectProvided: false` analyzes the actual rendition. Candidate scores are heuristic ranks, not probabilities; sparse evidence remains unknown.
+
+Quantization integrates the supplied tempo map, considers positive-duration rational on/off pairs, and jointly preserves exact simultaneous attacks and voice-overlap relations. It returns the original performance, edits, selected score and local timing alternatives. Alternatives are not all mutually compatible full-score paths. Default caps: 64 candidates/note, 256 frontier states, 200,000 expansions. A pruned success is `best-found`; impossible local tolerances return `infeasible`. Meter, tempo, rubato and swing are not inferred.
+
+## Async, workers, and recomputation
+
+```js
+import { createWorkerClient } from "./dist/worker.mjs";
+import { concertUkulele } from "./dist/presets.mjs";
+
+const worker = new Worker(new URL("./dist/worker-entry.mjs", import.meta.url), {
+  type: "module",
+});
+const client = createWorkerClient(worker);
+const options = {
+  instrument: concertUkulele(),
+  mode: "adaptive",
+  player: { level: "beginner" },
+};
+const result = await client.arrange(source, options, (progress) =>
+  console.log(progress),
+);
+// client.cancel();
+client.dispose();
+worker.terminate();
+```
+
+A newer worker request cancels the previous request and ignores stale responses. The endpoint reads cancel messages and posts progress once per ~12 ms time slice. Worker options must be serializable; use `client.cancel()` instead of sending an AbortSignal. Custom scoring hooks run in direct/async calls, not through the provided worker protocol.
+
+For cooperative scheduling, use `arrangeAsync(source, { ...options, signal }, { onProgress, yieldEvery, schedule })`. Scheduling happens at bounded search checkpoints, not during every primitive operation; use a dedicated worker for UI isolation.
+
+`createArrangementSession(source)` keeps a copied original and an LRU result cache (default eight entries). `session.recompute(options)` cancels a previous request and always starts from that original. Instrument, tuning, geometry, tempo, policy, search settings and scoring-hook ID participate in the cache key. Cached results are returned as independent data. This is whole-score recomputation, not an incremental phrase-edit engine.
+
+A direct `scoring: { id, cost(frame, realization) }` hook must be pure, deterministic, finite and nonnegative. Its versioned ID is the caller's responsibility. It cannot override hard validity or the musical-fidelity priority.
+
+## Plucked strings, strums and humanization
+
+```js
+import {
+  createPerformance,
+  createAudioPlayer,
+  renderPerformance,
+  encodeWav,
+} from "./dist/audio.mjs";
+
+// Use a successful fretted result and the instrument that produced it.
+const performed = createPerformance(result, instrument, {
+  seed: "take-42",
+  humanize: 0.6,
+  strum: { direction: "down", spreadSeconds: 0.035 }, // false for picking
+});
+if (performed.status !== "success")
+  throw new Error(performed.diagnostics.join("; "));
+const plan = performed.performance;
+const context = new AudioContext();
+const player = await createAudioPlayer(context);
+playButton.onclick = async () => {
+  const playback = await player.play(plan); // Call from a user gesture.
+  console.log(await playback.finished);
+};
+stopButton.onclick = () => player.stop();
+const wavBytes = encodeWav(renderPerformance(plan));
+// Cleanup: player.dispose(); await context.close();
+```
+
+`scorify/tuner` listens too: `createPitchInput` feeds the microphone to a YIN pitch-detector AudioWorklet in real time, and `tuningTargets`/`nearestTarget` name the string being tuned and how many cents it is off ([AUDIO.md](docs/AUDIO.md#pitch-detection-and-tuning)).
+
+Every string keeps its ringing state and receives fresh seeded excitation on each pluck. Strums are centered on their beat (the first strings slightly early, the last slightly late) and sweep faster at faster tempos. Humanization plays dynamics before it adds noise: bar accents, melody and bass over inner notes, the first string of a strum struck hardest, harder plucks louder and brighter, and a slow per-string tuning drift that stays within one cent; then it varies shared stroke timing, smaller string offsets, velocity, brightness, pluck position and decay without accumulating drift. A new seed gives a new take. Up/down strokes follow physical string order, including high-G ukulele. `humanize:0` disables expressive variation while retaining distinct repeatable excitations.
+
+Performed timings are checked against the selected fingering. Note durations and pitch stay intact; timing jitter may be reduced with a diagnostic. If the strum itself is unplayable, the compiler reports it. It does not silently shorten notes or relax player limits. Preset timbres and ergonomic levels are synthetic, uncalibrated models.
+
+Post effects run after the strings in the library itself: `renderPerformance(plan, { effects: { reverb: true, delay: true, delaySeconds: delayForTempo(96) } })`, `player.play(plan, { effects })` and `player.setEffects(…)`, or `createEffectsNode(context)` to route any Web Audio source through the same soft saturation, tape delay and reverb. Offline and worklet output are sample-identical.
+
+[Audio API and design](docs/AUDIO.md) covers partial/muted strokes, pattern expansion, per-string tone, strict timing, cancellation, limits and deployment. The `performance` and `audio-dsp` subpaths work without browser APIs; audio stays outside the core import graph. `examples/audio/` includes four generated WAV studies and their reproducible source.
+
+## Songs with a version per difficulty
+
+`scorify/songs` is the arrangement layer the docs playground runs on. A chord-chart song (`ChordSong`) has a bar of chords for every bar and one version per difficulty: strum and pick patterns (`down`, `up`, `pick`), an alternating bass, phrase fills, releases before chord changes, held bars. `arrangeFor(piece, { instrumentId, level, bpm, transpose, capo, custom }, { arrange })` plays the version written for the difficulty as written (exact mode), falls back to easier versions, and simplifies the easiest one only when none plays; its log says why each attempt failed (`voicing`, `limits`, `infeasible`, `search-exhausted`). It always searches at the piece's own tempo: `bpm` only scales the result for playback. `transpose` moves the piece by semitones (`KEY_SHIFTS`, `keyName`). An imported score also strums its chords, inferred from its notes: first at baby and beginner, last above. Chord shapes come from `voiceChord`: shapes on contiguous strings ranked like a chord book, each judged by arranging it. `songFromChart` plays a chord chart (`scorify-chart-1`) under an imported score's sung part; `pieceFromScore` turns imported scores and score sets (`scorify-set-1`) into pieces with an estimated difficulty and voice choices.
+
+```js
+import { arrange } from "scorify";
+import { arrangeFor, down, up, suggestCapo, retime, tempoFor, cacheable } from "scorify/songs";
+
+const song = {
+  id: "loop", title: "Loop", instrument: "guitar", key: "B", mode: "minor", time: [4, 4], beat: 1, bpm: 90,
+  progression: ["Bm", "A", "E", "Bm"],
+  versions: [
+    { id: "baby", difficulty: "baby", label: "A strum a bar", pattern: [down(0)], countStrokes: true },
+    { id: "amateur", difficulty: "amateur", label: "D D U", pattern: [down(0), down(1), up(1.5)], countStrokes: true },
+  ],
+};
+const request = { instrumentId: "guitar", level: "amateur", bpm: tempoFor(song, "amateur"), capo: 0, custom: null };
+const run = await arrangeFor(song, request, { arrange: (source, options) => arrange(source, options) });
+suggestCapo(song, request); // { capo: 2, shapes: ["Am", "G", "D"], chords: ["Bm", "A", "E"], hard: [1, 0] }
+const slower = retime(song, { ...run, request }, { ...request, bpm: 70 }); // the same fingering, played at 70 BPM
+const again = await arrangeFor(song, request, { arrange, replay: cacheable(run.log) }); // replayed, not searched
+```
+
+`arrange` may be a worker client. A `replay` log is used only for attempts whose source, options and `build` fingerprint alike, and only after `validateFrettedArrangement` accepts the replayed fingering. `retime` plays the result at another tempo without a search (tempo is playback only; the time-based limits were judged at the piece's tempo); the result says at which tempo it was searched. `suggestCapo` is a chord-shape heuristic (open, other, barre), not a measured ease. `LEVEL_TEMPO` (maestro 1.2×) is an editable policy. `INSTRUMENTS` and `instrumentFor` cover eight fretted instruments, with capo and tuning ids from `customInstrumentId`.
+
+## Validate and extend
+
+`validateFrettedArrangement(outputScore, instrument, annotations, playerOptions)` independently rebuilds active events from the output, checks complete attack/release coverage, pitch/string/finger contact, sustained assignments, capability limits and transitions. Every successful built-in fretted arrangement is replayed before return.
+
+`InstrumentAdapter<State, Realization, Annotation>` owns enumeration, static validation, transitions, state equivalence, costs and description. `arrangeWithAdapter` and `arrangeSteps` accept custom adapters. State keys must include every future-relevant variable. A keyboard adapter is an extension point, not bundled keyboard fingering support.
+
+## Development and browser example
+
+```sh
+bun install --frozen-lockfile
+bun run check
+bun run benchmark
+bun run benchmark:audio
+bun run examples:audio
+bunx playwright install chromium
+bun run check:browser
+python3 -m http.server 8000
+# http://localhost:8000/examples/browser/
+bun run build:docs && bun run dev:docs
+# http://localhost:4173 — the docs site and playground
+bun run check:docs
+bun run precompute:docs   # after changing the library or the songs; bun run check:cache verifies
+```
+
+The [docs site](docs/index.html) re-arranges three accompaniment songs, each written in seven versions from baby to maestro, and an imported public-domain score for eight fretted instruments and every difficulty. It opens your own `.scorify.json` files and score sets, shows vocal pitches and lyrics under the tab, plays, pauses, resumes and loops the rendered accompaniment, explains the API and shows how to install. The usual configurations are precomputed and appear at once (replayed only after validation); a suggested capo can be toggled; Custom mode sets every arrangement option, re-computes, and exports, saves or imports the result. The local server automatically loads an optional private practice library from `work/private-scores/index.json`; its scores stay outside the static docs. A library entry can pair an imported score with a chord chart (`*.chart.json`), which plays strummed versions for every difficulty under the score's voice and words instead of adapting its piano part. [Building, checking and extending it](docs/DEMO.md) has the details.
+
+### Importing scores
+
+[`skill/`](skill/SKILL.md) holds `score-import`, a standalone agent skill and CLI (Python 3.9+, standard library) that finds scores on the web with CloakBrowser and converts MusicXML, MXL, ABC and MIDI into scorify Score JSON with lyrics and sung parts, recording where each file came from. `score.py bundle` packs several versions of one piece, each with its difficulty, into a score set. It honors robots.txt and stops at logins, paywalls and human checks. Its tests: `python3 -m unittest discover -s skill/tests`.
+
+The same skill works in Codex and Claude Code. To install for both on macOS/Linux, run from this checkout (the destination names must be unused):
+
+```sh
+mkdir -p "$HOME/.agents/skills" "$HOME/.claude/skills"
+ln -s "$PWD/skill" "$HOME/.agents/skills/score-import"
+ln -s "$PWD/skill" "$HOME/.claude/skills/score-import"
+```
+
+These links keep both installations current with this checkout; keep the checkout at this location. For an independent installation, copy the whole `skill/` directory to each destination instead. Invoke `$score-import` in Codex or `/score-import` in Claude Code, followed by the import request. Both also support automatic selection. Discovery locations and symlink support follow the [official OpenAI skill documentation](https://learn.chatgpt.com/docs/build-skills#where-codex-loads-local-skills) and [Claude Code skill documentation](https://code.claude.com/docs/en/skills#choose-where-skills-load).
+
+Use Bun 1.3.9 and Node 24. `pkgroll` builds ES2022 `.mjs`, declarations, source maps and third-party notices. `check` includes source typechecking, semantic tests, module-graph checks, and a real npm-tarball/declaration-consumer check. The browser check exercises native modules, the module worker, a live level change, actual audio playback and sample-exact worklet/offline parity at 44.1 and 48 kHz.
+
+Root exports cover the score/arrangement API; audio uses optional subpaths. Smaller subpaths are `model`, `theory`, `fretted`, `presets`, `profiles`, `transforms`, `analysis`, `quantize`, `fingering`, `arrange`, `validate`, `adapters`, `songs`, and `worker`. Optional subpaths are `performance`, `audio-dsp`, `audio-effects`, `audio-guide`, `audio`, `pitch-detect`, and `tuner`. `worker-entry.mjs`, `audio-worklet.mjs` and `pitch-worklet.mjs` are side-effect entries for their respective worker contexts.
+
+The package remains `private: true` until you choose to publish. After publication, native browser imports use an exact-version URL such as `https://unpkg.com/scorify@VERSION/dist/index.mjs`; all relative chunks must ship. Browser Worker URLs should be served from your app's origin. For CDN-only use, `arrangeAsync` works directly; bundle/self-host a worker bootstrap if your origin policy requires it.
+
+## Scope and evidence
+
+[Implementation contract](docs/IMPLEMENTATION_SPEC.md) · [Research](docs/RESEARCH.md) · [Validation](docs/VALIDATION.md) · [Benchmarks](docs/BENCHMARK.json) · [GitHub setup](REPOSITORY_SETUP.md)
+
+First-release limitations: ordinary 12-TET fretted notes; four ordered fretting fingers with a conservative fixed-contact barre model; simplified right-hand mechanics; explicitly supplied note roles; heuristic harmony and bounded known-map quantization. Advanced bends, harmonics, slides, finger substitution during a sustain, generated ornaments, audio/MIDI/MusicXML import, keyboard mechanics and learned difficulty models remain future work. Musician calibration and additional browser engines remain external validation work.
+
+MIT. Bundled dependencies retain their notices in `THIRD-PARTY-LICENSES.txt`.

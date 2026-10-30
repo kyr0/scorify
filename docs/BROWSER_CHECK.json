@@ -1,0 +1,62 @@
+{
+  "status": "passed",
+  "browser": "153.0.8010.0",
+  "requests": 34,
+  "result": {
+    "transposed": "E#4",
+    "positions": [
+      {
+        "stringId": "s4",
+        "stringNumber": 4,
+        "absoluteFret": 0,
+        "relativeFret": 0,
+        "effectiveOpen": true
+      },
+      {
+        "stringId": "s3",
+        "stringNumber": 3,
+        "absoluteFret": 7,
+        "relativeFret": 7,
+        "effectiveOpen": false
+      },
+      {
+        "stringId": "s2",
+        "stringNumber": 2,
+        "absoluteFret": 3,
+        "relativeFret": 3,
+        "effectiveOpen": false
+      }
+    ],
+    "chords": [
+      "CM",
+      "Em#5/C"
+    ],
+    "workerStatus": "success",
+    "workerOptimality": "proven-in-model",
+    "demo": {
+      "expertNotes": 23,
+      "babyNotes": 16
+    },
+    "audio": {
+      "parity": [
+        {
+          "sampleRate": 44100,
+          "maxError": 0,
+          "peak": 0.13783866167068481,
+          "startFrame": 777
+        },
+        {
+          "sampleRate": 48000,
+          "maxError": 0,
+          "peak": 0.12489039450883865,
+          "startFrame": 777
+        }
+      ],
+      "realtimePeak": 0.02677062526345253,
+      "stopReason": "stopped",
+      "replaced": "AbortError",
+      "disposeReason": "disposed",
+      "downloadBytes": 2238904
+    }
+  }
+}

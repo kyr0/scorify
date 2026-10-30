@@ -1,0 +1,8 @@
+node_modules/
+dist/
+coverage/
+*.tgz
+.DS_Store
+__pycache__/
+work/
+.playwright-mcp/

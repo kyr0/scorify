@@ -1,0 +1,1 @@
+{"version":3,"file":"validate.d.mts","sources":["../src/validate.ts"],"mappings":";;;;;;;AAgBA,yFAAyF;iBACzE,0BAA0B,CACxC,KAAK,EAAE,KAAK,EACZ,UAAU,EAAE,iBAAiB,EAC7B,WAAW,EAAE,SAAS,iBAAiB,EAAE,EACzC,MAAM,GAAE,aAAkB,GACzB;IAAE,QAAQ,CAAC,KAAK,EAAE,OAAO,CAAC;IAAC,QAAQ,CAAC,WAAW,EAAE,SAAS,MAAM,EAAE,CAAA;CAAE,CA0HtE;;","names":[]}

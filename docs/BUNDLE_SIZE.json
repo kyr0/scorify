@@ -1,0 +1,212 @@
+{
+  "status": "passed",
+  "sizes": [
+    {
+      "file": "adapters.mjs",
+      "bytes": 87,
+      "gzipBytes": 107
+    },
+    {
+      "file": "analysis.mjs",
+      "bytes": 2376,
+      "gzipBytes": 1299
+    },
+    {
+      "file": "arrange.mjs",
+      "bytes": 15223,
+      "gzipBytes": 5999
+    },
+    {
+      "file": "audio-dsp.mjs",
+      "bytes": 8811,
+      "gzipBytes": 3494
+    },
+    {
+      "file": "audio-worklet.mjs",
+      "bytes": 3085,
+      "gzipBytes": 1237
+    },
+    {
+      "file": "audio.mjs",
+      "bytes": 4281,
+      "gzipBytes": 1923
+    },
+    {
+      "file": "fingering.mjs",
+      "bytes": 8240,
+      "gzipBytes": 3204
+    },
+    {
+      "file": "fretted.mjs",
+      "bytes": 1559,
+      "gzipBytes": 771
+    },
+    {
+      "file": "index.mjs",
+      "bytes": 2398,
+      "gzipBytes": 956
+    },
+    {
+      "file": "model.mjs",
+      "bytes": 7710,
+      "gzipBytes": 2985
+    },
+    {
+      "file": "performance.mjs",
+      "bytes": 13220,
+      "gzipBytes": 5107
+    },
+    {
+      "file": "pitch-Dph21XzR.mjs",
+      "bytes": 4344,
+      "gzipBytes": 2079
+    },
+    {
+      "file": "presets.mjs",
+      "bytes": 980,
+      "gzipBytes": 567
+    },
+    {
+      "file": "profiles.mjs",
+      "bytes": 3930,
+      "gzipBytes": 1651
+    },
+    {
+      "file": "quantize.mjs",
+      "bytes": 3997,
+      "gzipBytes": 1892
+    },
+    {
+      "file": "theory.mjs",
+      "bytes": 7838,
+      "gzipBytes": 2977
+    },
+    {
+      "file": "time-CU78HbUD.mjs",
+      "bytes": 2807,
+      "gzipBytes": 1186
+    },
+    {
+      "file": "transforms.mjs",
+      "bytes": 2638,
+      "gzipBytes": 1132
+    },
+    {
+      "file": "types-FB297CeR.mjs",
+      "bytes": 1619,
+      "gzipBytes": 860
+    },
+    {
+      "file": "validate.mjs",
+      "bytes": 2202,
+      "gzipBytes": 1154
+    },
+    {
+      "file": "worker-entry.mjs",
+      "bytes": 453,
+      "gzipBytes": 255
+    },
+    {
+      "file": "worker.mjs",
+      "bytes": 3391,
+      "gzipBytes": 1552
+    }
+  ],
+  "entryGraphs": [
+    {
+      "subpath": ".",
+      "gzipBytes": 29511,
+      "files": 16
+    },
+    {
+      "subpath": "./theory",
+      "gzipBytes": 5056,
+      "files": 2
+    },
+    {
+      "subpath": "./fretted",
+      "gzipBytes": 2850,
+      "files": 2
+    },
+    {
+      "subpath": "./presets",
+      "gzipBytes": 3417,
+      "files": 3
+    },
+    {
+      "subpath": "./model",
+      "gzipBytes": 6250,
+      "files": 3
+    },
+    {
+      "subpath": "./transforms",
+      "gzipBytes": 7382,
+      "files": 4
+    },
+    {
+      "subpath": "./profiles",
+      "gzipBytes": 2837,
+      "files": 2
+    },
+    {
+      "subpath": "./analysis",
+      "gzipBytes": 10526,
+      "files": 5
+    },
+    {
+      "subpath": "./quantize",
+      "gzipBytes": 8142,
+      "files": 4
+    },
+    {
+      "subpath": "./adapters",
+      "gzipBytes": 107,
+      "files": 1
+    },
+    {
+      "subpath": "./fingering",
+      "gzipBytes": 10225,
+      "files": 5
+    },
+    {
+      "subpath": "./arrange",
+      "gzipBytes": 24437,
+      "files": 11
+    },
+    {
+      "subpath": "./worker",
+      "gzipBytes": 25989,
+      "files": 12
+    },
+    {
+      "subpath": "./worker-entry",
+      "gzipBytes": 26244,
+      "files": 13
+    },
+    {
+      "subpath": "./validate",
+      "gzipBytes": 13030,
+      "files": 7
+    },
+    {
+      "subpath": "./performance",
+      "gzipBytes": 18997,
+      "files": 9
+    },
+    {
+      "subpath": "./audio",
+      "gzipBytes": 24414,
+      "files": 11
+    },
+    {
+      "subpath": "./audio-dsp",
+      "gzipBytes": 4354,
+      "files": 2
+    },
+    {
+      "subpath": "./audio-worklet",
+      "gzipBytes": 5591,
+      "files": 3
+    }
+  ]
+}

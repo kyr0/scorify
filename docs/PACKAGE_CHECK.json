@@ -1,0 +1,14 @@
+{
+  "status": "passed",
+  "fileCount": 90,
+  "packedBytes": 164338,
+  "unpackedBytes": 559118,
+  "checks": [
+    "all exports and declarations present",
+    "byte-identical distribution",
+    "packed runtime arrangement",
+    "packed performance synthesis and WAV",
+    "public declaration consumer with Worker and AudioContext compatibility",
+    "third-party notices"
+  ]
+}

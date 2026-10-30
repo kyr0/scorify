@@ -1,0 +1,574 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Scorify · arrangements & plucked strings</title>
+    <style>
+      :root {
+        color-scheme: dark;
+        font: 16px/1.5 system-ui;
+        background: #10151c;
+        color: #e6edf3;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        max-width: 1080px;
+        margin: auto;
+        padding: 40px 24px;
+      }
+      h1 {
+        font-size: 40px;
+        letter-spacing: -1.5px;
+        margin: 0;
+      }
+      p {
+        color: #aab8c9;
+        max-width: 780px;
+      }
+      .tag {
+        color: #6ee7b7;
+        font-size: 13px;
+        letter-spacing: 2px;
+      }
+      section {
+        background: #19222e;
+        border: 1px solid #2c3949;
+        border-radius: 14px;
+        padding: 24px;
+        margin: 24px 0;
+      }
+      .controls {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+        gap: 18px;
+      }
+      label {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        font-size: 14px;
+      }
+      select,
+      input,
+      button {
+        background: #111923;
+        color: inherit;
+        border: 1px solid #40516a;
+        border-radius: 7px;
+        padding: 10px;
+        font: inherit;
+      }
+      button {
+        cursor: pointer;
+        background: #145b48;
+        border-color: #23866b;
+      }
+      button:hover {
+        background: #1b725a;
+      }
+      code,
+      pre {
+        font:
+          13px/1.7 ui-monospace,
+          monospace;
+      }
+      pre {
+        white-space: pre-wrap;
+        overflow: auto;
+        background: #10151c;
+        padding: 18px;
+        border-radius: 8px;
+      }
+      table {
+        border-collapse: collapse;
+        width: 100%;
+        font-size: 14px;
+      }
+      td,
+      th {
+        text-align: left;
+        border-bottom: 1px solid #304054;
+        padding: 9px;
+      }
+      output {
+        display: block;
+        color: #6ee7b7;
+        min-height: 26px;
+      }
+      summary {
+        cursor: pointer;
+      }
+      a {
+        color: #6ee7b7;
+      }
+      audio {
+        width: 100%;
+        min-width: 0;
+      }
+      button:disabled {
+        opacity: 0.45;
+        cursor: default;
+      }
+      .small {
+        font-size: 13px;
+      }
+      .scroll {
+        overflow: auto;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="tag">SCORIFY / VANILLA ESM</div>
+    <h1>The music, within reach.</h1>
+    <p>
+      Transpose an original short study, change the instrument, and recompute an
+      arrangement from the unchanged source. A dedicated worker searches
+      fingerings and permitted edits.
+    </p>
+    <section>
+      <div class="controls">
+        <label
+          >Instrument<select id="instrument">
+            <option value="highG">Concert ukulele · high G</option>
+            <option value="lowG">Concert ukulele · low G</option>
+            <option value="guitar">Classical guitar</option>
+          </select></label
+        >
+        <label
+          >Player level<select id="level">
+            <option>baby</option>
+            <option>beginner</option>
+            <option>amateur</option>
+            <option>semi-pro</option>
+            <option>pro</option>
+            <option selected>expert</option>
+            <option>maestro</option>
+          </select></label
+        >
+        <label
+          >Transposition<select id="interval">
+            <option value="1P">Original key · C</option>
+            <option value="2M">Up major second · D</option>
+            <option value="3M">Up major third · E</option>
+            <option value="4P">Up perfect fourth · F</option>
+            <option value="5P">Up perfect fifth · G</option>
+          </select></label
+        >
+        <label
+          >Tempo · quarter BPM<input
+            id="tempo"
+            type="number"
+            value="80"
+            min="20"
+            max="240"
+        /></label>
+      </div>
+      <p class="small">
+        Melody anchors stay. Marked ornaments and accompaniment may be omitted;
+        octave shifts and earlier releases are permitted. Level limits are
+        editable policies, awaiting musician calibration.
+      </p>
+      <button id="recompute">Recompute</button>
+      <button id="cancel">Cancel</button
+      ><output id="status" aria-live="polite">Loading…</output>
+    </section>
+    <section>
+      <h2>Hear the arrangement</h2>
+      <div class="controls">
+        <label
+          >Technique<select id="technique">
+            <option value="pluck">Individual plucks</option>
+            <option value="down">Down strums</option>
+            <option value="up">Up strums</option>
+            <option value="alternate">Alternating strums</option>
+            <option value="muted">Muted strums</option>
+          </select></label
+        >
+        <label
+          >Strum spread · ms<input
+            id="spread"
+            type="number"
+            min="0"
+            max="150"
+            value="40"
+        /></label>
+        <label
+          >Humanization<input
+            id="humanize"
+            type="range"
+            min="0"
+            max="1"
+            step="0.05"
+            value="0.5"
+        /></label>
+        <label>Repeatable seed<input id="seed" value="scorify-02" /></label>
+      </div>
+      <p class="small">
+        Small variations in timing, touch and string excitation soften repeated
+        attacks. Timings are checked against the selected fingering; note
+        durations stay intact. A rejected strum needs a different fingering or
+        an explicit earlier release.
+      </p>
+      <button id="play" disabled>Play</button> <button id="stop">Stop</button>
+      <button id="reroll">New seed</button>
+      <button id="wav" disabled>Download WAV</button>
+      <output id="audio-status" aria-live="polite"
+        >Arrange a score to hear it.</output
+      >
+    </section>
+    <section>
+      <h2>Four original strum studies</h2>
+      <p class="small">
+        Compare straight and humanized synthesis. Both retain the intended sweep
+        between strings. These short files can be regenerated from the included
+        source.
+      </p>
+      <div class="controls">
+        <label
+          >Ukulele · straight<audio
+            controls
+            preload="none"
+            src="../audio/ukulele-straight.wav"
+          ></audio
+        ></label>
+        <label
+          >Ukulele · humanized<audio
+            controls
+            preload="none"
+            src="../audio/ukulele-humanized.wav"
+          ></audio
+        ></label>
+        <label
+          >Guitar · straight<audio
+            controls
+            preload="none"
+            src="../audio/guitar-straight.wav"
+          ></audio
+        ></label>
+        <label
+          >Guitar · humanized<audio
+            controls
+            preload="none"
+            src="../audio/guitar-humanized.wav"
+          ></audio
+        ></label>
+      </div>
+    </section>
+    <section>
+      <h2>Arrangement</h2>
+      <div id="summary"></div>
+      <div class="scroll">
+        <table>
+          <thead>
+            <tr>
+              <th>Quarter</th>
+              <th>Notes</th>
+              <th>String : fret (finger)</th>
+              <th>Chord candidates</th>
+            </tr>
+          </thead>
+          <tbody id="events"></tbody>
+        </table>
+      </div>
+      <details>
+        <summary>Full result and edit provenance</summary>
+        <pre id="result"></pre>
+      </details>
+    </section>
+    <p class="small">
+      Vanilla ESM with an optional AudioWorklet. Serve over localhost or HTTPS;
+      playback starts only after you press Play. Synthetic timbres, without
+      samples.
+    </p>
+    <script type="module">
+      import {
+        createScore,
+        parsePitch,
+        q,
+        concertUkulele,
+        classicalGuitar,
+        arrange,
+        createWorkerClient,
+        pitchString,
+        transposePitch,
+        enumeratePositions,
+        chordCandidates,
+      } from "../../dist/index.mjs";
+      import {
+        createPerformance,
+        createAudioPlayer,
+        renderPerformance,
+        encodeWav,
+      } from "../../dist/audio.mjs";
+      const melody = ["C4", "E4", "G4", "A4", "G4", "E4", "D4", "C4"];
+      const notes = melody.map((pitch, i) => ({
+        id: `m${i}`,
+        pitch: parsePitch(pitch),
+        onset: q(i * 2),
+        duration: q(1),
+        partId: "study",
+        voiceId: "melody",
+        role: "melody",
+        locked: { keep: true },
+      }));
+      for (let i = 0; i < 8; i++) {
+        notes.push({
+          id: `h${i}`,
+          pitch: parsePitch(i % 2 ? "E4" : "G4"),
+          onset: q(i * 2),
+          duration: q(1),
+          partId: "study",
+          voiceId: "harmony",
+          role: "harmony",
+        });
+        notes.push({
+          id: `o${i}`,
+          pitch: parsePitch(i % 2 ? "F4" : "D4"),
+          onset: q(i * 2 + 1),
+          duration: q(1, 2),
+          partId: "study",
+          voiceId: "melody",
+          role: "ornament",
+        });
+      }
+      const source = createScore(notes, {
+        tempoMap: [{ at: q(0), quarterBpm: 80 }],
+        keyMap: [{ at: q(0), tonic: "C", mode: "major" }],
+      });
+      const worker = new Worker(
+          new URL("../../dist/worker-entry.mjs", import.meta.url),
+          { type: "module" },
+        ),
+        client = createWorkerClient(worker);
+      const $ = (id) => document.getElementById(id);
+      let request = 0,
+        currentInstrument,
+        audioContext,
+        player,
+        audioGeneration = 0;
+      function stopAudio() {
+        audioGeneration++;
+        player?.stop();
+      }
+      function compileAudio() {
+        stopAudio();
+        const result = globalThis.scorifyArrangement;
+        if (result?.status !== "success") return;
+        const technique = $("technique").value,
+          spreadSeconds = Number($("spread").value) / 1000;
+        const options = {
+          seed: $("seed").value,
+          humanize: Number($("humanize").value),
+          strum:
+            technique === "pluck"
+              ? false
+              : {
+                  direction: technique === "up" ? "up" : "down",
+                  spreadSeconds,
+                  muted: technique === "muted",
+                },
+        };
+        if (technique === "alternate") {
+          const groups = result.annotations.filter((a) => a.attackIds.length);
+          options.strokes = groups.map((a, i) => ({
+            id: `stroke-${i}`,
+            at: a.at,
+            direction: i % 2 ? "up" : "down",
+            spreadSeconds,
+          }));
+        }
+        const performanceResult = createPerformance(
+          result,
+          currentInstrument,
+          options,
+        );
+        globalThis.scorifyPerformance = performanceResult;
+        $("play").disabled = $("wav").disabled =
+          performanceResult.status !== "success";
+        $("audio-status").textContent =
+          performanceResult.status === "success"
+            ? `${performanceResult.performance.events.length} plucks · ${Math.round(Number($("humanize").value) * 100)}% humanization · ${performanceResult.performance.diagnostics.join("; ") || "timings validated"}`
+            : `${performanceResult.status}: ${performanceResult.diagnostics.join("; ")}`;
+      }
+      $("play").addEventListener("click", async () => {
+        const generation = ++audioGeneration;
+        try {
+          audioContext ??= new AudioContext();
+          await audioContext.resume(); // Resume inside the user-gesture handler.
+          player ??= await createAudioPlayer(audioContext);
+          if (generation !== audioGeneration) return;
+          const handle = await player.play(
+            globalThis.scorifyPerformance.performance,
+          );
+          if (generation !== audioGeneration) return;
+          $("audio-status").textContent = "Playing…";
+          globalThis.scorifyPlayback = {
+            id: handle.id,
+            state: "playing",
+            startTime: handle.startTime,
+          };
+          const end = await handle.finished;
+          if (generation === audioGeneration) {
+            $("audio-status").textContent = end.reason;
+            globalThis.scorifyPlayback.state = end.reason;
+          }
+        } catch (error) {
+          if (generation === audioGeneration)
+            $("audio-status").textContent = error.message;
+        }
+      });
+      $("stop").addEventListener("click", () => {
+        stopAudio();
+        $("audio-status").textContent = "Stopped";
+        if (globalThis.scorifyPlayback)
+          globalThis.scorifyPlayback.state = "stopped";
+      });
+      for (const id of ["technique", "spread", "humanize", "seed"])
+        $(id).addEventListener("change", compileAudio);
+      $("reroll").addEventListener("click", () => {
+        $("seed").value = String(crypto.getRandomValues(new Uint32Array(1))[0]);
+        compileAudio();
+      });
+      $("wav").addEventListener("click", () => {
+        try {
+          const plan = globalThis.scorifyPerformance.performance;
+          const wav = encodeWav(
+            renderPerformance(plan, { preset: plan.preset }),
+          );
+          const url = URL.createObjectURL(
+              new Blob([wav], { type: "audio/wav" }),
+            ),
+            link = document.createElement("a");
+          link.href = url;
+          link.download = "scorify-performance.wav";
+          link.click();
+          setTimeout(() => URL.revokeObjectURL(url), 10000);
+          $("audio-status").textContent =
+            "WAV rendered with the same seed and synthesis engine.";
+        } catch (error) {
+          $("audio-status").textContent = error.message;
+        }
+      });
+      window.addEventListener("pagehide", () => {
+        player?.dispose();
+        audioContext?.close();
+        client.dispose();
+      });
+      async function recompute() {
+        stopAudio();
+        $("play").disabled = $("wav").disabled = true;
+        globalThis.scorifyArrangement = undefined;
+        globalThis.scorifyPerformance = undefined;
+        const current = ++request,
+          instrument =
+            $("instrument").value === "guitar"
+              ? classicalGuitar()
+              : concertUkulele({ tuning: $("instrument").value });
+        currentInstrument = instrument;
+        $("status").textContent = "Searching…";
+        const start = performance.now();
+        const result = await client.arrange(
+          source,
+          {
+            instrument,
+            mode: "adaptive",
+            transform: {
+              interval: $("interval").value,
+              quarterBpm: Number($("tempo").value),
+            },
+            player: { level: $("level").value },
+            adaptation: {
+              allowOctaveShift: true,
+              allowAccompanimentOmission: true,
+              allowHoldShortening: true,
+            },
+            search: {
+              beamWidth: 24,
+              maxCandidatesPerFrame: 48,
+              maxExpandedStates: 300000,
+            },
+          },
+          (progress) => {
+            if (current === request)
+              $("status").textContent =
+                `Searching frame ${progress.frame + 1}/${progress.frames} · ${progress.expandedStates.toLocaleString()} expansions`;
+          },
+        );
+        if (current !== request) return;
+        globalThis.scorifyArrangement = result;
+        $("result").textContent = JSON.stringify(result, null, 2);
+        $("events").replaceChildren();
+        $("summary").textContent = "";
+        if (result.status !== "success") {
+          $("status").textContent =
+            `${result.status}: ${result.diagnostics.join("; ")}`;
+          return;
+        }
+        compileAudio();
+        $("status").textContent =
+          `${result.score.notes.length} notes · ${result.edits.filter((e) => e.kind !== "tempo" && e.kind !== "transpose").length} adaptation edits · ${result.optimality} · ${Math.round(performance.now() - start)} ms`;
+        $("summary").textContent =
+          `Max fret span: ${result.difficulty.maxFretSpan} · Ornament retention: ${Math.round(result.difficulty.ornamentRetention * 100)}% · Cost: ${result.cost.total.toFixed(2)}`;
+        for (const a of result.annotations.filter((a) => a.attackIds.length)) {
+          const row = document.createElement("tr"),
+            active = result.score.notes.filter((n) =>
+              a.attackIds.includes(n.id),
+            ),
+            h = result.realizedHarmony.find(
+              (h) =>
+                h.onset[0] / h.onset[1] <= a.at[0] / a.at[1] &&
+                h.end[0] / h.end[1] > a.at[0] / a.at[1],
+            );
+          for (const value of [
+            a.at.join("/"),
+            active.map((n) => pitchString(n.pitch)).join(" "),
+            a.assignments
+              .filter((n) => a.attackIds.includes(n.id))
+              .map(
+                (n) =>
+                  `${n.stringNumber}:${n.relativeFret} (${n.finger || "open"})`,
+              )
+              .join(" · "),
+            h?.selected ??
+              h?.candidates.map((c) => c.symbol).join(" / ") ??
+              "unknown",
+          ]) {
+            const cell = document.createElement("td");
+            cell.textContent = value;
+            row.append(cell);
+          }
+          $("events").append(row);
+        }
+      }
+      $("recompute").addEventListener("click", recompute);
+      $("cancel").addEventListener("click", () => client.cancel());
+      for (const id of ["instrument", "level", "interval", "tempo"])
+        $(id).addEventListener("change", recompute);
+      const probeScore = createScore([
+        {
+          id: "c",
+          pitch: parsePitch("C4"),
+          onset: q(0),
+          duration: q(1),
+          partId: "p",
+          voiceId: "v",
+        },
+      ]);
+      const workerProbe = await client.arrange(probeScore, {
+        instrument: concertUkulele(),
+        search: { strategy: "exact" },
+      });
+      globalThis.scorifyProbe = {
+        transposed: transposePitch("C#4", "3M"),
+        positions: enumeratePositions("G4", concertUkulele()),
+        chords: chordCandidates(["C4", "E4", "G4"]),
+        workerStatus: workerProbe.status,
+        workerOptimality: workerProbe.optimality,
+      };
+      await recompute();
+    </script>
+  </body>
+</html>

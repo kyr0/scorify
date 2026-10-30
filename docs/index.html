@@ -1,0 +1,803 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>scorify · instrument-aware arrangement for ukulele and guitar</title>
+  <meta name="description" content="Turn a score into something your hands can play. scorify finds validated ukulele and guitar fingerings for every note, keeps exact musical time, and plays the result with plucked-string synthesis. Native ESM, no runtime dependencies.">
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+  <script>
+    // Before paint: the saved choice (shared with other defuss-shadcn pages), else the OS default.
+    let saved = '';
+    try {
+      const raw = JSON.parse(localStorage.getItem('defuss-shadcn-theme'));
+      saved = raw && raw.format === 'defuss-store' ? raw.value : raw;
+    } catch {}
+    if (saved === 'dark' || (!saved && matchMedia('(prefers-color-scheme: dark)').matches)) {
+      document.documentElement.classList.add('dark');
+      document.documentElement.style.colorScheme = 'dark';
+    }
+  </script>
+  <!-- defuss-shadcn v0.9.11 (the first release with the Fretboard components) from jsDelivr, pinned by Subresource Integrity. -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/kyr0/defuss-shadcn@v0.9.11/dist/components/core.min.css" integrity="sha384-qUQCm/MM2DNkdT3uEdx8Mpocj+GwXlgLat0FnWv657c16tHWOouZFT2nV7kg5pBE" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/kyr0/defuss-shadcn@v0.9.11/dist/theme/utils/shapes.min.css" integrity="sha384-ZmqJOMYRZyhvc1zR5eOVub6RQoBcnL3oe8ubon6JcjkLJK/0Fy3THAhfLP8K3C71" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/kyr0/defuss-shadcn@v0.9.11/dist/components/all.min.css" integrity="sha384-D6ChEYfIRnfJpWB03vSS4b4b1ZdHsnCNUwg2VBFrBkjDVHIVvdVDXaJ1M2hFAdK2" crossorigin="anonymous">
+  <link rel="stylesheet" href="assets/site.css">
+  <link rel="modulepreload" href="assets/scorify/index.mjs">
+</head>
+<body>
+<svg class="sr-only" aria-hidden="true">
+  <symbol id="i-logo" viewBox="0 0 24 24"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></symbol>
+  <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2m-7.07-17.07 1.41 1.41m11.32 11.32 1.41 1.41M2 12h2m16 0h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></symbol>
+  <symbol id="i-moon" viewBox="0 0 24 24"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></symbol>
+  <symbol id="i-menu" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/></symbol>
+  <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M5 12h14m-7-7 7 7-7 7"/></symbol>
+  <symbol id="i-arrow-up" viewBox="0 0 24 24"><path d="m5 12 7-7 7 7M12 19V5"/></symbol>
+  <symbol id="i-external" viewBox="0 0 24 24"><path d="M7 7h10v10M7 17 17 7"/></symbol>
+  <symbol id="i-github" viewBox="0 0 24 24"><path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.4 5.4 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"/><path d="M9 18c-4.51 2-5-2-7-2"/></symbol>
+  <symbol id="i-linkedin" viewBox="0 0 24 24"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-4 0v7h-4v-7a6 6 0 0 1 6-6zM2 9h4v12H2z"/><circle cx="4" cy="4" r="2"/></symbol>
+  <symbol id="i-copy" viewBox="0 0 24 24"><rect width="14" height="14" x="8" y="8" rx="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></symbol>
+  <symbol id="i-play" viewBox="0 0 24 24"><path d="M6 3l14 9-14 9z"/></symbol>
+  <symbol id="i-mic" viewBox="0 0 24 24"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10v1a7 7 0 0 0 14 0v-1"/><path d="M12 18v4"/></symbol>
+  <symbol id="i-stop" viewBox="0 0 24 24"><rect x="5" y="5" width="14" height="14" rx="2"/></symbol>
+  <symbol id="i-print" viewBox="0 0 24 24"><path d="M6 9V3h12v6M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="7" rx="1"/></symbol>
+  <symbol id="i-repeat" viewBox="0 0 24 24"><path d="m17 2 4 4-4 4M3 11v-1a4 4 0 0 1 4-4h14M7 22l-4-4 4-4m14-1v1a4 4 0 0 1-4 4H3"/></symbol>
+  <symbol id="i-once" viewBox="0 0 24 24"><path d="M3 12h14m-6 6 6-6-6-6m10-1v14"/></symbol>
+  <symbol id="i-download" viewBox="0 0 24 24"><path d="M12 3v12m-5-5 5 5 5-5M4 17v3a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-3"/></symbol>
+  <symbol id="i-zoom-in" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3M11 8v6M8 11h6"/></symbol>
+  <symbol id="i-zoom-out" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3M8 11h6"/></symbol>
+  <symbol id="i-terminal" viewBox="0 0 24 24"><path d="m4 17 6-6-6-6m8 14h8"/></symbol>
+  <symbol id="i-package" viewBox="0 0 24 24"><path d="M11 21.73a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73z"/><path d="M12 22V12m0 0 8.7-5M12 12 3.3 7"/></symbol>
+  <symbol id="i-globe" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20M2 12h20"/></symbol>
+  <symbol id="i-file" viewBox="0 0 24 24"><path d="M10 12.5 8 15l2 2.5m4-5 2 2.5-2 2.5M14 2v4a2 2 0 0 0 2 2h4"/><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7z"/></symbol>
+  <symbol id="i-bot" viewBox="0 0 24 24"><path d="M12 8V4H8"/><rect width="16" height="12" x="4" y="8" rx="2"/><path d="M2 14h2m16 0h2m-7-1v2m-6-2v2"/></symbol>
+  <symbol id="i-alert" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 8v4m0 4h.01"/></symbol>
+  <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4m0-4h.01"/></symbol>
+</svg>
+
+<div id="top" class="sc-page">
+  <header class="mk-header" data-variant="floating">
+    <div class="mk-header-inner">
+      <a href="#top" class="mk-header-brand"><svg class="sc-icon sc-brand-icon" aria-hidden="true"><use href="#i-logo"/></svg><span class="mk-header-name">scorify</span></a>
+      <nav class="mk-header-nav" aria-label="Main">
+        <ul class="nav-menu-list">
+          <li class="nav-menu-item"><a class="nav-menu-link" href="#demo">Playground</a></li>
+          <li class="nav-menu-item"><a class="nav-menu-link" href="#how">How it works</a></li>
+          <li class="nav-menu-item"><a class="nav-menu-link" href="#api">API</a></li>
+          <li class="nav-menu-item"><a class="nav-menu-link" href="#install">Install</a></li>
+        </ul>
+      </nav>
+      <div class="mk-header-actions">
+        <label class="swap" data-variant="rotate" data-size="sm">
+          <input type="checkbox" id="theme-toggle" aria-label="Dark mode">
+          <span class="swap-on"><svg class="sc-icon" aria-hidden="true"><use href="#i-moon"/></svg></span>
+          <span class="swap-off"><svg class="sc-icon" aria-hidden="true"><use href="#i-sun"/></svg></span>
+        </label>
+        <a class="btn mk-header-wide" data-variant="ghost" data-size="icon" href="https://github.com/kyr0/scorify" aria-label="scorify on GitHub"><svg class="sc-icon" aria-hidden="true"><use href="#i-github"/></svg></a>
+        <a class="btn mk-header-wide" data-size="sm" href="#install">Install</a>
+        <button type="button" class="btn mk-header-menu" data-variant="ghost" data-size="icon" data-sheet-trigger="sc-menu" aria-haspopup="dialog" aria-label="Open menu"><svg class="sc-icon" aria-hidden="true"><use href="#i-menu"/></svg></button>
+      </div>
+    </div>
+    <dialog id="sc-menu" class="sheet" data-side="right" role="dialog" aria-modal="true" aria-labelledby="sc-menu-title">
+      <div class="sheet-content">
+        <div class="sheet-header">
+          <h2 class="sheet-title" id="sc-menu-title">scorify</h2>
+        </div>
+        <div class="sheet-body">
+          <p class="mk-header-sheet-label">This page</p>
+          <ul class="mk-header-sheet-nav">
+            <li><a href="#demo" data-sheet-close>Playground <small>Four pieces on eight instruments</small></a></li>
+            <li><a href="#how" data-sheet-close>How it works</a></li>
+            <li><a href="#api" data-sheet-close>API</a></li>
+            <li><a href="#install" data-sheet-close>Install</a></li>
+          </ul>
+        </div>
+        <div class="sheet-footer mk-header-sheet-actions">
+          <a class="btn" data-variant="outline" href="https://github.com/kyr0/scorify"><svg class="sc-icon" aria-hidden="true"><use href="#i-github"/></svg>GitHub</a>
+        </div>
+      </div>
+    </dialog>
+  </header>
+
+  <main class="sc-main">
+
+  <section class="parallax" aria-label="Introduction" style="padding-block:clamp(4rem, 10vw, 7rem) 1rem">
+    <div class="parallax-layer" data-depth="far" aria-hidden="true">
+      <div class="pattern-grid" style="width:100%;height:100%;--shape-ink:color-mix(in oklch, var(--foreground) 7%, transparent);--shape-pattern:32px;mask-image:radial-gradient(55% 60% at 50% 45%, #000, transparent 75%)"></div>
+    </div>
+    <div class="parallax-layer" data-depth="mid" aria-hidden="true" style="--parallax-speed:22%;mask-image:linear-gradient(#000 55%, transparent 92%)">
+      <div class="corner-blob" style="position:absolute;inset-block-start:10%;inset-inline-start:8%;width:min(22rem, 45%);aspect-ratio:1;background:color-mix(in oklch, var(--chart-1) 45%, transparent);filter:blur(60px);opacity:.55"></div>
+      <div class="corner-blob-3" style="position:absolute;inset-block-start:28%;inset-inline-end:6%;width:min(18rem, 40%);aspect-ratio:1;background:color-mix(in oklch, var(--chart-4) 40%, transparent);filter:blur(60px);opacity:.5"></div>
+    </div>
+    <div class="parallax-content">
+      <section class="mk-hero" style="width:100%">
+        <div class="mk-hero-copy">
+          <a class="mk-hero-pill" href="#install"><span class="badge" data-variant="default" data-size="sm">v0.3.0</span>Native ESM · no runtime dependencies · ukulele &amp; guitar<svg class="sc-icon" aria-hidden="true"><use href="#i-arrow"/></svg></a>
+          <h1 class="mk-hero-title">Turn a score into music <strong>your hands can play</strong></h1>
+          <p class="sc-flip"><span class="text-rotate"><span>
+              <span class="sc-accent">on a high-G ukulele</span>
+              <span class="sc-accent">on a six-string guitar</span>
+              <span class="sc-accent">without dropping a note</span>
+              <span class="sc-accent">at the tempo you choose</span>
+              <span class="sc-accent">for the player you are</span>
+          </span></span></p>
+          <p class="mk-hero-desc"><code>scorify</code> finds <strong>a string, a fret and a finger</strong> for every note of a score, and checks every result again before returning it. It keeps sounding pitch, note spelling and exact musical time. When a tune can't be played under the limits you set, it tells you whether it <strong>proved that</strong> or <strong>ran out of search budget</strong>. Then it can strum and play the result with a plucked-string synthesizer.</p>
+          <div class="mk-hero-actions">
+            <a class="btn" data-size="lg" href="#demo">Play a song<svg class="sc-icon" aria-hidden="true"><use href="#i-arrow"/></svg></a>
+            <a class="btn" data-variant="outline" data-size="lg" href="#install">Install</a>
+          </div>
+          <p class="mk-hero-note">Built by <a href="https://www.linkedin.com/in/aronhomberg/" target="_blank" rel="noopener">Aron Homberg (kyr0)<svg class="sc-icon sc-ext" aria-hidden="true"><use href="#i-external"/></svg><span class="sr-only"> (opens in a new tab)</span></a></p>
+        </div>
+      </section>
+      <div class="sc-intro" id="intro">
+        <section class="sc-intro-item" aria-labelledby="intro-1">
+          <span class="sc-intro-icon" aria-hidden="true">🎼</span>
+          <h3 id="intro-1">Exact musical time</h3>
+          <p>Onsets and durations are <strong>rational quarter notes</strong>, so <code>q(1, 3)</code> is an exact triplet. Rests, ties, holds, tempo, meter and key maps all keep their source identities.</p>
+        </section>
+        <section class="sc-intro-item" aria-labelledby="intro-2">
+          <span class="sc-intro-icon" aria-hidden="true">🖐️</span>
+          <h3 id="intro-2">Fingerings, not just frets</h3>
+          <p>Four fretting fingers, open strings, barres, held notes and hand shifts. A pitch that fits on a string <strong>is not yet a playable fingering</strong>, so scorify checks both.</p>
+        </section>
+        <section class="sc-intro-item" aria-labelledby="intro-3">
+          <span class="sc-intro-icon" aria-hidden="true">🎚️</span>
+          <h3 id="intro-3">Editable difficulty levels</h3>
+          <p>Seven levels, from <em>baby</em> to <em>maestro</em>, set limits on fret span, shift speed, attacks per second and barres. You can override each limit.</p>
+        </section>
+        <section class="sc-intro-item" aria-labelledby="intro-4">
+          <span class="sc-intro-icon" aria-hidden="true">⚖️</span>
+          <h3 id="intro-4">Honest results</h3>
+          <p><code>infeasible</code> means the search <strong>proved</strong> there is no solution within the model. <code>search-exhausted</code> means it ran out of budget first. <code>optimality</code> says whether the result is proven best or only the best one found.</p>
+        </section>
+        <section class="sc-intro-item" aria-labelledby="intro-5">
+          <span class="sc-intro-icon" aria-hidden="true">🪕</span>
+          <h3 id="intro-5">Plucked-string sound</h3>
+          <p>Optional waveguide synthesis with seeded humanization and strums in physical string order, including high-G. Plays through an AudioWorklet or <strong>renders offline to WAV</strong>.</p>
+        </section>
+        <section class="sc-intro-item" aria-labelledby="intro-6">
+          <span class="sc-intro-icon" aria-hidden="true">🧩</span>
+          <h3 id="intro-6">Plain modules</h3>
+          <p>TypeScript source, browser-native ESM and explicit subpath exports. The core has no DOM. Searches can run in a <strong>module worker</strong>, and starting a new search cancels the previous one.</p>
+        </section>
+      </div>
+    </div>
+  </section>
+
+  <div class="sc-flythrough">
+    <section class="parallax" data-sticky style="--parallax-length:2" aria-label="Keep, find, hear">
+      <div class="parallax-stage" style="background:radial-gradient(circle at 50% 50%, color-mix(in oklch, var(--chart-1) 55%, #070512), #070512 72%);color:#fff;border-radius:var(--radius-xl)">
+        <div class="parallax-layer" data-motion="zoom fade" style="--parallax-scale:6"><svg viewBox="0 0 400 400" preserveAspectRatio="xMidYMid meet" aria-hidden="true"><g fill="none" stroke="#ffd58a" stroke-width="1" opacity=".6"><rect x="90" y="150" width="220" height="100" rx="6"/><path d="M90 166h220M90 183h220M90 200h220M90 217h220M90 234h220M134 150v100M178 150v100M222 150v100M266 150v100"/></g><g fill="#ffd58a" opacity=".8"><circle cx="156" cy="183" r="5"/><circle cx="200" cy="217" r="5"/><circle cx="244" cy="200" r="5"/></g></svg></div>
+        <div class="parallax-layer" data-motion="pass" style="animation-range:contain 0% contain 40%;z-index:1"><p class="sc-fly-word">Keep every note.</p></div>
+        <div class="parallax-layer" data-motion="pass" style="animation-range:contain 30% contain 70%;z-index:2"><p class="sc-fly-word">Find every finger.</p></div>
+        <div class="parallax-layer" data-motion="pass" style="animation-range:contain 60% contain 100%;z-index:3"><p class="sc-fly-word">Hear every string.</p></div>
+        <div class="parallax-layer" data-motion="spin" style="--parallax-turn:180deg;--parallax-speed:0%;z-index:-1;opacity:.25"><svg viewBox="0 0 400 400" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><g fill="none" stroke="#fff" stroke-width=".6"><circle cx="200" cy="200" r="70"/><circle cx="200" cy="200" r="86"/><circle cx="200" cy="200" r="92"/><path d="M200 200 460 200M200 200 425.2 330M200 200 330 425.2M200 200 200 460M200 200 70 425.2M200 200-25.2 330M200 200-60 200M200 200-25.2 70M200 200 70-25.2M200 200 200-60M200 200 330-25.2M200 200 425.2 70"/></g></svg></div>
+      </div>
+    </section>
+  </div>
+
+  <section id="demo" class="container sc-section parallax-reveal" data-reveal="zoom" aria-labelledby="demo-title">
+    <header class="mk-section-header" data-align="center">
+      <div class="mk-section-header-copy">
+        <span class="mk-section-header-eyebrow">Live playground</span>
+        <h2 class="mk-section-header-title" id="demo-title">🎸 Seven difficulties, eight instruments</h2>
+        <p class="mk-section-header-desc">Pick a song, an instrument and a difficulty. The sample accompaniments have seven versions, from <em>baby</em> to <em>maestro</em>; imported scores use their available editions and show vocal pitches and lyrics when present. scorify fingers the accompaniment for the chosen instrument (concert ukulele with high or low G, baritone ukulele, guitar in standard or drop D, 7- and 8-string guitar, mandolin) and checks that it plays.</p>
+      </div>
+    </header>
+
+    <div class="sc-songs" role="group" aria-label="Demo songs">
+      <button type="button" class="sc-song" data-song="rainbow" aria-pressed="true">
+        <span class="sc-song-art" data-art="rainbow" aria-hidden="true">🌈</span>
+        <span class="sc-song-copy">
+          <span class="sc-song-kind">Song · 4/4</span>
+          <strong class="sc-song-title">Somewhere Over the Rainbow</strong>
+          <span class="sc-song-credit">Harold Arlen · E. Y. Harburg</span>
+          <span class="sc-song-meta">7 versions · C major · 80 BPM</span>
+        </span>
+      </button>
+      <button type="button" class="sc-song" data-song="wicked" aria-pressed="false">
+        <span class="sc-song-art" data-art="wicked" aria-hidden="true">🌙</span>
+        <span class="sc-song-copy">
+          <span class="sc-song-kind">Song · 4/4</span>
+          <strong class="sc-song-title">Wicked Game</strong>
+          <span class="sc-song-credit">Chris Isaak</span>
+          <span class="sc-song-meta">7 versions · B minor · 108 BPM</span>
+        </span>
+      </button>
+      <button type="button" class="sc-song" data-song="rising" aria-pressed="false">
+        <span class="sc-song-art" data-art="rising" aria-hidden="true">🌅</span>
+        <span class="sc-song-copy">
+          <span class="sc-song-kind">Song · 3/4</span>
+          <strong class="sc-song-title">House of the Rising Sun</strong>
+          <span class="sc-song-credit">Traditional</span>
+          <span class="sc-song-meta">7 versions · A minor · 96 BPM</span>
+        </span>
+      </button>
+      <button type="button" class="sc-song" data-song="greensleeves" data-score-url="assets/scores/greensleeves.scorify.json" data-instrument="guitar" aria-pressed="false">
+        <span class="sc-song-art" data-art="score" aria-hidden="true">📜</span>
+        <span class="sc-song-copy">
+          <span class="sc-song-kind">Song · 6/8</span>
+          <strong class="sc-song-title">Greensleeves (hymn tune)</strong>
+          <span class="sc-song-credit">Traditional</span>
+          <span class="sc-song-meta">Four-part MIDI</span>
+        </span>
+      </button>
+      <button type="button" class="sc-song sc-song-open" id="open-score">
+        <span class="sc-song-art" data-art="open" aria-hidden="true">＋</span>
+        <span class="sc-song-copy">
+          <span class="sc-song-kind">Your score</span>
+          <strong class="sc-song-title">Open a score file…</strong>
+          <span class="sc-song-credit">A <code>.scorify.json</code> or score set from the score-import skill</span>
+          <span class="sc-song-meta">Kept in this browser, never uploaded</span>
+        </span>
+      </button>
+      <input type="file" id="score-file" accept=".json,application/json" multiple hidden>
+    </div>
+
+    <div class="sc-window" id="playground" data-status="loading" aria-busy="true">
+      <div class="sc-player-head">
+        <div>
+          <span class="sc-eyebrow" id="instrument-label">Concert ukulele · high G</span>
+          <h3 class="sc-player-title" id="song-title">Somewhere Over the Rainbow</h3>
+          <p class="sc-player-desc" id="song-description">The ukulele progression everyone knows, strummed with the island pattern on a high-G concert uke.</p>
+        </div>
+        <div class="sc-player-badges"><span class="badge" data-variant="outline" id="mode-badge">Preparing…</span><span class="badge" data-variant="secondary" id="rhythm-badge">D · D U · U D U</span></div>
+      </div>
+
+      <section class="sc-tuner" id="tuner-panel" aria-labelledby="tuner-title">
+        <div class="tacho" id="tuner" data-format="signed" data-sweep="100" data-ticks="25" data-minor="4" data-idle>
+          <span class="tacho-label">♪</span>
+          <meter class="tacho-meter" min="-50" max="50" low="-5" high="5" optimum="0" value="0" aria-label="Tuning in cents">0 cents</meter>
+          <output class="tacho-value">– Hz</output>
+          <span class="tacho-caption">Press Listen</span>
+        </div>
+        <div class="sc-tuner-body">
+          <div class="sc-tuner-head">
+            <h4 class="sc-tuner-title" id="tuner-title">Tune first</h4>
+            <span class="sc-tuner-instrument" id="tuner-instrument">Concert ukulele · high G</span>
+          </div>
+          <p class="sc-tuner-desc">scorify listens through your microphone, finds the pitch in an AudioWorklet with YIN and picks the nearest string of the instrument below. Play one string at a time and let it ring; the needle turns green within 5 cents. Pick a string to tune only that one.</p>
+          <div class="sc-tuner-strings" id="tuner-strings" role="group" aria-label="String to tune"></div>
+          <div class="sc-tuner-actions">
+            <button type="button" class="btn" data-size="sm" id="tuner-listen" aria-pressed="false"><svg class="sc-icon" aria-hidden="true"><use href="#i-mic"/></svg><span>Listen</span></button>
+            <button type="button" class="btn" data-size="sm" data-variant="outline" id="tuner-reference"><svg class="sc-icon" aria-hidden="true"><use href="#i-play"/></svg>Play the string</button>
+            <span class="sc-tuner-status" id="tuner-status" role="status"></span>
+          </div>
+        </div>
+      </section>
+
+      <div class="sc-controls">
+        <div class="sc-control">
+          <label class="label" for="instrument">Instrument</label>
+          <select class="select" id="instrument"></select>
+        </div>
+        <div class="sc-control">
+          <label class="label" for="level">Difficulty</label>
+          <select class="select" id="level">
+            <option value="baby">Baby</option>
+            <option value="beginner">Beginner</option>
+            <option value="amateur" selected>Amateur</option>
+            <option value="semi-pro">Semi-pro</option>
+            <option value="pro">Pro</option>
+            <option value="expert">Expert</option>
+            <option value="maestro">Maestro</option>
+          </select>
+        </div>
+        <div class="sc-control">
+          <label class="label" for="key">Key</label>
+          <select class="select" id="key"></select>
+        </div>
+        <div class="sc-control sc-voices" hidden>
+          <label class="label" for="voices">Voices</label>
+          <select class="select" id="voices"></select>
+        </div>
+        <div class="sc-control sc-capo" hidden>
+          <span class="label">Suggested capo</span>
+          <div class="checkbox-item"><input type="checkbox" class="checkbox" id="capo"><label for="capo" id="capo-label">Capo</label></div>
+        </div>
+        <div class="sc-control sc-tempo">
+          <label class="label" for="tempo">Tempo <span class="sc-tempo-value"><output id="tempo-value" for="tempo">80</output> <span id="tempo-unit">♩ BPM</span></span></label>
+          <div class="sc-tempo-track" id="tempo-track" style="--tempo-original:0.4">
+            <input class="slider" type="range" id="tempo" min="40" max="140" step="1" value="80" style="--slider-value:40%">
+            <button type="button" class="sc-tempo-original" id="tempo-original" aria-label="Back to the original tempo, 80 BPM" title="Original tempo: 80 BPM"><span>original</span></button>
+          </div>
+        </div>
+        <div class="sc-transport">
+          <button type="button" id="play" class="play-button" data-size="sm" aria-label="Play" title="Play" disabled><span class="sc-sr">Play</span></button>
+          <button type="button" id="stop" class="btn" data-variant="outline" disabled><svg class="sc-icon" aria-hidden="true"><use href="#i-stop"/></svg>Stop</button>
+          <button type="button" id="download" class="btn" data-variant="ghost" disabled aria-label="Download WAV"><svg class="sc-icon" aria-hidden="true"><use href="#i-download"/></svg>WAV</button>
+          <button type="button" id="print" class="btn" data-variant="ghost" disabled aria-label="Print the score"><svg class="sc-icon" aria-hidden="true"><use href="#i-print"/></svg>Print</button>
+          <button type="button" id="cancel" class="btn" data-variant="ghost" hidden>Cancel search</button>
+          <div class="sc-fx" role="group" aria-label="Practice">
+            <label class="swap sc-loop" data-variant="flip" title="Loop: when the song ends, it starts again from the beginning">
+              <input type="checkbox" id="loop-song" aria-label="Loop the song">
+              <span class="swap-on"><svg class="sc-icon" aria-hidden="true"><use href="#i-repeat"/></svg>Loop</span>
+              <span class="swap-off"><svg class="sc-icon" aria-hidden="true"><use href="#i-once"/></svg>No loop</span>
+            </label>
+            <div class="switch-item" title="Sings the voice part with a soft synthesized voice"><input type="checkbox" role="switch" class="switch" id="guide-voice" data-guide="voice" checked><label for="guide-voice">Voice</label></div>
+            <div class="switch-item" title="A kick on the strong beats and a clap between them"><input type="checkbox" role="switch" class="switch" id="guide-metronome" data-guide="metronome"><label for="guide-metronome">Metronome</label></div>
+          </div>
+          <div class="sc-fx" role="group" aria-label="Sound effects">
+            <div class="switch-item" title="A dotted-eighth echo at the song's tempo, darker and slightly wobbling with every repeat"><input type="checkbox" role="switch" class="switch" id="fx-delay" data-fx="delay"><label for="fx-delay">Tape delay</label></div>
+            <div class="switch-item" title="A medium room, about two seconds"><input type="checkbox" role="switch" class="switch" id="fx-reverb" data-fx="reverb" checked><label for="fx-reverb">Reverb</label></div>
+            <div class="switch-item" title="Soft tape-like saturation"><input type="checkbox" role="switch" class="switch" id="fx-saturation" data-fx="saturation"><label for="fx-saturation">Saturation</label></div>
+          </div>
+        </div>
+      </div>
+      <div class="sc-progress" role="progressbar" aria-label="Playback progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><span id="play-progress"></span></div>
+      <div class="sc-status-row">
+        <p id="status" class="sc-status" role="status" aria-live="polite"><span class="spinner" data-size="sm" aria-hidden="true"></span>Loading the arrangement engine…</p>
+      </div>
+      <div class="alert sc-alert" data-variant="destructive" id="problem" role="alert" hidden>
+        <svg class="sc-icon" aria-hidden="true"><use href="#i-alert"/></svg>
+        <h4 class="alert-title" id="problem-title">No arrangement</h4>
+        <div class="alert-description" id="problem-text"></div>
+      </div>
+
+      <details class="collapsible sc-custom" id="custom-panel" data-marker="arrow">
+        <summary class="collapsible-trigger"><svg class="sc-icon" aria-hidden="true"><use href="#i-info"/></svg><span>Custom mode</span><span class="badge" data-variant="secondary" id="custom-state" hidden>in force</span></summary>
+        <div class="collapsible-content sc-custom-body">
+          <p class="sc-custom-intro">Set what the playground otherwise chooses, then re-compute. Empty fields keep the chosen difficulty's defaults, shown in grey. Custom settings stay in force for every song, instrument and difficulty until Reset. Results are searched in your browser and cached there; Export saves one as a file, Save keeps it in this browser.</p>
+          <form id="custom-form" class="sc-custom-form" novalidate>
+            <fieldset class="sc-custom-group">
+              <legend>Arrangement</legend>
+              <div class="sc-control"><label class="label" for="c-version">Version</label><select class="select" id="c-version"></select></div>
+              <div class="sc-control"><label class="label" for="c-mode">Mode</label><select class="select" id="c-mode"><option value="">Versions, then simplify</option><option value="exact">Exact: every note as written</option><option value="adaptive">Adaptive: may simplify</option></select></div>
+              <div class="sc-control"><label class="label" for="c-transpose">Transpose (semitones)</label><input class="input" type="number" id="c-transpose" min="-11" max="11" step="1" placeholder="0"></div>
+            </fieldset>
+            <fieldset class="sc-custom-group">
+              <legend>Instrument</legend>
+              <div class="sc-control"><label class="label" for="c-capo">Capo on fret</label><input class="input" type="number" id="c-capo" min="0" max="12" step="1" placeholder="suggested or none"></div>
+              <div class="sc-control sc-wide"><label class="label" for="c-tuning">Tuning, bass edge first</label><input class="input" type="text" id="c-tuning" spellcheck="false" autocomplete="off"></div>
+            </fieldset>
+            <fieldset class="sc-custom-group">
+              <legend>Player limits</legend>
+              <div class="sc-control"><label class="label" for="c-span">Fret span</label><input class="input" type="number" id="c-span" min="1" max="12" step="1"></div>
+              <div class="sc-control"><label class="label" for="c-shift">Shift speed (frets/s)</label><input class="input" type="number" id="c-shift" min="1" max="200" step="1"></div>
+              <div class="sc-control"><label class="label" for="c-attacks">String attacks per second</label><input class="input" type="number" id="c-attacks" min="1" max="200" step="1"></div>
+              <div class="sc-control"><label class="label" for="c-polyphony">Notes at once</label><input class="input" type="number" id="c-polyphony" min="1" max="16" step="1"></div>
+              <div class="sc-control"><label class="label" for="c-maxfret">Highest fret</label><input class="input" type="number" id="c-maxfret" min="0" max="36" step="1"></div>
+              <div class="sc-control"><label class="label" for="c-barre">Barre chords</label><select class="select" id="c-barre"><option value="">As the difficulty</option><option value="allow">Allowed</option><option value="forbid">Not allowed</option></select></div>
+              <div class="sc-control"><label class="label" for="c-hand">Right hand</label><select class="select" id="c-hand"><option value="">As the version</option><option value="strum">Strum</option><option value="pick">Pick</option></select></div>
+              <div class="sc-control"><label class="label" for="c-complexity">Ornaments kept (0–1)</label><input class="input" type="number" id="c-complexity" min="0" max="1" step="0.05"></div>
+              <div class="sc-control"><label class="label" for="c-flexibility">Flexibility (0–1)</label><input class="input" type="number" id="c-flexibility" min="0" max="1" step="0.05"></div>
+            </fieldset>
+            <fieldset class="sc-custom-group">
+              <legend>When simplifying, scorify may</legend>
+              <div class="checkbox-item"><input type="checkbox" class="checkbox" id="c-ornaments" checked><label for="c-ornaments">leave out fills and ornaments</label></div>
+              <div class="checkbox-item"><input type="checkbox" class="checkbox" id="c-accompaniment" checked><label for="c-accompaniment">leave out accompaniment notes</label></div>
+              <div class="checkbox-item"><input type="checkbox" class="checkbox" id="c-octaves" checked><label for="c-octaves">move notes by an octave</label></div>
+              <div class="checkbox-item"><input type="checkbox" class="checkbox" id="c-rhythm"><label for="c-rhythm">simplify rhythms</label></div>
+              <div class="checkbox-item"><input type="checkbox" class="checkbox" id="c-holds"><label for="c-holds">shorten held notes</label></div>
+              <div class="checkbox-item"><input type="checkbox" class="checkbox" id="c-melody" checked><label for="c-melody">but keep the melody</label></div>
+            </fieldset>
+            <fieldset class="sc-custom-group">
+              <legend>Search</legend>
+              <div class="sc-control"><label class="label" for="c-strategy">Strategy</label><select class="select" id="c-strategy"><option value="">Widening beam</option><option value="beam">Beam as set</option><option value="exact">Exact (DP)</option></select></div>
+              <div class="sc-control"><label class="label" for="c-beam">Beam width</label><input class="input" type="number" id="c-beam" min="1" max="65536" step="1" placeholder="32"></div>
+              <div class="sc-control"><label class="label" for="c-candidates">Candidates per frame</label><input class="input" type="number" id="c-candidates" min="1" max="65536" step="1" placeholder="512"></div>
+              <div class="sc-control"><label class="label" for="c-budget">Expansion budget</label><input class="input" type="number" id="c-budget" min="1000" max="100000000" step="1000" placeholder="10000000"></div>
+            </fieldset>
+            <fieldset class="sc-custom-group">
+              <legend>Playback</legend>
+              <div class="sc-control"><label class="label" for="c-humanize">Human feel (0–1)</label><input class="input" type="number" id="c-humanize" min="0" max="1" step="0.05" placeholder="0.8"></div>
+              <div class="sc-control sc-wide"><label class="label" for="c-seed">Take (seed)</label><input class="input" type="text" id="c-seed" spellcheck="false" autocomplete="off" placeholder="a new take every time"></div>
+            </fieldset>
+            <div class="sc-custom-actions">
+              <button type="submit" class="btn" id="c-run">Re-compute score</button>
+              <button type="button" class="btn" data-variant="outline" id="c-reset">Reset to the difficulty</button>
+              <span class="sc-custom-spacer"></span>
+              <button type="button" class="btn" data-variant="outline" id="c-export"><svg class="sc-icon" aria-hidden="true"><use href="#i-download"/></svg>Export</button>
+              <button type="button" class="btn" data-variant="outline" id="c-save">Save in this browser</button>
+              <button type="button" class="btn" data-variant="ghost" id="c-import">Import…</button>
+              <input type="file" id="c-file" accept=".json,application/json" hidden>
+            </div>
+          </form>
+          <div class="sc-saved">
+            <span class="sc-panel-label">Saved arrangements</span>
+            <ul class="sc-saved-list" id="saved-list"></ul>
+            <p class="sc-saved-empty" id="saved-empty">Nothing saved in this browser yet.</p>
+          </div>
+        </div>
+      </details>
+
+      <div class="fretboard sc-tab" id="song-tab" role="group" aria-label="Arranged tablature" style="--fretboard-height: 19rem">
+        <div class="fretboard-header">
+          <span class="fretboard-title" id="tab-title">Your arrangement</span>
+          <span class="fretboard-readout">Bar <output data-fretboard-output="measure">1</output> / <output data-fretboard-output="measures">9</output></span>
+          <output class="fretboard-readout" data-fretboard-output="chord"></output>
+          <output class="fretboard-readout" data-fretboard-output="signature">4/4</output>
+          <button class="btn" data-variant="ghost" data-size="icon-sm" data-fretboard-action="zoom-out" aria-label="Zoom out"><svg class="sc-icon" aria-hidden="true"><use href="#i-zoom-out"/></svg></button>
+          <output class="fretboard-readout" data-fretboard-output="zoom">100%</output>
+          <button class="btn" data-variant="ghost" data-size="icon-sm" data-fretboard-action="zoom-in" aria-label="Zoom in"><svg class="sc-icon" aria-hidden="true"><use href="#i-zoom-in"/></svg></button>
+        </div>
+        <script type="application/json" class="fretboard-source">{"version":1,"title":"Loading","scores":[{"id":"loading","measures":1,"tracks":[]}]}</script>
+      </div>
+
+      <div class="sc-board">
+        <div class="sc-panel sc-neck-panel">
+          <span class="sc-panel-label">On the neck <small>filled: sounding · outlined: next</small></span>
+          <div class="fretboard-neck" id="live-neck" data-fretboard-for="song-tab" aria-label="The fingering sounding now"></div>
+        </div>
+        <div class="sc-panel sc-charts-panel">
+          <span class="sc-panel-label">Voicings as played <small>x = string not played</small></span>
+          <div class="sc-charts" data-fretboard-for="song-tab" data-fretboard-outlet="chords" data-orientation="vertical"></div>
+          <p class="sc-charts-empty" id="charts-empty" hidden>This score has no chord symbols, so there are no voicings to chart. The tab and the neck show every fretted note.</p>
+        </div>
+      </div>
+
+      <dl class="sc-facts" id="facts" hidden>
+        <div><dt>Strings, bass edge first</dt><dd id="fact-tuning">G4 · C4 · E4 · A4</dd></div>
+        <div><dt>Difficulty</dt><dd id="fact-level">maestro</dd></div>
+        <div><dt id="fact-notes-label" title="Notes played, compared with the hardest version as written on this instrument (each difficulty plays its own version)">Notes vs. the hardest version</dt><dd id="fact-notes">0 / 0</dd></div>
+        <div><dt>Search</dt><dd id="fact-search">beam</dd></div>
+        <div><dt>Playback timing</dt><dd id="fact-timing">validated</dd></div>
+      </dl>
+      <details class="sc-details" id="details" hidden>
+        <summary>About this arrangement</summary>
+        <p class="sc-story" id="story"></p>
+        <p>A difficulty is an editable, uncalibrated policy of scorify (<code>player: { level }</code>): limits on fret span, shift speed, attacks per second, notes at once and barres. A fingering that is valid in the model may still be uncomfortable for you. The versions and their chord shapes come from the demo (<code>docs/assets/songs.mjs</code>); scorify judges each shape, then fingers the version in exact mode, so it never drops, moves or shortens one of its notes. Only when no version plays does it simplify one in adaptive mode, and says above what it left out.</p>
+        <pre class="sc-json" id="result-json"></pre>
+      </details>
+
+      <div class="sc-window-foot">
+        <p class="sc-window-note"><svg class="sc-icon" aria-hidden="true"><use href="#i-info"/></svg><span id="window-note">Hand-authored versions: chord charts and rhythm patterns. House of the Rising Sun's tune and words are traditional; no other melody or lyrics are transcribed.</span></p>
+        <p class="sc-window-note">Tab, neck and chord charts: <a href="https://shadcn.defuss.org/multimedia/fretboard.html" target="_blank" rel="noopener">defuss-shadcn Fretboard<svg class="sc-icon sc-ext" aria-hidden="true"><use href="#i-external"/></svg><span class="sr-only"> (opens in a new tab)</span></a></p>
+      </div>
+      <noscript><p class="sc-window-note">The playground needs JavaScript and module workers. The installation guide below works without them.</p></noscript>
+    </div>
+  </section>
+
+  <section id="how" class="container sc-section parallax-reveal" aria-labelledby="how-title">
+    <section class="mk-features" style="width:100%">
+      <div class="mk-features-head">
+        <span class="mk-features-eyebrow">How it works</span>
+        <h2 class="mk-features-title" id="how-title">💡 From musical intent to a playable path</h2>
+        <p class="mk-features-desc">You describe the music. scorify searches note positions and fingerings together, under the instrument and player limits you choose. Only a path that passes an independent replay check is returned. Musical fidelity always ranks first; comfort only decides between equally faithful arrangements.</p>
+      </div>
+    </section>
+    <div class="sc-how-grid">
+      <ol class="mk-process-steps">
+        <li class="mk-process-step">
+          <span class="mk-process-step-number" aria-hidden="true">01</span>
+          <div class="mk-process-step-body">
+            <h3 class="mk-process-step-title">Describe</h3>
+            <p class="mk-process-step-desc"><code>createScore(notes, maps)</code> takes sounding pitches, exact rational time, voices, roles, rests and ties. Each note keeps its <code>id</code>, so every later result can point back to the note it came from.</p>
+          </div>
+        </li>
+        <li class="mk-process-step">
+          <span class="mk-process-step-number" aria-hidden="true">02</span>
+          <div class="mk-process-step-body">
+            <h3 class="mk-process-step-title">Transform</h3>
+            <p class="mk-process-step-desc">Transpose by a spelled interval such as <code>2M</code> and scale or set the tempo. Note spelling, key and chord symbols are transposed with it. Every change is logged as an edit, with its reason and the permission that allowed it.</p>
+          </div>
+        </li>
+        <li class="mk-process-step">
+          <span class="mk-process-step-number" aria-hidden="true">03</span>
+          <div class="mk-process-step-body">
+            <h3 class="mk-process-step-title">Search</h3>
+            <p class="mk-process-step-desc">At every attack, list the string positions and four-finger assignments. Then search for a path through them, using beam search, exact dynamic programming or an exhaustive reference. Strings stay in physical order, and the capo is part of the model.</p>
+          </div>
+        </li>
+        <li class="mk-process-step">
+          <span class="mk-process-step-number" aria-hidden="true">04</span>
+          <div class="mk-process-step-body">
+            <h3 class="mk-process-step-title">Validate</h3>
+            <p class="mk-process-step-desc">A separate validator rebuilds the sounding notes from the output. It checks every attack, hold, finger contact, player limit and transition before <code>arrange()</code> returns <code>success</code>.</p>
+          </div>
+        </li>
+        <li class="mk-process-step">
+          <span class="mk-process-step-number" aria-hidden="true">05</span>
+          <div class="mk-process-step-body">
+            <h3 class="mk-process-step-title">Perform</h3>
+            <p class="mk-process-step-desc"><code>createPerformance()</code> adds strums and seeded humanization, then checks the timing against the chosen fingering. If the timing doesn't fit, it reduces the timing variation or reports the problem. It never changes the fingering to make playback work.</p>
+          </div>
+        </li>
+      </ol>
+      <article class="card sc-type">
+        <div class="card-header">
+          <h3 class="card-title">Every result says what it guarantees</h3>
+          <p class="card-description"><code>result.status</code> separates a proof from a budget limit. A partial path is never returned as a success.</p>
+        </div>
+        <div class="card-content">
+          <dl class="sc-dl">
+            <div><dt><code>success</code></dt><dd>Output score, fingerings, edits, source mapping, difficulty components and search statistics.</dd></div>
+            <div><dt><code>infeasible</code></dt><dd>The search proved that no path exists <strong>within this finite model</strong>.</dd></div>
+            <div><dt><code>search-exhausted</code></dt><dd>Pruning or a resource limit stopped the search first. A solution may still exist.</dd></div>
+            <div><dt><code>cancelled</code></dt><dd>An <code>AbortSignal</code> or a newer worker request stopped the search.</dd></div>
+            <div><dt><code>unsupported</code></dt><dd>A note asks for a technique v0.2 does not model, such as a bend or a harmonic.</dd></div>
+            <div><dt><code>optimality</code></dt><dd><code>proven-in-model</code> only when nothing was pruned; otherwise <code>best-found</code>.</dd></div>
+          </dl>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <section id="api" class="container sc-section parallax-reveal" aria-labelledby="api-title">
+    <header class="mk-section-header">
+      <div class="mk-section-header-copy">
+        <span class="mk-section-header-eyebrow">API</span>
+        <h2 class="mk-section-header-title" id="api-title">📚 Plain data in, plain data out</h2>
+        <p class="mk-section-header-desc">Scores, options and results are serializable objects. Root exports cover the score and arrangement API. Workers and audio come from explicit subpaths, so audio code stays out of the core module graph. The full contract is in the <a href="IMPLEMENTATION_SPEC.md">implementation specification</a>.</p>
+      </div>
+    </header>
+
+    <div class="tabs sc-api">
+      <div class="tab-list" role="tablist" aria-label="API reference" data-size="lg">
+        <button class="tab-trigger" role="tab" aria-selected="true" aria-controls="api-functions" id="tab-functions">Functions</button>
+        <button class="tab-trigger" role="tab" aria-selected="false" aria-controls="api-options" id="tab-options" tabindex="-1">Arrange options</button>
+        <button class="tab-trigger" role="tab" aria-selected="false" aria-controls="api-policies" id="tab-policies" tabindex="-1">Difficulty levels</button>
+        <button class="tab-trigger" role="tab" aria-selected="false" aria-controls="api-subpaths" id="tab-subpaths" tabindex="-1">Subpaths</button>
+      </div>
+
+      <div class="tab-content" role="tabpanel" id="api-functions" aria-labelledby="tab-functions" tabindex="0">
+        <div class="table-container">
+          <table class="table sc-table">
+            <thead><tr class="table-row"><th class="table-head">Function</th><th class="table-head">Returns</th><th class="table-head">Semantics</th></tr></thead>
+            <tbody>
+              <tr class="table-row"><td class="table-cell"><code>createScore(notes, options?)</code></td><td class="table-cell"><code>Score</code></td><td class="table-cell">Validates and normalizes notes, rests and maps. Defaults to 120 quarter BPM, 4/4 and A=440. A key is never inferred.</td></tr>
+              <tr class="table-row"><td class="table-cell"><code>parsePitch("F#3")</code>, <code>q(n, d)</code></td><td class="table-cell"><code>Pitch</code>, <code>Q</code></td><td class="table-cell">A spelled sounding pitch, and an exact rational time in quarter notes.</td></tr>
+              <tr class="table-row"><td class="table-cell"><code>arrange(score, options)</code></td><td class="table-cell"><code>ArrangeResult</code></td><td class="table-cell">Joint edit and fingering search, followed by an independent replay check.</td></tr>
+              <tr class="table-row"><td class="table-cell"><code>arrangeAsync(score, options, hooks?)</code></td><td class="table-cell"><code>Promise</code></td><td class="table-cell">Cooperative scheduling with <code>signal</code>, <code>onProgress</code> and <code>yieldEvery</code>.</td></tr>
+              <tr class="table-row"><td class="table-cell"><code>createWorkerClient(worker)</code></td><td class="table-cell">client</td><td class="table-cell"><code>arrange()</code> in a module worker. A newer request cancels the previous one, and stale replies are ignored.</td></tr>
+              <tr class="table-row"><td class="table-cell"><code>createArrangementSession(score)</code></td><td class="table-cell">session</td><td class="table-cell">Recomputes from the original score each time, with an LRU cache of results.</td></tr>
+              <tr class="table-row"><td class="table-cell"><code>transformScore(score, options)</code></td><td class="table-cell"><code>{ score, edits }</code></td><td class="table-cell">Spelled transposition and tempo scaling, with no instrument involved.</td></tr>
+              <tr class="table-row"><td class="table-cell"><code>analyzeHarmony(score)</code></td><td class="table-cell">spans</td><td class="table-cell">Chord candidates per window, including arpeggios. Sparse evidence stays unknown.</td></tr>
+              <tr class="table-row"><td class="table-cell"><code>quantizePerformance(notes, maps)</code></td><td class="table-cell">result</td><td class="table-cell">Quantizes timed performance notes against a known tempo and meter map.</td></tr>
+              <tr class="table-row"><td class="table-cell"><code>validateFrettedArrangement(…)</code></td><td class="table-cell">report</td><td class="table-cell">The public replay validator, for checking any fretted output.</td></tr>
+              <tr class="table-row"><td class="table-cell"><code>createPerformance(result, instrument, options?)</code></td><td class="table-cell"><code>PerformanceResult</code></td><td class="table-cell">Strums, humanization and timing validation, run before any synthesis.</td></tr>
+              <tr class="table-row"><td class="table-cell"><code>createAudioPlayer(context)</code>, <code>renderPerformance(plan)</code></td><td class="table-cell">player, samples</td><td class="table-cell">AudioWorklet playback and offline rendering. The worklet and offline paths produce matching samples. <code>encodeWav()</code> writes the bytes.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="tab-content" role="tabpanel" id="api-options" aria-labelledby="tab-options" tabindex="0" hidden>
+        <p class="sc-api-lead"><code>arrange(score, options)</code> takes an <code>instrument</code>. Every other key is optional.</p>
+        <div class="table-container">
+          <table class="table sc-table">
+            <thead><tr class="table-row"><th class="table-head">Key</th><th class="table-head">Default</th><th class="table-head">Meaning</th></tr></thead>
+            <tbody>
+              <tr class="table-row"><td class="table-cell"><code>instrument</code></td><td class="table-cell">required</td><td class="table-cell"><code>concertUkulele({ tuning })</code>, <code>classicalGuitar({ capoFret })</code> or <code>createFrettedInstrument(id, name, tuning)</code>. Strings are listed from the bass edge to the treble edge.</td></tr>
+              <tr class="table-row"><td class="table-cell"><code>mode</code></td><td class="table-cell"><code>"exact"</code></td><td class="table-cell"><code>"exact"</code> keeps transformed pitches, onsets and holds. <code>"adaptive"</code> may also make the edits you permit. <code>"unconstrained"</code> transforms without an instrument.</td></tr>
+              <tr class="table-row"><td class="table-cell"><code>transform</code></td><td class="table-cell">none</td><td class="table-cell"><code>{ interval: "2M" }</code>, <code>{ tempoScale: 0.75 }</code> or <code>{ quarterBpm: 90 }</code>.</td></tr>
+              <tr class="table-row"><td class="table-cell"><code>player</code></td><td class="table-cell"><code>{ level: "maestro" }</code></td><td class="table-cell">A level plus <code>complexity</code>, <code>flexibility</code> and <code>overrides</code>, such as <code>maxFretSpan</code>, <code>allowBarre</code> or <code>rightHand</code>.</td></tr>
+              <tr class="table-row"><td class="table-cell"><code>adaptation</code></td><td class="table-cell">ornaments only</td><td class="table-cell">Permissions: <code>allowOctaveShift</code>, <code>allowAccompanimentOmission</code>, <code>allowRhythmSimplification</code> and <code>allowHoldShortening</code>. Note locks and <code>protectedNoteIds</code> protect material.</td></tr>
+              <tr class="table-row"><td class="table-cell"><code>search</code></td><td class="table-cell">beam 64</td><td class="table-cell"><code>strategy: "beam" | "exact" | "exhaustive"</code>, <code>beamWidth</code>, <code>maxCandidatesPerFrame</code> and <code>maxExpandedStates</code>.</td></tr>
+              <tr class="table-row"><td class="table-cell"><code>autoTempo</code></td><td class="table-cell"><code>false</code></td><td class="table-cell">Lowers the fastest tempo segment to the level's suggested ceiling. It never speeds a score up.</td></tr>
+              <tr class="table-row"><td class="table-cell"><code>signal</code>, <code>scoring</code></td><td class="table-cell">none</td><td class="table-cell">Cancellation, and an optional pure cost hook that can never override hard validity or fidelity.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="tab-content" role="tabpanel" id="api-policies" aria-labelledby="tab-policies" tabindex="0" hidden>
+        <p class="sc-api-lead">The built-in levels are editable defaults (<code>scorify-player-1</code>), not calibrated ability labels. Even <em>maestro</em> cannot bypass a hard physical limit.</p>
+        <div class="table-container">
+          <table class="table sc-table sc-levels">
+            <thead><tr class="table-row"><th class="table-head">Level</th><th class="table-head">Fret span</th><th class="table-head">Shift frets/s</th><th class="table-head">Simultaneous notes</th><th class="table-head">Attacks/s</th><th class="table-head">Barre</th><th class="table-head">Suggested ♩</th></tr></thead>
+            <tbody>
+              <tr class="table-row"><td class="table-cell">baby</td><td class="table-cell">2</td><td class="table-cell">5</td><td class="table-cell">3</td><td class="table-cell">2</td><td class="table-cell">no</td><td class="table-cell">50</td></tr>
+              <tr class="table-row"><td class="table-cell">beginner</td><td class="table-cell">3</td><td class="table-cell">9</td><td class="table-cell">4</td><td class="table-cell">4</td><td class="table-cell">no</td><td class="table-cell">65</td></tr>
+              <tr class="table-row"><td class="table-cell">amateur</td><td class="table-cell">4</td><td class="table-cell">16</td><td class="table-cell">6</td><td class="table-cell">7</td><td class="table-cell">yes</td><td class="table-cell">85</td></tr>
+              <tr class="table-row"><td class="table-cell">semi-pro</td><td class="table-cell">5</td><td class="table-cell">25</td><td class="table-cell">8</td><td class="table-cell">10</td><td class="table-cell">yes</td><td class="table-cell">100</td></tr>
+              <tr class="table-row"><td class="table-cell">pro</td><td class="table-cell">6</td><td class="table-cell">40</td><td class="table-cell">10</td><td class="table-cell">14</td><td class="table-cell">yes</td><td class="table-cell">120</td></tr>
+              <tr class="table-row"><td class="table-cell">expert</td><td class="table-cell">7</td><td class="table-cell">65</td><td class="table-cell">12</td><td class="table-cell">20</td><td class="table-cell">yes</td><td class="table-cell">140</td></tr>
+              <tr class="table-row"><td class="table-cell">maestro</td><td class="table-cell">9</td><td class="table-cell">100</td><td class="table-cell">16</td><td class="table-cell">32</td><td class="table-cell">yes</td><td class="table-cell">160</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="sc-api-lead">Attacks per second count every string a strum hits. That is why the strummed songs in the playground need a higher level at full tempo. Slow one down and a lower level can play it.</p>
+      </div>
+
+      <div class="tab-content" role="tabpanel" id="api-subpaths" aria-labelledby="tab-subpaths" tabindex="0" hidden>
+        <div class="table-container">
+          <table class="table sc-table">
+            <thead><tr class="table-row"><th class="table-head">Import</th><th class="table-head">Contains</th></tr></thead>
+            <tbody>
+              <tr class="table-row"><td class="table-cell"><code>scorify</code></td><td class="table-cell">Score model, theory, presets, profiles, transforms, analysis, quantization, fingering, arrangement and validation.</td></tr>
+              <tr class="table-row"><td class="table-cell"><code>scorify/model</code>, <code>/theory</code>, <code>/fretted</code>, <code>/presets</code>, <code>/profiles</code>, <code>/transforms</code></td><td class="table-cell">Smaller entry points for the same building blocks.</td></tr>
+              <tr class="table-row"><td class="table-cell"><code>scorify/arrange</code>, <code>/fingering</code>, <code>/adapters</code>, <code>/validate</code></td><td class="table-cell">The search, the fretted adapter, the <code>InstrumentAdapter</code> extension point and the replay validator.</td></tr>
+              <tr class="table-row"><td class="table-cell"><code>scorify/analysis</code>, <code>/quantize</code></td><td class="table-cell">Harmony windows, and quantization against known tempo and meter maps.</td></tr>
+              <tr class="table-row"><td class="table-cell"><code>scorify/worker</code>, <code>/worker-entry</code></td><td class="table-cell">The worker client, and the side-effect module a dedicated worker loads.</td></tr>
+              <tr class="table-row"><td class="table-cell"><code>scorify/performance</code>, <code>/audio-dsp</code></td><td class="table-cell">Performance planning and the DSP. Neither needs a browser API.</td></tr>
+              <tr class="table-row"><td class="table-cell"><code>scorify/audio</code>, <code>/audio-worklet</code></td><td class="table-cell">Browser playback, offline rendering, WAV encoding, and the AudioWorklet module.</td></tr>
+              <tr class="table-row"><td class="table-cell"><code>scorify/tuner</code>, <code>/pitch-detect</code>, <code>/pitch-worklet</code></td><td class="table-cell">YIN pitch detection, live microphone input through an AudioWorklet, and the strings to tune for an instrument.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="install" class="container sc-section parallax-reveal" aria-labelledby="install-title">
+    <div class="corner-leaf pattern-dots sc-use">
+    <header class="mk-section-header">
+      <div class="mk-section-header-copy">
+        <span class="mk-section-header-eyebrow">Install</span>
+        <h2 class="mk-section-header-title" id="install-title">🧑‍💻 Add it to your app</h2>
+        <p class="mk-section-header-desc">Build it from source and add it as a local dependency, or copy the built modules into a page with no bundler at all. This page loads scorify the second way.</p>
+      </div>
+    </header>
+    <div class="alert sc-alert" role="note">
+      <svg class="sc-icon" aria-hidden="true"><use href="#i-info"/></svg>
+      <h4 class="alert-title">Not on npm yet</h4>
+      <div class="alert-description">The package is <code>private</code> until its first release. Until then, <code>npm install scorify</code> does not install this library. Build it from the repository instead.</div>
+    </div>
+    <div class="sc-ways">
+      <div class="sc-way">
+        <h3 class="sc-way-title"><svg class="sc-icon" aria-hidden="true"><use href="#i-package"/></svg>From source</h3>
+        <p class="sc-way-desc">Build the repository once with Bun 1.3.9 and Node 24, as pinned in the lockfile. Then add the folder to your app with your package manager. Bundlers resolve <code>import … from "scorify"</code> and the subpaths, and TypeScript declarations are included.</p>
+        <figure class="mk-code-block">
+          <div class="mk-code-block-head">
+            <div class="mk-code-block-tabs" role="radiogroup" aria-label="Package manager">
+              <label><input type="radio" name="cb-pm" value="bun" checked>bun</label><label><input type="radio" name="cb-pm" value="npm">npm</label><label><input type="radio" name="cb-pm" value="pnpm">pnpm</label>
+            </div>
+            <button class="mk-code-block-copy" type="button" aria-label="Copy code"><svg class="sc-icon" aria-hidden="true"><use href="#i-copy"/></svg></button>
+          </div>
+          <pre data-tab="bun"><code><span>git clone https://github.com/kyr0/scorify.git</span><span>cd scorify &amp;&amp; bun install --frozen-lockfile &amp;&amp; bun run build</span><span>cd ../your-app &amp;&amp; bun add ../scorify</span></code></pre>
+          <pre data-tab="npm"><code><span>git clone https://github.com/kyr0/scorify.git</span><span>cd scorify &amp;&amp; bun install --frozen-lockfile &amp;&amp; bun run build</span><span>cd ../your-app &amp;&amp; npm install ../scorify</span></code></pre>
+          <pre data-tab="pnpm"><code><span>git clone https://github.com/kyr0/scorify.git</span><span>cd scorify &amp;&amp; bun install --frozen-lockfile &amp;&amp; bun run build</span><span>cd ../your-app &amp;&amp; pnpm add ../scorify</span></code></pre>
+          <span class="mk-code-block-status" role="status"></span>
+        </figure>
+      </div>
+      <div class="separator sc-sep-vertical" data-orientation="vertical" role="separator"></div>
+      <hr class="separator sc-sep-horizontal">
+      <div class="sc-way">
+        <h3 class="sc-way-title"><svg class="sc-icon" aria-hidden="true"><use href="#i-globe"/></svg>In the browser, no bundler</h3>
+        <p class="sc-way-desc">Copy the <strong>whole</strong> built <code>dist/</code> folder next to your page, because the entry modules share chunks. Serve it over HTTP, and host the Worker and AudioWorklet modules on your app's own origin.</p>
+        <figure class="mk-code-block" data-variant="file">
+          <div class="mk-code-block-head"><span class="mk-code-block-file"><svg class="sc-icon" aria-hidden="true"><use href="#i-file"/></svg>index.html</span><button class="mk-code-block-copy" type="button" aria-label="Copy code"><svg class="sc-icon" aria-hidden="true"><use href="#i-copy"/></svg></button></div>
+          <pre><code><span><span class="mk-code-block-c">&lt;!-- cp -r scorify/dist ./scorify --&gt;</span></span><span><span class="mk-code-block-k">&lt;script</span> type=<span class="mk-code-block-s">"importmap"</span><span class="mk-code-block-k">&gt;</span></span><span>{ <span class="mk-code-block-s">"imports"</span>: {</span><span>  <span class="mk-code-block-s">"scorify"</span>: <span class="mk-code-block-s">"./scorify/index.mjs"</span>,</span><span>  <span class="mk-code-block-s">"scorify/worker"</span>: <span class="mk-code-block-s">"./scorify/worker.mjs"</span>,</span><span>  <span class="mk-code-block-s">"scorify/audio"</span>: <span class="mk-code-block-s">"./scorify/audio.mjs"</span></span><span>} }</span><span><span class="mk-code-block-k">&lt;/script&gt;</span></span><span><span class="mk-code-block-k">&lt;script</span> type=<span class="mk-code-block-s">"module"</span><span class="mk-code-block-k">&gt;</span></span><span>  <span class="mk-code-block-k">import</span> { createScore, arrange, concertUkulele } <span class="mk-code-block-k">from</span> <span class="mk-code-block-s">"scorify"</span>;</span><span><span class="mk-code-block-k">&lt;/script&gt;</span></span></code></pre>
+          <span class="mk-code-block-status" role="status"></span>
+        </figure>
+      </div>
+    </div>
+
+    <div class="sc-usage">
+      <h3 class="sc-way-title"><svg class="sc-icon" aria-hidden="true"><use href="#i-terminal"/></svg>Use it</h3>
+      <p class="sc-way-desc">Pitches are <strong>sounding</strong> pitches and time is counted in quarter notes. Check <code>result.status</code> before you read a fingering, and treat <code>infeasible</code> and <code>search-exhausted</code> as different answers.</p>
+      <figure class="mk-code-block" data-variant="file">
+        <div class="mk-code-block-head">
+          <div class="mk-code-block-tabs" role="radiogroup" aria-label="Example">
+            <label><input type="radio" name="cb-use" value="ukulele" checked>Ukulele</label><label><input type="radio" name="cb-use" value="guitar">Guitar &amp; adapt</label><label><input type="radio" name="cb-use" value="worker">Worker</label><label><input type="radio" name="cb-use" value="audio">Audio</label><label><input type="radio" name="cb-use" value="fretboard">Fretboard</label>
+          </div>
+          <button class="mk-code-block-copy" type="button" aria-label="Copy code"><svg class="sc-icon" aria-hidden="true"><use href="#i-copy"/></svg></button>
+        </div>
+        <pre data-tab="ukulele" data-numbers><code><span><span class="mk-code-block-k">import</span> { createScore, parsePitch, q, arrange, concertUkulele } <span class="mk-code-block-k">from</span> <span class="mk-code-block-s">"scorify"</span>;</span><span></span><span><span class="mk-code-block-c">// A C major chord held for one 4/4 bar, as sounding pitches in exact quarter-note time.</span></span><span><span class="mk-code-block-k">const</span> notes = [<span class="mk-code-block-s">"G4"</span>, <span class="mk-code-block-s">"C4"</span>, <span class="mk-code-block-s">"E4"</span>, <span class="mk-code-block-s">"C5"</span>].map((pitch, i) =&gt; ({</span><span>  id: <span class="mk-code-block-s">`c-${i}`</span>, pitch: parsePitch(pitch), onset: q(0), duration: q(4),</span><span>  partId: <span class="mk-code-block-s">"uke"</span>, voiceId: <span class="mk-code-block-s">"chords"</span>, role: <span class="mk-code-block-s">"harmony"</span>,</span><span>}));</span><span><span class="mk-code-block-k">const</span> score = createScore(notes, { tempoMap: [{ at: q(0), quarterBpm: 80 }] });</span><span></span><span data-highlight><span class="mk-code-block-k">const</span> result = arrange(score, {</span><span>  instrument: concertUkulele(),   <span class="mk-code-block-c">// G4 C4 E4 A4, high G</span></span><span>  mode: <span class="mk-code-block-s">"exact"</span>,                  <span class="mk-code-block-c">// keep every pitch, onset and hold</span></span><span>  player: { level: <span class="mk-code-block-s">"beginner"</span> },</span><span>});</span><span></span><span><span class="mk-code-block-k">if</span> (result.status === <span class="mk-code-block-s">"success"</span>) {</span><span>  console.log(result.annotations[0].shape);       <span class="mk-code-block-c">// "0-0-0-3"</span></span><span>  console.log(result.annotations[0].assignments); <span class="mk-code-block-c">// string, fret and finger per note</span></span><span>} <span class="mk-code-block-k">else</span> {</span><span>  console.log(result.status, result.diagnostics);</span><span>}</span></code></pre>
+        <pre data-tab="guitar" data-numbers><code><span><span class="mk-code-block-k">import</span> { arrange, classicalGuitar } <span class="mk-code-block-k">from</span> <span class="mk-code-block-s">"scorify"</span>;</span><span></span><span data-highlight><span class="mk-code-block-k">const</span> result = arrange(score, {</span><span>  instrument: classicalGuitar({ capoFret: 2 }), <span class="mk-code-block-c">// sounding pitch stays, frets move</span></span><span>  mode: <span class="mk-code-block-s">"adaptive"</span>,</span><span>  transform: { interval: <span class="mk-code-block-s">"2M"</span>, tempoScale: 0.75 },</span><span>  player: { level: <span class="mk-code-block-s">"amateur"</span>, overrides: { allowBarre: <span class="mk-code-block-k">false</span> } },</span><span>  adaptation: {</span><span>    preserveMelody: <span class="mk-code-block-k">true</span>,           <span class="mk-code-block-c">// melody notes are never dropped</span></span><span>    allowOctaveShift: <span class="mk-code-block-k">true</span>,         <span class="mk-code-block-c">// revoice notes by an octave</span></span><span>    allowAccompanimentOmission: <span class="mk-code-block-k">true</span>, <span class="mk-code-block-c">// may drop notes marked bass/harmony</span></span><span>  },</span><span>});</span><span></span><span><span class="mk-code-block-k">if</span> (result.status === <span class="mk-code-block-s">"success"</span>) {</span><span data-highlight>  <span class="mk-code-block-k">for</span> (<span class="mk-code-block-k">const</span> edit <span class="mk-code-block-k">of</span> result.edits) console.log(edit.kind, edit.reason, edit.permission);</span><span>  console.log(result.optimality); <span class="mk-code-block-c">// "proven-in-model" or "best-found"</span></span><span>}</span></code></pre>
+        <pre data-tab="worker" data-numbers><code><span><span class="mk-code-block-k">import</span> { createWorkerClient } <span class="mk-code-block-k">from</span> <span class="mk-code-block-s">"scorify/worker"</span>;</span><span><span class="mk-code-block-k">import</span> { concertUkulele } <span class="mk-code-block-k">from</span> <span class="mk-code-block-s">"scorify"</span>;</span><span></span><span><span class="mk-code-block-c">// Serve worker-entry.mjs from your own origin, next to its chunks.</span></span><span><span class="mk-code-block-k">const</span> worker = <span class="mk-code-block-k">new</span> Worker(<span class="mk-code-block-k">new</span> URL(<span class="mk-code-block-s">"./scorify/worker-entry.mjs"</span>, <span class="mk-code-block-k">import</span>.meta.url), { type: <span class="mk-code-block-s">"module"</span> });</span><span><span class="mk-code-block-k">const</span> client = createWorkerClient(worker);</span><span></span><span data-highlight><span class="mk-code-block-k">const</span> result = <span class="mk-code-block-k">await</span> client.arrange(score, {</span><span>  instrument: concertUkulele(), mode: <span class="mk-code-block-s">"exact"</span>, player: { level: <span class="mk-code-block-s">"pro"</span> },</span><span>}, (progress) =&gt; console.log(progress));</span><span></span><span><span class="mk-code-block-c">// A newer client.arrange() cancels this one; its stale reply is ignored.</span></span><span><span class="mk-code-block-c">// Options must be serializable: call client.cancel() rather than passing an AbortSignal.</span></span><span>client.dispose();</span><span>worker.terminate();</span></code></pre>
+        <pre data-tab="audio" data-numbers><code><span><span class="mk-code-block-k">import</span> { createPerformance, createAudioPlayer, renderPerformance, encodeWav } <span class="mk-code-block-k">from</span> <span class="mk-code-block-s">"scorify/audio"</span>;</span><span></span><span><span class="mk-code-block-c">// Use a successful result and the instrument that produced it.</span></span><span data-highlight><span class="mk-code-block-k">const</span> performed = createPerformance(result, instrument, {</span><span>  seed: <span class="mk-code-block-s">"take-1"</span>,                                  <span class="mk-code-block-c">// repeatable excitation and timing</span></span><span>  humanize: 0.4,</span><span>  strum: { direction: <span class="mk-code-block-s">"down"</span>, spreadSeconds: 0.03 }, <span class="mk-code-block-c">// false to pick</span></span><span>});</span><span><span class="mk-code-block-k">if</span> (performed.status !== <span class="mk-code-block-s">"success"</span>) <span class="mk-code-block-k">throw new</span> Error(performed.diagnostics.join(<span class="mk-code-block-s">"; "</span>));</span><span></span><span><span class="mk-code-block-k">const</span> context = <span class="mk-code-block-k">new</span> AudioContext();</span><span><span class="mk-code-block-k">const</span> player = <span class="mk-code-block-k">await</span> createAudioPlayer(context);</span><span>playButton.onclick = <span class="mk-code-block-k">async</span> () =&gt; {           <span class="mk-code-block-c">// start audio from a user gesture</span></span><span>  <span class="mk-code-block-k">const</span> playback = <span class="mk-code-block-k">await</span> player.play(performed.performance);</span><span>  console.log(<span class="mk-code-block-k">await</span> playback.finished);</span><span>};</span><span></span><span><span class="mk-code-block-c">// Or render offline: the same samples as the worklet.</span></span><span><span class="mk-code-block-k">const</span> wav = encodeWav(renderPerformance(performed.performance));</span></code></pre>
+        <pre data-tab="fretboard" data-numbers><code><span><span class="mk-code-block-c">// Show the solver's strings and frets in a defuss-shadcn Fretboard tab (4/4).</span></span><span><span class="mk-code-block-k">const</span> beats = (t) =&gt; t[0] / t[1]; <span class="mk-code-block-c">// q(n, d) is [n, d] quarter notes</span></span><span data-highlight><span class="mk-code-block-k">const</span> items = result.annotations.flatMap((a) =&gt; {</span><span>  <span class="mk-code-block-k">const</span> struck = a.assignments.filter((p) =&gt; p.noteIds.some((id) =&gt; a.attackIds.includes(id)));</span><span>  <span class="mk-code-block-k">if</span> (!struck.length) <span class="mk-code-block-k">return</span> [];</span><span>  <span class="mk-code-block-k">const</span> at = beats(a.at);</span><span>  <span class="mk-code-block-k">return</span> [{ measure: Math.floor(at / 4) + 1, beat: (at % 4) + 1,</span><span>    notes: struck.map((p) =&gt; ({ string: p.stringNumber, fret: p.relativeFret })) }];</span><span>});</span><span></span><span>document.querySelector(<span class="mk-code-block-s">"#tab"</span>).api.setState(<span class="mk-code-block-s">"default"</span>, { data: {</span><span>  version: 1, tuning: [<span class="mk-code-block-s">"G"</span>, <span class="mk-code-block-s">"C"</span>, <span class="mk-code-block-s">"E"</span>, <span class="mk-code-block-s">"A"</span>],</span><span>  scores: [{ id: <span class="mk-code-block-s">"uke"</span>, tracks: [{ id: <span class="mk-code-block-s">"tab"</span>, kind: <span class="mk-code-block-s">"tab"</span>, items }] }],</span><span>} });</span></code></pre>
+        <span class="mk-code-block-status" role="status"></span>
+      </figure>
+    </div>
+
+    <hr class="separator sc-sep-wide">
+    <div class="sc-usage">
+      <h3 class="sc-way-title"><svg class="sc-icon" aria-hidden="true"><use href="#i-globe"/></svg>Import full scores</h3>
+      <p class="sc-way-desc">The <code>score-import</code> skill in <code>skill/</code> finds scores on the web with <a href="https://www.npmjs.com/package/cloakbrowser" target="_blank" rel="noopener">CloakBrowser</a> and converts MusicXML, MXL, ABC and MIDI into scorify scores. It keeps exact time, spelled sounding pitches, voices, ties, repeats and chord symbols, and records where each file came from. It honors robots.txt and stops at logins, paywalls and human checks. Coding agents load it from <code>skill/SKILL.md</code>; it runs on its own with Python 3.9 or newer. Open the result here with <strong>Open a score file…</strong> or pass it to <code>normalizeScore()</code>.</p>
+      <figure class="mk-code-block">
+        <div class="mk-code-block-head">
+          <span class="mk-code-block-file"><svg class="sc-icon" aria-hidden="true"><use href="#i-terminal"/></svg>score-import</span>
+          <button class="mk-code-block-copy" type="button" aria-label="Copy code"><svg class="sc-icon" aria-hidden="true"><use href="#i-copy"/></svg></button>
+        </div>
+        <pre><code><span><span class="mk-code-block-c"># once: the browser the skill drives</span></span><span>bunx cloakbrowser install</span><span></span><span><span class="mk-code-block-c"># read a page: score links and inline notation</span></span><span>python3 skill/scripts/score.py visit <span class="mk-code-block-s">"https://example.org/scores/greensleeves"</span></span><span>python3 skill/scripts/score.py download <span class="mk-code-block-s">"…/greensleeves.mid"</span> --from <span class="mk-code-block-s">"https://example.org/scores/greensleeves"</span></span><span>python3 skill/scripts/score.py convert greensleeves.mid --pickup 1/2</span><span>python3 skill/scripts/score.py check greensleeves.scorify.json</span></code></pre>
+        <span class="mk-code-block-status" role="status"></span>
+      </figure>
+    </div>
+
+    <hr class="separator sc-sep-wide">
+    <div class="sc-usage" id="skill">
+      <h3 class="sc-way-title"><svg class="sc-icon" aria-hidden="true"><use href="#i-bot"/></svg>New scores with Claude Code or Codex</h3>
+      <p class="sc-way-desc">The same <code>score-import</code> skill works as an agent skill in <strong>Claude Code</strong> and <strong>Codex</strong>. Ask your agent for a song, and it searches the web, downloads a score, converts it and checks the result. You get a <code>*.scorify.json</code> file, or a <code>*.scorify-set.json</code> with several versions of one song, each with its difficulty. The skill is part of this repository; it is not on a marketplace yet. It needs Python 3.9 or newer, and CloakBrowser for web pages. Install it once by linking the repository's <code>skill/</code> folder into your agent's skills folder. A link keeps the skill current when you pull the repository; copy the folder instead for a fixed version. Then call it with <code>/score-import</code> in Claude Code or <code>$score-import</code> in Codex, or just ask, since both agents pick a matching skill on their own. Open the file here with <strong>Open a score file…</strong>.</p>
+      <figure class="mk-code-block">
+        <div class="mk-code-block-head">
+          <div class="mk-code-block-tabs" role="radiogroup" aria-label="Coding agent">
+            <label><input type="radio" name="cb-agent" value="claude" checked>Claude Code</label><label><input type="radio" name="cb-agent" value="codex">Codex</label><label><input type="radio" name="cb-agent" value="project">One project</label>
+          </div>
+          <button class="mk-code-block-copy" type="button" aria-label="Copy code"><svg class="sc-icon" aria-hidden="true"><use href="#i-copy"/></svg></button>
+        </div>
+        <pre data-tab="claude"><code><span><span class="mk-code-block-c"># once: the skill and the browser it drives</span></span><span>git clone https://github.com/kyr0/scorify.git</span><span>mkdir -p ~/.claude/skills</span><span>ln -s "$PWD/scorify/skill" ~/.claude/skills/score-import</span><span>bunx cloakbrowser install</span><span></span><span><span class="mk-code-block-c"># then, in Claude Code (restart it once to load the skill)</span></span><span>/score-import Find a lead sheet of "Scarborough Fair" with melody, lyrics and chords and convert it to a scorify score</span></code></pre>
+        <pre data-tab="codex"><code><span><span class="mk-code-block-c"># once: the skill and the browser it drives</span></span><span>git clone https://github.com/kyr0/scorify.git</span><span>mkdir -p ~/.agents/skills</span><span>ln -s "$PWD/scorify/skill" ~/.agents/skills/score-import</span><span>bunx cloakbrowser install</span><span></span><span><span class="mk-code-block-c"># then, in Codex (restart it once to load the skill)</span></span><span>$score-import Find a lead sheet of "Scarborough Fair" with melody, lyrics and chords and convert it to a scorify score</span></code></pre>
+        <pre data-tab="project"><code><span><span class="mk-code-block-c"># only for one project: inside it, copy the skill folder</span></span><span>mkdir -p .claude/skills .agents/skills</span><span>cp -R ../scorify/skill .claude/skills/score-import</span><span>cp -R ../scorify/skill .agents/skills/score-import</span></code></pre>
+        <span class="mk-code-block-status" role="status"></span>
+      </figure>
+      <p class="sc-way-desc">Scores are for your private practice: the skill honors robots.txt, stops at logins, paywalls and human checks, and does not transcribe audio. On Windows, copy the folder instead of linking it.</p>
+    </div>
+
+    <hr class="separator sc-sep-wide">
+    <div class="sc-way sc-way-agent">
+      <h3 class="sc-way-title"><svg class="sc-icon" aria-hidden="true"><use href="#i-bot"/></svg>Vibe coding</h3>
+      <p class="sc-way-desc">Paste this prompt into your coding agent. It links to the repository, so the agent works from the current README.</p>
+      <div class="sc-prompt">
+        <div class="mockup-code" data-chrome="mac" data-title="coding agent · ~/your-app" data-wrap id="agent-prompt">
+          <pre data-prefix=">"><code>Use scorify for ukulele and guitar arrangements in this app: https://github.com/kyr0/scorify</code></pre>
+          <pre data-prefix=""><code>Read its README.md and docs/IMPLEMENTATION_SPEC.md first. It is not on npm yet: build the repository and add it as a local dependency.</code></pre>
+          <pre data-prefix=""><code>Write sounding pitches with parsePitch() and exact quarter-note times with q(n, d). Build scores with createScore() and call arrange(score, { instrument, mode: "exact", player: { level } }).</code></pre>
+          <pre data-prefix=""><code>Branch on result.status: "infeasible" means proven impossible within the model, "search-exhausted" means not proven. Render result.annotations; never derive frets from pitches yourself.</code></pre>
+          <pre data-prefix="" data-tone="muted" data-cursor><code>⏎ send</code></pre>
+        </div>
+        <button type="button" class="btn sc-prompt-copy" data-variant="secondary" data-size="sm" id="copy-prompt"><svg class="sc-icon" aria-hidden="true"><use href="#i-copy"/></svg><span>Copy prompt</span></button>
+        <span class="sr-only" role="status" id="copy-prompt-status"></span>
+      </div>
+    </div>
+    </div>
+  </section>
+
+  <div class="container sc-section parallax-reveal" data-reveal="zoom">
+    <section class="mk-cta" data-variant="dark" aria-labelledby="cta-title">
+      <div class="mk-cta-inner">
+        <div class="mk-cta-copy">
+          <h2 class="mk-cta-title" id="cta-title">Write it once. Play it your way.</h2>
+          <p class="mk-cta-desc">Arrangement, fingering and plucked-string sound for ukulele and guitar. Exact time, honest results, plain modules.</p>
+        </div>
+        <div class="mk-cta-actions">
+          <a class="btn" data-size="lg" href="https://github.com/kyr0/scorify" target="_blank" rel="noopener">View on GitHub<svg class="sc-icon" aria-hidden="true"><use href="#i-external"/></svg><span class="sr-only"> (opens in a new tab)</span></a>
+          <a class="btn" data-variant="outline" data-size="lg" href="#demo">Play a song</a>
+        </div>
+        <p class="mk-cta-note">MIT licensed · v0.3.0 · not yet published to npm</p>
+      </div>
+    </section>
+  </div>
+
+  </main>
+
+  <footer class="mk-footer" style="width:100%">
+    <div class="mk-footer-inner">
+      <nav class="mk-footer-nav sc-footer-nav" aria-label="Footer">
+        <div class="mk-footer-col">
+          <h3 class="mk-footer-heading">Project</h3>
+          <ul class="mk-footer-list">
+            <li><a href="https://github.com/kyr0/scorify" target="_blank" rel="noopener">Source code<svg class="sc-icon sc-ext" aria-hidden="true"><use href="#i-external"/></svg><span class="sr-only"> (opens in a new tab)</span></a></li>
+            <li><a href="https://github.com/kyr0/scorify/blob/main/README.md" target="_blank" rel="noopener">README<svg class="sc-icon sc-ext" aria-hidden="true"><use href="#i-external"/></svg><span class="sr-only"> (opens in a new tab)</span></a></li>
+            <li><a href="https://github.com/kyr0/scorify/blob/main/CHANGELOG.md" target="_blank" rel="noopener">Changelog<svg class="sc-icon sc-ext" aria-hidden="true"><use href="#i-external"/></svg><span class="sr-only"> (opens in a new tab)</span></a></li>
+          </ul>
+        </div>
+        <div class="mk-footer-col">
+          <h3 class="mk-footer-heading">Documentation</h3>
+          <ul class="mk-footer-list">
+            <li><a href="IMPLEMENTATION_SPEC.md">Implementation specification</a></li>
+            <li><a href="AUDIO.md">Performance &amp; audio</a></li>
+            <li><a href="VALIDATION.md">Validation &amp; limits</a></li>
+            <li><a href="RESEARCH.md">Research</a></li>
+            <li><a href="DEMO.md">About this site</a></li>
+          </ul>
+        </div>
+        <div class="mk-footer-col">
+          <h3 class="mk-footer-heading">This page</h3>
+          <ul class="mk-footer-list">
+            <li><a href="#demo">Playground</a></li>
+            <li><a href="#how">How it works</a></li>
+            <li><a href="#api">API</a></li>
+            <li><a href="#install">Install</a></li>
+          </ul>
+        </div>
+        <div class="mk-footer-col">
+          <h3 class="mk-footer-heading">Built with</h3>
+          <ul class="mk-footer-list">
+            <li><a href="https://github.com/kyr0/defuss-shadcn" target="_blank" rel="noopener">defuss-shadcn<svg class="sc-icon sc-ext" aria-hidden="true"><use href="#i-external"/></svg><span class="sr-only"> (opens in a new tab)</span></a></li>
+            <li><a href="https://shadcn.defuss.org/multimedia/fretboard.html" target="_blank" rel="noopener">Fretboard component<svg class="sc-icon sc-ext" aria-hidden="true"><use href="#i-external"/></svg><span class="sr-only"> (opens in a new tab)</span></a></li>
+            <li><a href="assets/scorify/THIRD-PARTY-LICENSES.txt">Third-party licenses</a></li>
+          </ul>
+        </div>
+      </nav>
+      <hr class="separator mk-footer-rule">
+      <div class="mk-footer-bottom">
+        <a href="#top" class="mk-footer-brand" aria-label="Back to the top"><svg class="sc-icon sc-brand-icon" aria-hidden="true"><use href="#i-logo"/></svg><span class="mk-footer-brand-name">scorify</span></a>
+        <div class="mk-footer-meta">
+          <p class="mk-footer-copy">© 2026 <a href="https://www.linkedin.com/in/aronhomberg/" target="_blank" rel="noopener">Aron Homberg (kyr0)<svg class="sc-icon sc-ext" aria-hidden="true"><use href="#i-external"/></svg><span class="sr-only"> (opens in a new tab)</span></a> · MIT. Built with <a href="https://github.com/kyr0/defuss-shadcn" target="_blank" rel="noopener">defuss-shadcn<svg class="sc-icon sc-ext" aria-hidden="true"><use href="#i-external"/></svg><span class="sr-only"> (opens in a new tab)</span></a>.</p>
+        </div>
+      </div>
+    </div>
+  </footer>
+</div>
+<div class="fab" data-scroll-top>
+  <a class="btn fab-trigger" href="#top" aria-label="Back to top"><span class="fab-icon" aria-hidden="true"><svg class="sc-icon" aria-hidden="true"><use href="#i-arrow-up"/></svg></span></a>
+</div>
+
+<script type="module" src="https://cdn.jsdelivr.net/gh/kyr0/defuss-shadcn@v0.9.11/dist/components/all.min.js" integrity="sha384-smU3aE2UPGvVE+nQS/ekmmE86ccjq2yap/zPMBoITba6SOq71Fil6vo4HZHaFZRY" crossorigin="anonymous"></script>
+<script type="module" src="assets/app.mjs"></script>
+  <div class="sc-print" id="print-sheet" aria-hidden="true"></div>
+</body>
+</html>

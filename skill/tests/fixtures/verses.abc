@@ -1,0 +1,12 @@
+X:1
+T:Two verses
+M:3/4
+L:1/4
+Q:1/4=96
+K:G
+V:1 name="Voice"
+V:2 name="Guitar" clef=bass
+[V:1] G A B | c2 B | A G A | G3 |]
+w: Here we go a-round, now we go home.
+w: Sing the sec-ond verse just the same way.
+[V:2] G,2 D, | C,2 G, | D,2 D, | G,3 |]

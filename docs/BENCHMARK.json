@@ -1,0 +1,38 @@
+{
+  "node": "v24.22.1",
+  "fixture": "Original synthetic study, one warmup + three runs; not a general latency guarantee",
+  "results": [
+    {
+      "name": "ukulele 8-note exact",
+      "inputNotes": 8,
+      "outputNotes": 8,
+      "medianMs": 531.12,
+      "expandedStates": 89133,
+      "optimality": "proven-in-model"
+    },
+    {
+      "name": "ukulele 64-note beam",
+      "inputNotes": 64,
+      "outputNotes": 64,
+      "medianMs": 200.54,
+      "expandedStates": 30604,
+      "optimality": "best-found"
+    },
+    {
+      "name": "guitar 64-note beam",
+      "inputNotes": 64,
+      "outputNotes": 64,
+      "medianMs": 530.31,
+      "expandedStates": 77929,
+      "optimality": "best-found"
+    },
+    {
+      "name": "baby reduction 128 input notes",
+      "inputNotes": 128,
+      "outputNotes": 64,
+      "medianMs": 293.34,
+      "expandedStates": 36580,
+      "optimality": "best-found"
+    }
+  ]
+}

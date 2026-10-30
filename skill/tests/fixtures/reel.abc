@@ -1,0 +1,14 @@
+%abc-2.1
+X:1
+T:Test Reel (original fixture)
+C:scorify test suite
+M:4/4
+L:1/8
+Q:1/4=96
+K:D
+"D"FA|:d2 fd "G"B2 ^c2|"A"(3ABA F>E D2-D2|"Bm"=F2 FF B,4|1"A7"A4 z2 FA:|2"D"d4 d4||
+X:2
+T:Second Tune
+M:6/8
+K:Ador
+eAA eAA|

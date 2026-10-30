@@ -1,0 +1,185 @@
+{
+  "node": "v24.22.1",
+  "method": "One warmup, median of three runs; 128-frame blocks; synthetic fixtures; not a device realtime guarantee.",
+  "maxAbsCents": 0.27680445537801784,
+  "tuning": [
+    {
+      "sampleRate": 44100,
+      "frequency": 82.4069,
+      "measured": 82.40841300635938,
+      "cents": 0.031785494661988434
+    },
+    {
+      "sampleRate": 44100,
+      "frequency": 110,
+      "measured": 109.9974464904965,
+      "cents": -0.040188853714306846
+    },
+    {
+      "sampleRate": 44100,
+      "frequency": 146.8324,
+      "measured": 146.8416776051668,
+      "cents": 0.10938456737398441
+    },
+    {
+      "sampleRate": 44100,
+      "frequency": 196,
+      "measured": 195.99722530885174,
+      "cents": -0.02450853976233175
+    },
+    {
+      "sampleRate": 44100,
+      "frequency": 261.6256,
+      "measured": 261.6674342751303,
+      "cents": 0.27680445537801784
+    },
+    {
+      "sampleRate": 44100,
+      "frequency": 440,
+      "measured": 440.0202513184238,
+      "cents": 0.07967946634744923
+    },
+    {
+      "sampleRate": 44100,
+      "frequency": 880,
+      "measured": 880.0079742274736,
+      "cents": 0.01568771769170216
+    },
+    {
+      "sampleRate": 44100,
+      "frequency": 1318.51,
+      "measured": 1318.546279257494,
+      "cents": 0.04763484673924424
+    },
+    {
+      "sampleRate": 48000,
+      "frequency": 82.4069,
+      "measured": 82.41310448283926,
+      "cents": 0.1303411195378009
+    },
+    {
+      "sampleRate": 48000,
+      "frequency": 110,
+      "measured": 110.00726298919572,
+      "cents": 0.11430471910211001
+    },
+    {
+      "sampleRate": 48000,
+      "frequency": 146.8324,
+      "measured": 146.8285317151133,
+      "cents": -0.0456097885997546
+    },
+    {
+      "sampleRate": 48000,
+      "frequency": 196,
+      "measured": 195.99365575441803,
+      "cents": -0.05603852923054086
+    },
+    {
+      "sampleRate": 48000,
+      "frequency": 261.6256,
+      "measured": 261.65738805319626,
+      "cents": 0.21033575090708692
+    },
+    {
+      "sampleRate": 48000,
+      "frequency": 440,
+      "measured": 440.00367800570405,
+      "cents": 0.014471504760073547
+    },
+    {
+      "sampleRate": 48000,
+      "frequency": 880,
+      "measured": 880.0496353227752,
+      "cents": 0.09764538354285462
+    },
+    {
+      "sampleRate": 48000,
+      "frequency": 1318.51,
+      "measured": 1318.5557801342284,
+      "cents": 0.060109328900269994
+    },
+    {
+      "sampleRate": 96000,
+      "frequency": 82.4069,
+      "measured": 82.40619753635319,
+      "cents": -0.01475767401692537
+    },
+    {
+      "sampleRate": 96000,
+      "frequency": 110,
+      "measured": 110.0081455058452,
+      "cents": 0.1281932270290078
+    },
+    {
+      "sampleRate": 96000,
+      "frequency": 146.8324,
+      "measured": 146.82984359323618,
+      "cents": -0.030141691889070423
+    },
+    {
+      "sampleRate": 96000,
+      "frequency": 196,
+      "measured": 195.99562384225058,
+      "cents": -0.03865427489190411
+    },
+    {
+      "sampleRate": 96000,
+      "frequency": 261.6256,
+      "measured": 261.62208008387074,
+      "cents": -0.02329221470032753
+    },
+    {
+      "sampleRate": 96000,
+      "frequency": 440,
+      "measured": 440.0066968499257,
+      "cents": 0.026349378145930094
+    },
+    {
+      "sampleRate": 96000,
+      "frequency": 880,
+      "measured": 880.001703923278,
+      "cents": 0.0033521444772649698
+    },
+    {
+      "sampleRate": 96000,
+      "frequency": 1318.51,
+      "measured": 1318.4895435401852,
+      "cents": -0.026860012048373724
+    }
+  ],
+  "benchmarks": [
+    {
+      "strings": 4,
+      "events": 80,
+      "renderSeconds": 10,
+      "median": {
+        "prepareMs": 0.6022690000000068,
+        "renderMs": 39.777563999999984
+      },
+      "realtimeFactor": 251.39799913338092,
+      "stats": {
+        "frames": 480000,
+        "clippedSamples": 0,
+        "peakBeforeLimiter": 0.19546525466499368,
+        "excitations": 80
+      }
+    },
+    {
+      "strings": 6,
+      "events": 120,
+      "renderSeconds": 10,
+      "median": {
+        "prepareMs": 0.9875799999999799,
+        "renderMs": 45.402399
+      },
+      "realtimeFactor": 220.2526787185849,
+      "stats": {
+        "frames": 480000,
+        "clippedSamples": 0,
+        "peakBeforeLimiter": 0.17101051239394732,
+        "excitations": 120
+      }
+    }
+  ]
+}

@@ -1,0 +1,224 @@
+{
+ "schemaVersion": 1,
+ "temperament": "12-TET",
+ "concertAHz": 440,
+ "notes": [
+  {
+   "id": "P1-m1-v1-1",
+   "onset": [
+    0,
+    1
+   ],
+   "duration": [
+    47,
+    48
+   ],
+   "pitch": {
+    "step": "G",
+    "alter": 0,
+    "octave": 4
+   },
+   "partId": "P1",
+   "voiceId": "1",
+   "role": "melody"
+  },
+  {
+   "id": "P2-m1-v1-1",
+   "onset": [
+    0,
+    1
+   ],
+   "duration": [
+    3,
+    1
+   ],
+   "pitch": {
+    "step": "G",
+    "alter": 0,
+    "octave": 2
+   },
+   "partId": "P2",
+   "voiceId": "1",
+   "role": "bass"
+  },
+  {
+   "id": "P1-m1-v1-2",
+   "onset": [
+    1,
+    1
+   ],
+   "duration": [
+    47,
+    48
+   ],
+   "pitch": {
+    "step": "F",
+    "alter": 1,
+    "octave": 4
+   },
+   "partId": "P1",
+   "voiceId": "1",
+   "role": "melody"
+  },
+  {
+   "id": "P1-m1-v1-3",
+   "onset": [
+    2,
+    1
+   ],
+   "duration": [
+    47,
+    48
+   ],
+   "pitch": {
+    "step": "A",
+    "alter": 0,
+    "octave": 4
+   },
+   "partId": "P1",
+   "voiceId": "1",
+   "role": "melody"
+  },
+  {
+   "id": "P1-m2-v1-1",
+   "onset": [
+    3,
+    1
+   ],
+   "duration": [
+    47,
+    48
+   ],
+   "pitch": {
+    "step": "B",
+    "alter": 0,
+    "octave": 4
+   },
+   "partId": "P1",
+   "voiceId": "1",
+   "role": "melody"
+  },
+  {
+   "id": "P2-m2-v1-1",
+   "onset": [
+    3,
+    1
+   ],
+   "duration": [
+    3,
+    1
+   ],
+   "pitch": {
+    "step": "D",
+    "alter": 0,
+    "octave": 2
+   },
+   "partId": "P2",
+   "voiceId": "1",
+   "role": "bass"
+  },
+  {
+   "id": "P1-m2-v1-2",
+   "onset": [
+    4,
+    1
+   ],
+   "duration": [
+    47,
+    48
+   ],
+   "pitch": {
+    "step": "C",
+    "alter": 0,
+    "octave": 5
+   },
+   "partId": "P1",
+   "voiceId": "1",
+   "role": "melody"
+  },
+  {
+   "id": "P1-m2-v1-3",
+   "onset": [
+    5,
+    1
+   ],
+   "duration": [
+    47,
+    48
+   ],
+   "pitch": {
+    "step": "D",
+    "alter": 0,
+    "octave": 5
+   },
+   "partId": "P1",
+   "voiceId": "1",
+   "role": "melody"
+  }
+ ],
+ "rests": [],
+ "parts": [
+  {
+   "id": "P1",
+   "name": "Flute",
+   "voices": [
+    "1"
+   ]
+  },
+  {
+   "id": "P2",
+   "name": "Bass",
+   "voices": [
+    "1"
+   ]
+  }
+ ],
+ "tempoMap": [
+  {
+   "at": [
+    0,
+    1
+   ],
+   "quarterBpm": 100.0
+  }
+ ],
+ "meterMap": [
+  {
+   "at": [
+    0,
+    1
+   ],
+   "numerator": 3,
+   "denominator": 4
+  }
+ ],
+ "keyMap": [
+  {
+   "at": [
+    0,
+    1
+   ],
+   "tonic": "G",
+   "mode": "major"
+  }
+ ],
+ "harmony": [],
+ "notation": {
+  "title": "",
+  "composer": "",
+  "converter": {
+   "name": "score-import skill",
+   "version": "0.1.0",
+   "input": "midi"
+  },
+  "assumptions": [],
+  "warnings": [],
+  "dropped": {
+   "drum notes (channel 10)": 1
+  },
+  "source": {
+   "sha256": "087d2fd8f970cf753b9f8f278e1e30a794d1b58c87208ecf2d5f5f8fa625bb42",
+   "format": "midi"
+  }
+ }
+}

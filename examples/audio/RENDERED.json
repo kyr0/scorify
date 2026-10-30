@@ -1,0 +1,50 @@
+[
+  {
+    "file": "ukulele-straight.wav",
+    "notes": 16,
+    "durationSeconds": 4.316395833333333,
+    "timingScale": 1,
+    "stats": {
+      "frames": 207187,
+      "clippedSamples": 0,
+      "peakBeforeLimiter": 0.12300163813801285,
+      "excitations": 16
+    }
+  },
+  {
+    "file": "ukulele-humanized.wav",
+    "notes": 16,
+    "durationSeconds": 4.320104166666667,
+    "timingScale": 1,
+    "stats": {
+      "frames": 207365,
+      "clippedSamples": 0,
+      "peakBeforeLimiter": 0.11665704830658526,
+      "excitations": 16
+    }
+  },
+  {
+    "file": "guitar-straight.wav",
+    "notes": 24,
+    "durationSeconds": 4.323895833333333,
+    "timingScale": 1,
+    "stats": {
+      "frames": 207547,
+      "clippedSamples": 0,
+      "peakBeforeLimiter": 0.14403678616138949,
+      "excitations": 24
+    }
+  },
+  {
+    "file": "guitar-humanized.wav",
+    "notes": 24,
+    "durationSeconds": 4.327604166666666,
+    "timingScale": 1,
+    "stats": {
+      "frames": 207725,
+      "clippedSamples": 0,
+      "peakBeforeLimiter": 0.12404378878416385,
+      "excitations": 24
+    }
+  }
+]
