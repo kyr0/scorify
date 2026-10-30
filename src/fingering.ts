@@ -12,6 +12,7 @@ import type {
   TransitionEvaluation,
 } from "./adapters.js";
 import type { Q } from "./time.js";
+import type { PlayerCapabilities } from "./profiles.js";
 export interface FrettedAssignment extends Position {
   readonly id: string;
   readonly noteIds: readonly string[];
@@ -490,8 +491,28 @@ export function createFrettedAdapter(
       r.contacts.reduce((v, c) => v + c.fret, 0) / 96 +
       (p.familiarShapes.length && !p.familiarShapes.includes(r.shape)
         ? 0.25
-        : 0),
+        : 0) +
+      highFretCost(r.assignments, p),
   };
+}
+
+/**
+ * The difficulty's cost for the highest fretted note, counted from the capo as the tab reads (a capo is a movable
+ * nut); the instrument's own fret count stays the hard limit.
+ */
+function highFretCost(
+  assignments: readonly FrettedAssignment[],
+  p: PlayerCapabilities,
+): number {
+  if (!p.highFretCosts.length) return 0;
+  const top = Math.max(
+    0,
+    ...assignments.filter((a) => !a.effectiveOpen).map((a) => a.relativeFret),
+  );
+  return p.highFretCosts.reduce(
+    (v, c) => v + Math.max(0, top - c.above) * c.perFret,
+    0,
+  );
 }
 
 /** Construct metrics/contact geometry for already assigned notes; validation is separate. */

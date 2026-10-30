@@ -1,6 +1,15 @@
 # Validation record
 
-Date: 2026-10-30. Version: `0.3.0`, published on npm.
+Date: 2026-10-31. Version: `0.3.0` on npm, with the unreleased changes below.
+
+## Highest fret and low positions, 2026-10-31
+
+- **Policy.** Each level below maestro has soft costs for the highest fretted note of a moment, counted from the capo, per quarter note: baby to semi-pro 1 per fret above 8 and 4 more per fret above 10, pro and expert 4 per fret above 10. The instrument's highest fret is the hard limit: ukuleles 18, guitars 19, mandolin 20, or a request's `frets`.
+- **Fixtures.** `tests/arrange.test.ts`: on guitar the run E5 D5 C5 B4 A4 G4 E5 G5 takes B4 and A4 at or below fret 8 at semi-pro, at or below 10 at pro and above 10 at maestro. Adaptive mode, with octave shifts allowed, keeps all eight notes at their pitch at every level. `tests/songs.test.ts`: each instrument's highest fret, `~frets7` ids, and an unchanged cache key at the usual fret. A 5-fret neck keeps every note at or below fret 5 and validates, and a capo above the highest fret is reported. A search that runs out of budget with the preference is searched again without it; the log marks it `anyPosition`, and it replays without a search.
+- **Public cache.** The cache version is `bd416701157b37ac`, and all 5,502 configurations were searched again. Request by request against the previous cache, the share of playing time with the hand above fret 8, and above fret 10, fell from 8.7% to 5.9% and 6.0% to 3.6% at amateur, 9.2% to 6.0% and 6.4% to 3.8% at semi-pro, 10.0% to 8.1% and 6.9% to 4.0% at pro, and 7.4% to 6.1% and 4.9% to 2.8% at expert. Baby, beginner and maestro are unchanged; maestro's 5.3% → 5.2% comes from the ukuleles' 18th fret. Most notes still above fret 10 lie nowhere lower: of those notes, 116 of 2,758 at amateur and 579 of 3,267 at semi-pro have a location at or below fret 10 on another string. Musical loss ranks first, so the preference does not move a note.
+- **A preference never costs a note.** In the first full run, Greensleeves with all four voices on drop-D guitar at expert, in two keys, ran out of budget with the preference. It fell back to its strummed chords, 210 and 230 notes instead of 235. With the fallback search, seven configurations, all Greensleeves, play from a search without the preference, and no result has fewer notes than before: 0 of 5,502. `check:cache` reports 0 of 5,502 stale.
+- **Page.** `check:docs`: the slider stands at 18 on high-G ukulele with the usual mark current. At 5, Rainbow plays with nothing above fret 5, About this arrangement says "Frets up to 5 only (the instrument's usual highest fret is 18)", and the value stays with the ukulele across songs. The mark brings back the cached arrangement.
+- `bun run check` passes **227 tests in 17 files**, with the package and packed checks.
 
 ## Cache version, engine paths, timing limits and practice sounds, 2026-10-30
 

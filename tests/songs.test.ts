@@ -9,9 +9,12 @@ import {
   pick,
   ALL,
   arrangeFor,
+  cacheKey,
   cacheable,
   chordTones,
+  customInstrumentId,
   hardestNotes,
+  highestFret,
   instrumentFor,
   limitsExceeded,
   pieceFromScore,
@@ -114,6 +117,46 @@ describe("songs: versions per difficulty", () => {
       expect(frets.every((f) => f === "x" || f <= 3)).toBe(true);
     }
     expect(run.result!.annotations.flatMap((a) => a.assignments).every((p) => p.absoluteFret === p.relativeFret + 2)).toBe(true);
+  });
+
+  it("takes the instrument's highest fret as a hard limit, its own by default", async () => {
+    expect(["uke-high-g", "uke-low-g", "uke-baritone", "guitar", "mandolin"].map(highestFret)).toEqual([18, 18, 18, 19, 20]);
+    expect(customInstrumentId("guitar", { frets: 19 })).toBe("guitar");
+    expect(customInstrumentId("guitar", { capo: 2, frets: 7 })).toBe("guitar~capo2~frets7");
+    expect(instrumentFor("guitar~capo2~frets7").strings.every((s) => s.fretCount === 7 && s.capoFret === 2)).toBe(true);
+    expect(() => customInstrumentId("guitar", { frets: 0 })).toThrow(RangeError);
+    // The instrument's own highest fret is the default request, with the same cache key.
+    expect(cacheKey(song, request("amateur", { frets: 19 }))).toBe(cacheKey(song, request("amateur")));
+    expect(cacheKey(song, request("amateur", { frets: 5 }))).not.toBe(cacheKey(song, request("amateur")));
+    const low = await arrangeFor(song, request("amateur", { frets: 5 }), { arrange: search });
+    expect(low.status).toBe("success");
+    expect(low.prepared!.options.instrument.strings.every((s) => s.fretCount === 5)).toBe(true);
+    expect(low.result!.annotations.flatMap((a) => a.assignments).every((p) => p.absoluteFret <= 5)).toBe(true);
+    expect(validateFrettedArrangement(low.result!.score, low.prepared!.options.instrument, low.result!.annotations, low.prepared!.options.player).valid).toBe(true);
+    // Under the capo's fret there is nothing to finger, and that is reported rather than played on a longer neck.
+    expect(prepare(song, request("amateur", { capo: 6, frets: 5 }))).toEqual({ missing: "a capo on fret 6, above the highest fret (5)" });
+  });
+
+  it("searches once more without the low-position preference when a search runs out with it", async () => {
+    // A search that runs out whenever the difficulty prefers low positions, and plays without that preference.
+    const searches: unknown[] = [];
+    const picky = (source: Parameters<typeof arrange>[0], options: Parameters<typeof arrange>[1]) => {
+      searches.push(options.player?.overrides?.highFretCosts);
+      return options.player?.overrides?.highFretCosts ? arrange(source, options) : ({ status: "search-exhausted", diagnostics: [] } as unknown as ReturnType<typeof arrange>);
+    };
+    const run = await arrangeFor(song, request("amateur"), { arrange: picky });
+    expect(run.log.map((e) => [e.version, e.status, !!e.anyPosition])).toEqual([["amateur", "search-exhausted", false], ["amateur", "success", true]]);
+    expect(searches.at(-1)).toEqual([]);
+    expect(run.prepared!.notes.at(-1)).toMatch(/searched without it/);
+    expect(validateFrettedArrangement(run.result!.score, run.prepared!.options.instrument, run.result!.annotations, run.prepared!.options.player).valid).toBe(true);
+    // The log replays both attempts without a search; maestro has no preference to lift.
+    const never = () => {
+      throw new Error("searched");
+    };
+    const again = await arrangeFor(song, request("amateur"), { arrange: never, replay: cacheable(run.log) });
+    expect(again.result?.annotations).toEqual(run.result?.annotations);
+    const maestro = await arrangeFor(song, request("maestro", { bpm: 70 }), { arrange: picky });
+    expect(maestro.log.some((e) => e.anyPosition)).toBe(false);
   });
 
   it("keeps a fingering at a slower tempo after validation, and makes strokes for the strums that sound", async () => {

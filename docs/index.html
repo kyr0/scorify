@@ -302,6 +302,13 @@
             <button type="button" class="sc-tempo-original" id="tempo-original" aria-label="Back to the original tempo, 80 BPM" title="Original tempo: 80 BPM"><span>original</span></button>
           </div>
         </div>
+        <div class="sc-control sc-tempo sc-frets">
+          <label class="label" for="frets">Highest fret <span class="sc-tempo-value"><output id="frets-value" for="frets">18</output></span></label>
+          <div class="sc-tempo-track" id="frets-track" style="--tempo-original:0.684">
+            <input class="slider" type="range" id="frets" min="5" max="24" step="1" value="18" style="--slider-value:68.4%">
+            <button type="button" class="sc-tempo-original" id="frets-usual" aria-label="Back to the instrument's usual highest fret, 18" title="The instrument's usual highest fret: 18"><span>usual</span></button>
+          </div>
+        </div>
         <div class="sc-transport">
           <button type="button" id="play" class="play-button" data-size="sm" aria-label="Play" title="Play" disabled><span class="sc-sr">Play</span></button>
           <button type="button" id="stop" class="btn" data-variant="outline" disabled><svg class="sc-icon" aria-hidden="true"><use href="#i-stop"/></svg>Stop</button>
@@ -356,7 +363,7 @@
               <div class="sc-control"><label class="label" for="c-shift">Shift speed (frets/s)</label><input class="input" type="number" id="c-shift" min="1" max="200" step="1"></div>
               <div class="sc-control"><label class="label" for="c-attacks">String attacks per second</label><input class="input" type="number" id="c-attacks" min="1" max="200" step="1"></div>
               <div class="sc-control"><label class="label" for="c-polyphony">Notes at once</label><input class="input" type="number" id="c-polyphony" min="1" max="16" step="1"></div>
-              <div class="sc-control"><label class="label" for="c-maxfret">Highest fret</label><input class="input" type="number" id="c-maxfret" min="0" max="36" step="1"></div>
+              <div class="sc-control"><label class="label" for="c-maxfret">Player's highest fret</label><input class="input" type="number" id="c-maxfret" min="0" max="36" step="1"></div>
               <div class="sc-control"><label class="label" for="c-barre">Barre chords</label><select class="select" id="c-barre"><option value="">As the difficulty</option><option value="allow">Allowed</option><option value="forbid">Not allowed</option></select></div>
               <div class="sc-control"><label class="label" for="c-hand">Right hand</label><select class="select" id="c-hand"><option value="">As the version</option><option value="strum">Strum</option><option value="pick">Pick</option></select></div>
               <div class="sc-control"><label class="label" for="c-complexity">Ornaments kept (0–1)</label><input class="input" type="number" id="c-complexity" min="0" max="1" step="0.05"></div>

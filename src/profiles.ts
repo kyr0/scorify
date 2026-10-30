@@ -17,6 +17,14 @@ export const levels: readonly Level[] = [
   "expert",
   "maestro",
 ];
+/**
+ * A soft bias toward lower positions: every fret the fretting hand reaches above `above` costs `perFret`, per quarter
+ * note it is held. It changes which fingering wins, never which notes are kept (musical loss ranks first).
+ */
+export interface HighFretCost {
+  readonly above: number;
+  readonly perFret: number;
+}
 export interface PlayerCapabilities {
   readonly maxFretSpan: number;
   readonly maxReachMm?: number;
@@ -38,6 +46,8 @@ export interface PlayerCapabilities {
   readonly allowBarre: boolean;
   readonly maxBarreStrings: number;
   readonly maxFret: number;
+  /** Soft costs for playing high on the neck; the instrument's fret count and `maxFret` are the hard limits. */
+  readonly highFretCosts: readonly HighFretCost[];
   readonly minDuration: Q;
   readonly rhythmGrid?: Q;
   readonly rightHand: "pick" | "strum";
@@ -80,6 +90,13 @@ const rows: readonly (readonly [
 ];
 /** Picked notes per bar from baby to pro; expert and maestro have no such limit. */
 const PICKED_PER_BAR: readonly (number | undefined)[] = [2, 3, 4, 6, 8];
+/**
+ * Up to semi-pro, a strong bias for frets 0-8 and a very strong one against going above fret 10; pro and expert only
+ * the latter, so they go above fret 10 only rarely; maestro plays anywhere the instrument allows.
+ */
+const LOW = { above: 8, perFret: 1 },
+  HIGH = { above: 10, perFret: 4 };
+const HIGH_FRETS: readonly (readonly HighFretCost[])[] = [[LOW, HIGH], [LOW, HIGH], [LOW, HIGH], [LOW, HIGH], [HIGH], [HIGH], []];
 function unit(x: number, label: string): void {
   if (!Number.isFinite(x) || x < 0 || x > 1)
     throw new RangeError(`${label} must be in [0,1]`);
@@ -114,6 +131,7 @@ export function compilePlayer(options: PlayerOptions = {}): PlayerProfile {
     allowBarre: r[6],
     maxBarreStrings: r[6] ? 6 : 1,
     maxFret: 36,
+    highFretCosts: HIGH_FRETS[index]!,
     minDuration: q(1, r[7]),
     rightHand: "pick",
     allowMutedStrum: false,
@@ -134,6 +152,8 @@ export function compilePlayer(options: PlayerOptions = {}): PlayerProfile {
       throw new RangeError(`Invalid ${k}`);
   if (p.maxPickedPerBar !== undefined && (!Number.isSafeInteger(p.maxPickedPerBar) || p.maxPickedPerBar < 1))
     throw new RangeError("Invalid maxPickedPerBar");
+  if (!Array.isArray(p.highFretCosts) || p.highFretCosts.some((c) => !Number.isSafeInteger(c?.above) || c.above < 0 || !Number.isFinite(c.perFret) || c.perFret < 0))
+    throw new RangeError("Invalid highFretCosts");
   for (const k of ["maxShiftFretsPerSecond", "maxAttacksPerSecond"] as const)
     if (!Number.isFinite(p[k]) || p[k] <= 0)
       throw new RangeError(`Invalid ${k}`);

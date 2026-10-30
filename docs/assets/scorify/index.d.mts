@@ -3,7 +3,7 @@ export { FrettedInstrument, FrettedString, Position, enumeratePositions, fretDis
 export { PresetOptions, classicalGuitar, concertUkulele, createFrettedInstrument } from './presets.mjs';
 export { Edit, Frame, HarmonyCandidate, HarmonySpan, Key, Meter, NoteEvent, Part, Pitch, RestEvent, Score, SoundingNote, barAt, cloneScore, createScore, normalizeScore, parsePitch, pitchString, scoreFrames, soundingNotes, validateMeterMap, validateScore } from './model.mjs';
 export { TransformOptions, retimeScore, transformScore, transposeChordSymbol, transposeScore } from './transforms.mjs';
-export { AdaptationPolicy, Level, PlayerCapabilities, PlayerOptions, PlayerProfile, compileAdaptation, compilePlayer, levels } from './profiles.mjs';
+export { AdaptationPolicy, HighFretCost, Level, PlayerCapabilities, PlayerOptions, PlayerProfile, compileAdaptation, compilePlayer, levels } from './profiles.mjs';
 export { HarmonyOptions, analyzeHarmony } from './analysis.mjs';
 export { PerformedNote, QuantizeOptions, QuantizeResult, TimingAlternative, quantizePerformance } from './quantize.mjs';
 export { ADAPTER_CONTRACT_VERSION, AdapterFrame, InstrumentAdapter, MechanicsContext, TransitionEvaluation } from './adapters.mjs';

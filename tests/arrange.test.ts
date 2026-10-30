@@ -493,6 +493,42 @@ describe("adaptive policies", () => {
     ).toBe(1);
     expect(() => compilePlayer({ complexity: 2 })).toThrow();
   });
+  it("keeps lower difficulties low on the neck with a soft cost that never drops a note", () => {
+    expect(levels.map((level) => compilePlayer({ level }).highFretCosts)).toEqual([
+      ...Array(4).fill([{ above: 8, perFret: 1 }, { above: 10, perFret: 4 }]),
+      [{ above: 10, perFret: 4 }],
+      [{ above: 10, perFret: 4 }],
+      [],
+    ]);
+    expect(() =>
+      compilePlayer({ overrides: { highFretCosts: [{ above: -1, perFret: 1 }] } }),
+    ).toThrow(RangeError);
+    // E5 and G5 lie only at fret 12 and above on a guitar; B4 and A4 lie at frets 4-5, 9-10 and 12-14.
+    const run = createScore(
+      ["E5", "D5", "C5", "B4", "A4", "G4", "E5", "G5"].map((p, i) =>
+        n(`n${i}`, p, i, 1, { role: "melody" }),
+      ),
+    );
+    const frets = (level: (typeof levels)[number]) => {
+      const r = success(run, {
+        instrument: classicalGuitar(),
+        mode: "adaptive",
+        adaptation: { allowOctaveShift: true, allowAccompanimentOmission: true },
+        player: { level, overrides: { maxAttacksPerSecond: 100, maxPickedPerBar: 100 } },
+      });
+      // Every note is kept at its pitch: the cost moves the hand, not the music.
+      expect(r.cost.musicalLoss).toBe(0);
+      expect(r.score.notes.map((x) => pitchString(x.pitch))).toEqual(
+        run.notes.map((x) => pitchString(x.pitch)),
+      );
+      return r.annotations.map((a) => Math.max(...a.assignments.map((x) => x.relativeFret)));
+    };
+    // B4 and A4: semi-pro stays at or below fret 8, pro at or below 10, maestro moves up to 12.
+    expect(frets("semi-pro").slice(3, 5).every((f) => f <= 8)).toBe(true);
+    expect(frets("pro").slice(3, 5).every((f) => f <= 10)).toBe(true);
+    expect(Math.max(...frets("maestro").slice(3, 5))).toBeGreaterThan(10);
+    expect(frets("semi-pro")[7]).toBe(15);
+  });
   it("maestro still reports impossible instrument requirements", () => {
     expect(
       arrange(createScore([n("a", "C1")]), {

@@ -29,7 +29,7 @@ export function createFrettedInstrument(
   return instrument;
 }
 
-/** 19 frets is an editable nominal default, not a claim about every concert uke. */
+/** 18 frets is an editable nominal default (many concert ukes have 17-20), not a claim about every one. */
 export function concertUkulele(
   options: PresetOptions & { readonly tuning?: "highG" | "lowG" } = {},
 ): FrettedInstrument {
@@ -45,7 +45,7 @@ export function concertUkulele(
     lowG ? "ukulele-concert-low-g" : "ukulele-concert-high-g",
     lowG ? "Concert Ukulele — low G" : "Concert Ukulele — high G",
     [lowG ? "G3" : "G4", "C4", "E4", "A4"],
-    options,
+    { fretCount: 18, ...options },
   );
 }
 

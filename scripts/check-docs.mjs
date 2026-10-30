@@ -260,6 +260,34 @@ try {
       assert.ok(Math.abs(offset) < 2, `the mark sits under the thumb at the original tempo (${offset.toFixed(1)}px off)`);
       assert.equal(await page.evaluate(() => document.getElementById("tempo-original").hasAttribute("data-current")), true);
 
+      // The highest fret is the instrument's (a ukulele's usual 18, marked under the track): a hard limit that searches
+      // again, is reported, and is remembered for the instrument; the mark brings the usual neck back.
+      const topFret = () => page.evaluate(() => Math.max(0, ...document.getElementById("song-tab").api.getState().config.data.scores[0].tracks
+        .find((t) => t.kind === "tab").items.flatMap((i) => i.notes ?? []).map((n) => n.fret)));
+      const neck = async frets => {
+        await page.evaluate(value => { const slider = document.getElementById("frets"); slider.value = String(value); slider.dispatchEvent(new Event("input")); slider.dispatchEvent(new Event("change")); }, frets);
+        await settled();
+        return snapshot();
+      };
+      assert.deepEqual([await page.inputValue("#frets"), await page.evaluate(() => document.getElementById("frets-usual").hasAttribute("data-current"))], ["18", true]);
+      const usualTop = await topFret(), short = await neck(5);
+      assert.equal(short.status, "success", short.problem);
+      assert.ok(await topFret() <= 5, `nothing above the highest fret (${await topFret()}; ${usualTop} on the usual neck)`);
+      assert.match(short.message, /Frets up to 5 only \(the instrument's usual highest fret is 18\)/i);
+      assert.deepEqual(await page.evaluate(() => JSON.parse(localStorage.getItem("scorify-demo-necks-1"))), { "uke-high-g": 5 });
+      await page.click('[data-song="wicked"]');
+      await settled();
+      await page.click('[data-song="rainbow"]');
+      await settled();
+      assert.equal(await page.inputValue("#frets"), "5", "the highest fret stays with the instrument");
+      await page.click("#frets-usual");
+      await settled();
+      assert.equal(await page.inputValue("#frets"), "18");
+      assert.equal(await page.evaluate(() => localStorage.getItem("scorify-demo-necks-1")), "{}");
+      assert.equal((await snapshot()).notes, shown.notes, "the usual neck plays the cached arrangement again");
+      await page.click("#tempo-original");
+      await settled();
+
       // Play counts in one bar (80 BPM, 4/4: 3 s) with the playhead held at the start, whether or not the metronome
       // is on; a loop's next pass does not count in again.
       // A tempo change keeps the place (the checks above leave the playhead inside the song); this one starts at the top.

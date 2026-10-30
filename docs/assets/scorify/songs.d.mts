@@ -132,18 +132,24 @@ interface CatalogInstrument {
     readonly short: string;
     readonly create: () => FrettedInstrument;
 }
-/** Fretted instruments by id, in physical string order. */
+/** Fretted instruments by id, in physical string order, each with a usual highest fret (ukuleles 18, guitars 19, mandolin 20). */
 declare const INSTRUMENTS: readonly CatalogInstrument[];
 /**
- * The instrument for a catalog id, or a composite one from customInstrumentId ("guitar~capo2~tuningD2.A2.D3.G3.B3.E4").
+ * The instrument for a catalog id, or a composite one from customInstrumentId ("guitar~capo2~frets15~tuningD2.A2.D3.G3.B3.E4").
  * Instruments are cached and shared; treat them as immutable.
  */
 declare function instrumentFor(id: string): FrettedInstrument;
-/** The id of a catalog instrument with a capo and a custom tuning (spelled pitches, bass edge first). */
-declare const customInstrumentId: (base: string, { capo, tuning }?: {
+/**
+ * The id of a catalog instrument with a capo, a highest fret other than its own (`frets`, a hard limit) and a custom
+ * tuning (spelled pitches, bass edge first).
+ */
+declare const customInstrumentId: (base: string, { capo, frets, tuning }?: {
     capo?: number;
+    frets?: number | undefined;
     tuning?: readonly string[] | undefined;
 }) => string;
+/** A catalog instrument's own highest fret. */
+declare const highestFret: (id: string) => number;
 /** Each difficulty's starting tempo as a share of the piece's own: maestro plays 20% faster. An editable policy. */
 declare const LEVEL_TEMPO: Readonly<Partial<Record<Level, number>>>;
 /** The tempo a difficulty starts at, in the piece's beats per minute. */
@@ -322,6 +328,8 @@ interface ArrangeRequest {
     readonly capo?: number;
     /** Semitones to move the piece into another key (custom settings' transpose wins). */
     readonly transpose?: number;
+    /** The instrument's highest fret, a hard limit; its own (highestFret) when left out. */
+    readonly frets?: number | undefined;
     readonly custom?: CustomSettings | null;
 }
 type AnyVersion = SongVersion | ScoreVersion;
@@ -367,8 +375,11 @@ declare const stableJson: (input: unknown) => string;
 declare const fingerprint: (input: unknown) => string;
 /** What makes a piece itself: everything but its caches, the chosen voices and where it came from (`origin`, `cacheBase`). */
 declare function pieceFingerprint(piece: Piece): string;
-/** The cache key of a request: the piece, instrument, difficulty, voices, key, capo and custom settings; not the tempo, which is playback only. */
-declare const cacheKey: (piece: Piece, { instrumentId, level, texture, capo, transpose, custom }: ArrangeRequest) => string;
+/**
+ * The cache key of a request: the piece, instrument, difficulty, voices, key, capo, highest fret (when not the
+ * instrument's own) and custom settings; not the tempo, which is playback only.
+ */
+declare const cacheKey: (piece: Piece, { instrumentId, level, texture, capo, transpose, frets, custom }: ArrangeRequest) => string;
 /** An attempt's inputs and the build that searches them: equal fingerprints give equal results. */
 declare const attemptFingerprint: (prepared: PreparedAttempt, build?: string) => string;
 type AttemptStatus = ArrangementResult["status"] | "voicing" | "limits";
@@ -380,6 +391,8 @@ interface LogEntry {
     readonly fingerprint?: string;
     readonly replayed?: boolean;
     readonly result?: RunResult;
+    /** Searched again without the difficulty's preference for low positions (`highFretCosts`), after a search that ran out with it. */
+    readonly anyPosition?: boolean;
 }
 /** A successful arrangement; `retimed` says at which tempo (the piece's own) a result played at another one was searched. */
 type RunResult = ArrangementSuccess<FrettedAnnotation> & {
@@ -461,6 +474,7 @@ declare function suggestCapo(piece: Piece, request: {
     level: Level;
     version?: AnyVersion;
     transpose?: number | undefined;
+    frets?: number | undefined;
     custom?: CustomSettings | null | undefined;
 }): CapoSuggestion | null;
 interface Stroke {
@@ -500,6 +514,6 @@ declare function voicingsFor(result: {
     readonly annotations: readonly FrettedAnnotation[];
 }, instrument: FrettedInstrument): ChordShapeUse[];
 
-export { ALL, ARRANGEMENT_SCHEMA, CHART_SCHEMA, DEEP, INSTRUMENTS, KEY_SHIFTS, LEVEL_TEMPO, NO_CHORD, QUICK, RETRIES, SEARCH, SET_SCHEMA, SIMPLIFY, WIDE, arrangeFor, attemptFingerprint, barQuarters, barStart, barsOf, cacheKey, cacheable, chordShapes, chordTones, customInstrumentId, down, estimateLevel, familiarShapes, fingerprint, hardestNotes, hardestVersion, instrumentFor, intervalOf, keyName, limitsExceeded, pick, pieceFingerprint, pieceFromScore, prepare, retime, searched, segmentsOf, songFromChart, sourceFor, stableJson, strokesFor, suggestCapo, tempoFor, transposeSong, transposeSymbol, up, versionById, versionsFor, voiceChord, voicingsFor, voicingsForSong };
+export { ALL, ARRANGEMENT_SCHEMA, CHART_SCHEMA, DEEP, INSTRUMENTS, KEY_SHIFTS, LEVEL_TEMPO, NO_CHORD, QUICK, RETRIES, SEARCH, SET_SCHEMA, SIMPLIFY, WIDE, arrangeFor, attemptFingerprint, barQuarters, barStart, barsOf, cacheKey, cacheable, chordShapes, chordTones, customInstrumentId, down, estimateLevel, familiarShapes, fingerprint, hardestNotes, hardestVersion, highestFret, instrumentFor, intervalOf, keyName, limitsExceeded, pick, pieceFingerprint, pieceFromScore, prepare, retime, searched, segmentsOf, songFromChart, sourceFor, stableJson, strokesFor, suggestCapo, tempoFor, transposeSong, transposeSymbol, up, versionById, versionsFor, voiceChord, voicingsFor, voicingsForSong };
 export type { AnyVersion, ArrangeRequest, AttemptStatus, BassHit, CapoSuggestion, CatalogInstrument, ChordChart, ChordShapeUse, ChordSong, ChordTones, CustomSettings, Fill, Fret, Hit, LogEntry, Piece, Prepared, PreparedAttempt, Run, RunOptions, RunResult, ScorePiece, ScoreSet, ScoreVersion, Segment, SongSpec, SongVersion, Stroke, SuccessfulRun, Texture, Tones, VersionLayers, VocalEntry, Voicing };
 //# sourceMappingURL=songs.d.mts.map

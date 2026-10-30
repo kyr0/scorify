@@ -7,7 +7,7 @@ import * as library from "./scorify/songs.mjs";
 import { ALL, down, up, pick, barQuarters, barsOf, barStart, intervalOf, transposeSymbol, voicingsFor, strokesFor, NO_CHORD } from "./scorify/songs.mjs";
 import { build } from "./scorify/build.mjs";
 export {
-  INSTRUMENTS as instruments, instrumentFor, customInstrumentId, LEVEL_TEMPO, tempoFor, intervalOf, barQuarters, voiceChord, voicingsForSong,
+  INSTRUMENTS as instruments, instrumentFor, customInstrumentId, highestFret, LEVEL_TEMPO, tempoFor, intervalOf, barQuarters, voiceChord, voicingsForSong,
   sourceFor, SET_SCHEMA, estimateLevel, pieceFromScore, CHART_SCHEMA, songFromChart, SEARCH, QUICK, WIDE, DEEP, RETRIES, versionsFor, prepare,
   hardestVersion, hardestNotes, stableJson, fingerprint, pieceFingerprint, cacheKey, searched, cacheable, ARRANGEMENT_SCHEMA, suggestCapo,
   strokesFor, limitsExceeded, voicingsFor, versionById, KEY_SHIFTS, keyName,

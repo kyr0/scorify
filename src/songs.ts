@@ -156,20 +156,20 @@ export interface CatalogInstrument {
   readonly short: string;
   readonly create: () => FrettedInstrument;
 }
-/** Fretted instruments by id, in physical string order. */
+/** Fretted instruments by id, in physical string order, each with a usual highest fret (ukuleles 18, guitars 19, mandolin 20). */
 export const INSTRUMENTS: readonly CatalogInstrument[] = [
   { id: "uke-high-g", group: "Ukulele", name: "Concert ukulele · high G", short: "ukulele", create: () => concertUkulele() },
   { id: "uke-low-g", group: "Ukulele", name: "Concert ukulele · low G", short: "ukulele", create: () => concertUkulele({ tuning: "lowG" }) },
-  { id: "uke-baritone", group: "Ukulele", name: "Baritone ukulele", short: "baritone ukulele", create: () => createFrettedInstrument("ukulele-baritone", "Baritone ukulele", ["D3", "G3", "B3", "E4"]) },
+  { id: "uke-baritone", group: "Ukulele", name: "Baritone ukulele", short: "baritone ukulele", create: () => createFrettedInstrument("ukulele-baritone", "Baritone ukulele", ["D3", "G3", "B3", "E4"], { fretCount: 18 }) },
   { id: "guitar", group: "Guitar", name: "Classical guitar · standard", short: "guitar", create: () => classicalGuitar() },
   { id: "guitar-drop-d", group: "Guitar", name: "Guitar · drop D", short: "guitar", create: () => createFrettedInstrument("guitar-drop-d", "Guitar · drop D", ["D2", "A2", "D3", "G3", "B3", "E4"]) },
   { id: "guitar-7", group: "Guitar", name: "7-string guitar", short: "7-string guitar", create: () => createFrettedInstrument("guitar-7-string", "7-string guitar", ["B1", "E2", "A2", "D3", "G3", "B3", "E4"]) },
   { id: "guitar-8", group: "Guitar", name: "8-string guitar", short: "8-string guitar", create: () => createFrettedInstrument("guitar-8-string", "8-string guitar", ["F#1", "B1", "E2", "A2", "D3", "G3", "B3", "E4"]) },
-  { id: "mandolin", group: "Other", name: "Mandolin", short: "mandolin", create: () => createFrettedInstrument("mandolin", "Mandolin", ["G3", "D4", "A4", "E5"]) },
+  { id: "mandolin", group: "Other", name: "Mandolin", short: "mandolin", create: () => createFrettedInstrument("mandolin", "Mandolin", ["G3", "D4", "A4", "E5"], { fretCount: 20 }) },
 ];
 const instrumentCache = new Map<string, FrettedInstrument>();
 /**
- * The instrument for a catalog id, or a composite one from customInstrumentId ("guitar~capo2~tuningD2.A2.D3.G3.B3.E4").
+ * The instrument for a catalog id, or a composite one from customInstrumentId ("guitar~capo2~frets15~tuningD2.A2.D3.G3.B3.E4").
  * Instruments are cached and shared; treat them as immutable.
  */
 export function instrumentFor(id: string): FrettedInstrument {
@@ -180,21 +180,30 @@ export function instrumentFor(id: string): FrettedInstrument {
     if (!entry) throw new RangeError(`Unknown instrument: ${id}`);
     instrument = entry.create();
     const capo = Number(changes.find((c) => c.startsWith("capo"))?.slice(4) ?? 0),
+      frets = changes.find((c) => c.startsWith("frets"))?.slice(5),
       tuning = changes.find((c) => c.startsWith("tuning"))?.slice(6).split(".");
-    if (capo || tuning)
+    if (capo || frets || tuning)
       instrument = createFrettedInstrument(
         `${instrument.id}-custom`,
-        `${instrument.name} (${[capo ? `capo ${capo}` : "", tuning ? tuning.join(" ") : ""].filter(Boolean).join(", ")})`,
+        `${instrument.name} (${[capo ? `capo ${capo}` : "", frets ? `${frets} frets` : "", tuning ? tuning.join(" ") : ""].filter(Boolean).join(", ")})`,
         tuning ?? instrument.strings.map((s) => s.openPitch),
-        { capoFret: capo, fretCount: instrument.strings[0]!.fretCount },
+        { capoFret: capo, fretCount: frets ? Number(frets) : instrument.strings[0]!.fretCount },
       );
     instrumentCache.set(id, instrument);
   }
   return instrument;
 }
-/** The id of a catalog instrument with a capo and a custom tuning (spelled pitches, bass edge first). */
-export const customInstrumentId = (base: string, { capo = 0, tuning }: { capo?: number; tuning?: readonly string[] | undefined } = {}): string =>
-  [base, ...(capo ? [`capo${capo}`] : []), ...(tuning?.length ? [`tuning${tuning.join(".")}`] : [])].join("~");
+/**
+ * The id of a catalog instrument with a capo, a highest fret other than its own (`frets`, a hard limit) and a custom
+ * tuning (spelled pitches, bass edge first).
+ */
+export const customInstrumentId = (base: string, { capo = 0, frets, tuning }: { capo?: number; frets?: number | undefined; tuning?: readonly string[] | undefined } = {}): string => {
+  if (frets !== undefined && (!Number.isSafeInteger(frets) || frets < 1)) throw new RangeError(`Invalid highest fret: ${frets}`);
+  const other = frets !== undefined && frets !== highestFret(base);
+  return [base, ...(capo ? [`capo${capo}`] : []), ...(other ? [`frets${frets}`] : []), ...(tuning?.length ? [`tuning${tuning.join(".")}`] : [])].join("~");
+};
+/** A catalog instrument's own highest fret. */
+export const highestFret = (id: string): number => instrumentFor(id.split("~")[0]!).strings[0]!.fretCount;
 
 /** Each difficulty's starting tempo as a share of the piece's own: maestro plays 20% faster. An editable policy. */
 export const LEVEL_TEMPO: Readonly<Partial<Record<Level, number>>> = { maestro: 1.2 };
@@ -327,8 +336,9 @@ interface Proposal {
  */
 export function chordShapes(instrument: FrettedInstrument, tones: ChordTones, { maxFret, maxNotes }: { maxFret: number; maxNotes: number }): Proposal[] {
   const open = instrument.strings.map((s) => pitchToMidi(s.openPitch) + s.capoFret),
-    n = open.length;
-  const options = open.map((o) => Array.from({ length: maxFret + 1 }, (_, f) => f).filter((f) => tones.classes.includes(pc(o + f))));
+    n = open.length,
+    top = Math.min(maxFret, ...instrument.strings.map((s) => s.fretCount - s.capoFret));
+  const options = open.map((o) => Array.from({ length: top + 1 }, (_, f) => f).filter((f) => tones.classes.includes(pc(o + f))));
   const found: Proposal[] = [];
   for (let from = 0; from < n; from++)
     for (let to = from + Math.min(3, n) - 1; to < n && to - from + 1 <= maxNotes; to++) {
@@ -921,6 +931,8 @@ export interface ArrangeRequest {
   readonly capo?: number;
   /** Semitones to move the piece into another key (custom settings' transpose wins). */
   readonly transpose?: number;
+  /** The instrument's highest fret, a hard limit; its own (highestFret) when left out. */
+  readonly frets?: number | undefined;
   readonly custom?: CustomSettings | null;
 }
 export type AnyVersion = SongVersion | ScoreVersion;
@@ -966,9 +978,12 @@ export function prepare(
     search = request.search ?? SEARCH;
   const asked: CustomSettings = request.custom ?? {},
     // The key selector's transposition, unless custom settings set their own; reported like it.
-    custom: CustomSettings = asked.transpose === undefined && request.transpose ? { ...asked, transpose: request.transpose } : asked,
-    tuned = customInstrumentId(instrumentId, { capo, tuning: custom.tuning }),
-    instrument = instrumentFor(tuned);
+    custom: CustomSettings = asked.transpose === undefined && request.transpose ? { ...asked, transpose: request.transpose } : asked;
+  if (request.frets !== undefined && capo > request.frets) return { missing: `a capo on fret ${capo}, above the highest fret (${request.frets})` };
+  const tuned = customInstrumentId(instrumentId, { capo, frets: request.frets, tuning: custom.tuning }),
+    instrument = instrumentFor(tuned),
+    own = highestFret(instrumentId),
+    neck = request.frets !== undefined && request.frets !== own ? [`frets up to ${request.frets} only (the instrument's usual highest fret is ${own})`] : [];
   const player = (overrides: Partial<PlayerCapabilities>): PlayerOptions => ({
     level,
     ...(custom.complexity !== undefined ? { complexity: custom.complexity } : {}),
@@ -1007,6 +1022,7 @@ export function prepare(
         ...(song.notes ?? []),
         ...(strokes ? [`a strum counts once: ${level} allows ${rate} strokes a second across up to ${strings} strings (${rate * strings} string attacks)`] : []),
         ...customNotes(spec, { capo, custom }),
+        ...neck,
       ],
       options: { instrument, mode: simplify ? "adaptive" : "exact", player: options, transform, search: searching, ...(simplify ? { adaptation } : {}) },
     };
@@ -1033,6 +1049,7 @@ export function prepare(
       ? [`adaptive mode: ${outside(octave) ? `${outside(octave)} notes still out of range` : `up to ${crowded} notes at once on ${instrument.strings.length} strings`}, so octave shifts and dropped accompaniment are allowed; melody is kept`]
       : []),
     ...customNotes(piece, { capo, custom }),
+    ...neck,
   ];
   const moved = shift ? vocal.map(([onset, length, pitch, words]) => [onset, length, plainPitch(transposePitch(pitch, intervalOf(shift))), words] as const) : vocal;
   return {
@@ -1104,9 +1121,12 @@ export function pieceFingerprint(piece: Piece): string {
   }
   return print;
 }
-/** The cache key of a request: the piece, instrument, difficulty, voices, key, capo and custom settings; not the tempo, which is playback only. */
-export const cacheKey = (piece: Piece, { instrumentId, level, texture = isScore(piece) ? piece.texture : undefined, capo = 0, transpose = 0, custom = null }: ArrangeRequest): string =>
-  `${pieceFingerprint(piece)}-${fingerprint({ instrumentId, level, texture: texture ?? null, capo, transpose, custom })}`;
+/**
+ * The cache key of a request: the piece, instrument, difficulty, voices, key, capo, highest fret (when not the
+ * instrument's own) and custom settings; not the tempo, which is playback only.
+ */
+export const cacheKey = (piece: Piece, { instrumentId, level, texture = isScore(piece) ? piece.texture : undefined, capo = 0, transpose = 0, frets, custom = null }: ArrangeRequest): string =>
+  `${pieceFingerprint(piece)}-${fingerprint({ instrumentId, level, texture: texture ?? null, capo, transpose, ...(frets !== undefined && frets !== highestFret(instrumentId) ? { frets } : {}), custom })}`;
 /** An attempt's inputs and the build that searches them: equal fingerprints give equal results. */
 export const attemptFingerprint = (prepared: PreparedAttempt, build = ""): string => fingerprint({ build, source: prepared.source, options: prepared.options });
 
@@ -1119,6 +1139,8 @@ export interface LogEntry {
   readonly fingerprint?: string;
   readonly replayed?: boolean;
   readonly result?: RunResult;
+  /** Searched again without the difficulty's preference for low positions (`highFretCosts`), after a search that ran out with it. */
+  readonly anyPosition?: boolean;
 }
 /** A successful arrangement; `retimed` says at which tempo (the piece's own) a result played at another one was searched. */
 export type RunResult = ArrangementSuccess<FrettedAnnotation> & { readonly retimed?: { readonly fromBpm: number } };
@@ -1174,6 +1196,15 @@ export const versionById = (piece: Piece, id: string): AnyVersion | undefined =>
 /** The strummed chord version of an imported score for a difficulty (the nearest easier one), if it has chords. */
 const chordVersionFor = (piece: Piece, level: Level): SongVersion | undefined =>
   isScore(piece) ? piece.chords?.versions.filter((v) => levels.indexOf(v.difficulty) <= levels.indexOf(level)).at(-1) : undefined;
+/** An attempt without the difficulty's preference for low positions, which its notes report. */
+function withoutPositionCost(prepared: PreparedAttempt): PreparedAttempt {
+  const { player } = prepared.options;
+  return {
+    ...prepared,
+    notes: [...prepared.notes, "the search ran out of budget with the difficulty's preference for low positions, so this fingering was searched without it"],
+    options: { ...prepared.options, player: { ...player, overrides: { ...player.overrides, highFretCosts: [] } } },
+  };
+}
 /** arrangeFor's search, always at the piece's own tempo. */
 async function searchFor(piece: Piece, asked: ArrangeRequest, options: RunOptions): Promise<Run> {
   const request = { ...asked, bpm: piece.bpm },
@@ -1209,21 +1240,28 @@ async function searchFor(piece: Piece, asked: ArrangeRequest, options: RunOption
       log.push({ ...entry, status: "limits", detail: limits.join("; ") });
       continue;
     }
-    const id = attemptFingerprint(prepared, build);
-    let known = replay.find((e) => e.fingerprint === id && e.status !== "cancelled");
-    if (known?.status === "success" && verify) {
-      const check = known.result ? validateFrettedArrangement(known.result.score, prepared.options.instrument, known.result.annotations, prepared.options.player) : { valid: false };
-      if (!check.valid) known = undefined;
+    // The difficulty's preference for low positions is a cost, and a beam ranked by it can prune the only way through
+    // a passage high on the neck. When a search runs out with it, the same attempt is searched once more without it,
+    // so a preference never costs a playable note; the arrangement says so.
+    const tries = [prepared, ...(custom?.search || !compilePlayer(prepared.options.player).highFretCosts.length ? [] : [withoutPositionCost(prepared)])];
+    for (const [k, attempt] of tries.entries()) {
+      const id = attemptFingerprint(attempt, build);
+      let known = replay.find((e) => e.fingerprint === id && e.status !== "cancelled");
+      if (known?.status === "success" && verify) {
+        const check = known.result ? validateFrettedArrangement(known.result.score, attempt.options.instrument, known.result.annotations, attempt.options.player) : { valid: false };
+        if (!check.valid) known = undefined;
+      }
+      const result: { status: AttemptStatus; result?: RunResult } = known
+        ? known.status === "success"
+          ? { status: "success", result: known.result! }
+          : { status: known.status }
+        : await searchTiers(attempt, options, !!custom?.search).then((r) => (r.status === "success" ? { status: r.status, result: r } : { status: r.status }));
+      if (!isCurrent()) return { status: "stale", log };
+      if (result.status === "cancelled") return { status: "cancelled", log };
+      log.push({ ...entry, fingerprint: id, status: result.status, ...(k ? { anyPosition: true } : {}), ...(known ? { replayed: true } : {}), ...(result.result ? { result: result.result } : {}) });
+      if (result.result) return { status: "success", result: result.result, prepared: attempt, version, simplify, log };
+      if (result.status !== "search-exhausted") break;
     }
-    const result: { status: AttemptStatus; result?: RunResult } = known
-      ? known.status === "success"
-        ? { status: "success", result: known.result! }
-        : { status: known.status }
-      : await searchTiers(prepared, options, !!custom?.search).then((r) => (r.status === "success" ? { status: r.status, result: r } : { status: r.status }));
-    if (!isCurrent()) return { status: "stale", log };
-    if (result.status === "cancelled") return { status: "cancelled", log };
-    log.push({ ...entry, fingerprint: id, status: result.status, ...(known ? { replayed: true } : {}), ...(result.result ? { result: result.result } : {}) });
-    if (result.result) return { status: "success", result: result.result, prepared, version, simplify, log };
   }
   return { status: log.at(-1)?.status ?? "infeasible", log };
 }
@@ -1289,7 +1327,7 @@ export interface CapoSuggestion {
  */
 export function suggestCapo(
   piece: Piece,
-  request: { instrumentId: string; level: Level; version?: AnyVersion; transpose?: number | undefined; custom?: CustomSettings | null | undefined },
+  request: { instrumentId: string; level: Level; version?: AnyVersion; transpose?: number | undefined; frets?: number | undefined; custom?: CustomSettings | null | undefined },
 ): CapoSuggestion | null {
   const custom = { transpose: request.transpose, ...request.custom };
   if (isScore(piece) || custom.tuning?.length) return null;
@@ -1299,13 +1337,14 @@ export function suggestCapo(
   for (const [b] of barsOf(spec).entries()) for (const { symbol, from, to } of segmentsOf(spec, b)) weights.set(symbol, (weights.get(symbol) ?? 0) + to - from);
   const maxNotes = instrumentFor(request.instrumentId).strings.length;
   const rate = (capo: number) => {
-    const instrument = instrumentFor(customInstrumentId(request.instrumentId, { capo }));
+    const instrument = instrumentFor(customInstrumentId(request.instrumentId, { capo, frets: request.frets }));
     const costs = [...weights].map(([symbol, weight]) => [weight, shapeCost(chordShapes(instrument, chordTones(symbol), { maxFret: 5, maxNotes })[0])] as const);
     return { capo, hard: costs.filter(([, c]) => c > 1).length, cost: costs.reduce((sum, [weight, c]) => sum + weight * c, 0) };
   };
+  // A capo leaves at least five frets above it.
   const open = rate(0),
-    frets = maxNotes > 4 ? 7 : 5;
-  const best = Array.from({ length: frets }, (_, k) => rate(k + 1)).reduce((a, b) => (b.hard < a.hard || (b.hard === a.hard && b.cost < a.cost) ? b : a));
+    capos = Math.max(0, Math.min(maxNotes > 4 ? 7 : 5, (request.frets ?? highestFret(request.instrumentId)) - 5));
+  const best = Array.from({ length: capos }, (_, k) => rate(k + 1)).reduce((a, b) => (b.hard < a.hard || (b.hard === a.hard && b.cost < a.cost) ? b : a), open);
   if (!(best.hard < open.hard && best.cost <= open.cost)) return null;
   const shapes = [...new Set([...weights.keys()].map((symbol) => transposeSymbol(symbol, intervalOf(-best.capo))))];
   return { capo: best.capo, shapes, chords: [...weights.keys()], hard: [open.hard, best.hard] };

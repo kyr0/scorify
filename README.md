@@ -29,7 +29,7 @@ A Worker or an AudioWorklet must come from your page's own origin: copy the pack
 - Configurable fretted strings, tunings, capos and geometry; concert ukulele high G/low G and classical guitar presets.
 - Four-finger assignments, open strings, barres, sustained-note contact, released-finger travel, static reach, and picking/strumming checks.
 - Joint musical-edit and fingering search: exhaustive reference, exact dynamic programming, or bounded beam search.
-- Baby → beginner → amateur → semi-pro → pro → expert → maestro profiles; independent complexity, flexibility and capability overrides.
+- Baby → beginner → amateur → semi-pro → pro → expert → maestro profiles; independent complexity, flexibility and capability overrides. Lower levels prefer low positions (`highFretCosts`: up to semi-pro frets 0–8, below maestro rarely above 10), a soft cost that never drops a note.
 - Optional octave revoicing, marked-ornament/accompaniment omission, rhythm simplification and explicit earlier releases, with an edit log.
 - Window-based harmony candidates, including arpeggios, and known-tempo/meter performance quantization with timing alternatives.
 - Async cancellation/progress, a dedicated-worker entry, latest-request handling and source-preserving recomputation sessions.
@@ -136,7 +136,7 @@ const custom = createFrettedInstrument("custom", "My tuning", [
 const measured = { ...guitar, scaleLengthMm: 650, stringSpacingMm: 11 };
 ```
 
-Strings stay in physical bass-edge → treble-edge order; reentrant tuning is never pitch-sorted. The editable default fret count is 19. Per-string configuration accepts `openPitch`, `capoFret`, `fretCount`, stable `id`, and tab `number`. Frets are absolute from the original nut; displayed relative fret = absolute fret − that string's capo. Geometry values must describe your instrument or an explicitly chosen nominal model.
+Strings stay in physical bass-edge → treble-edge order; reentrant tuning is never pitch-sorted. The editable default fret count is 19 (18 for `concertUkulele`). Per-string configuration accepts `openPitch`, `capoFret`, `fretCount`, stable `id`, and tab `number`. Frets are absolute from the original nut; displayed relative fret = absolute fret − that string's capo. Geometry values must describe your instrument or an explicitly chosen nominal model.
 
 `player.complexity` in `[0,1]` limits the fraction of marked ornament sounding events retained in adaptive mode. It never generates ornaments or decides that an unmarked non-chord tone is disposable. `player.flexibility` in `[0,1]` controls fret span, movement speed and setup-time defaults. Overrides include:
 
@@ -267,7 +267,7 @@ Post effects run after the strings in the library itself: `renderPerformance(pla
 
 ## Songs with a version per difficulty
 
-`scorify/songs` is the arrangement layer the docs playground runs on. A chord-chart song (`ChordSong`) has a bar of chords for every bar and one version per difficulty: strum and pick patterns (`down`, `up`, `pick`), an alternating bass, phrase fills, releases before chord changes, held bars. `arrangeFor(piece, { instrumentId, level, bpm, transpose, capo, custom }, { arrange })` plays the version written for the difficulty as written (exact mode), falls back to easier versions, and simplifies the easiest one only when none plays; its log says why each attempt failed (`voicing`, `limits`, `infeasible`, `search-exhausted`). It always searches at the piece's own tempo: `bpm` only scales the result for playback. `transpose` moves the piece by semitones (`KEY_SHIFTS`, `keyName`). An imported score also strums its chords, inferred from its notes: first at baby and beginner, last above. Chord shapes come from `voiceChord`: shapes on contiguous strings ranked like a chord book, each judged by arranging it. `songFromChart` plays a chord chart (`scorify-chart-1`) under an imported score's sung part; `pieceFromScore` turns imported scores and score sets (`scorify-set-1`) into pieces with an estimated difficulty and voice choices.
+`scorify/songs` is the arrangement layer the docs playground runs on. A chord-chart song (`ChordSong`) has a bar of chords for every bar and one version per difficulty: strum and pick patterns (`down`, `up`, `pick`), an alternating bass, phrase fills, releases before chord changes, held bars. `arrangeFor(piece, { instrumentId, level, bpm, transpose, capo, frets, custom }, { arrange })` plays the version written for the difficulty as written (exact mode), falls back to easier versions, and simplifies the easiest one only when none plays; its log says why each attempt failed (`voicing`, `limits`, `infeasible`, `search-exhausted`). It always searches at the piece's own tempo: `bpm` only scales the result for playback. `transpose` moves the piece by semitones (`KEY_SHIFTS`, `keyName`). An imported score also strums its chords, inferred from its notes: first at baby and beginner, last above. Chord shapes come from `voiceChord`: shapes on contiguous strings ranked like a chord book, each judged by arranging it. `songFromChart` plays a chord chart (`scorify-chart-1`) under an imported score's sung part; `pieceFromScore` turns imported scores and score sets (`scorify-set-1`) into pieces with an estimated difficulty and voice choices.
 
 ```js
 import { arrange } from "scorify";
@@ -288,7 +288,7 @@ const slower = retime(song, { ...run, request }, { ...request, bpm: 70 }); // th
 const again = await arrangeFor(song, request, { arrange, replay: cacheable(run.log) }); // replayed, not searched
 ```
 
-`arrange` may be a worker client. A `replay` log is used only for attempts whose source, options and `build` fingerprint alike, and only after `validateFrettedArrangement` accepts the replayed fingering. `retime` plays the result at another tempo without a search (tempo is playback only; the time-based limits were judged at the piece's tempo); the result says at which tempo it was searched. `suggestCapo` is a chord-shape heuristic (open, other, barre), not a measured ease. `LEVEL_TEMPO` (maestro 1.2×) is an editable policy. `INSTRUMENTS` and `instrumentFor` cover eight fretted instruments, with capo and tuning ids from `customInstrumentId`.
+`arrange` may be a worker client. A `replay` log is used only for attempts whose source, options and `build` fingerprint alike, and only after `validateFrettedArrangement` accepts the replayed fingering. `retime` plays the result at another tempo without a search (tempo is playback only; the time-based limits were judged at the piece's tempo); the result says at which tempo it was searched. `suggestCapo` is a chord-shape heuristic (open, other, barre), not a measured ease. `LEVEL_TEMPO` (maestro 1.2×) is an editable policy. `INSTRUMENTS` and `instrumentFor` cover eight fretted instruments (highest fret: ukuleles 18, guitars 19, mandolin 20, from `highestFret`), with capo, highest-fret and tuning ids from `customInstrumentId`. A request's `frets` sets another highest fret, a hard limit of the instrument.
 
 ## Validate and extend
 

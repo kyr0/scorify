@@ -98,7 +98,7 @@ try {
   const [songsModule, { createWorkerClient }, { quartersAtSeconds, secondsAt, q, normalizeScore, compilePlayer, pitchToMidi }] = await Promise.all([
     import("./songs.mjs"), import("./scorify/worker.mjs"), import("./scorify/index.mjs"), componentsReady(),
   ]);
-  const { songs, instruments, pieceFromScore, songFromChart, tabFor, strokesFor, arrangeFor, retime, versionById, KEY_SHIFTS, keyName, tempoFor, hardestVersion, hardestNotes, cacheKey, cacheable, searched, suggestCapo, SET_SCHEMA, ARRANGEMENT_SCHEMA } = songsModule;
+  const { songs, instruments, pieceFromScore, songFromChart, tabFor, strokesFor, arrangeFor, retime, versionById, KEY_SHIFTS, keyName, tempoFor, hardestVersion, hardestNotes, cacheKey, cacheable, searched, suggestCapo, highestFret, SET_SCHEMA, ARRANGEMENT_SCHEMA } = songsModule;
   // The cache version (src/VERSION): results this browser cached under another version are not used.
   const { build } = await import("./scorify/build.mjs");
   const worker = new Worker(new URL("./scorify/worker-entry.mjs", import.meta.url), { type: "module" });
@@ -689,6 +689,31 @@ try {
     setTempo(piece.bpm);
     void changeTempo();
   });
+  // The highest fret is the instrument's: a hard limit, its usual one marked under the track, remembered per instrument
+  // in this browser. The difficulty adds its own soft preference for low positions (scorify's highFretCosts).
+  const NECKS_KEY = "scorify-demo-necks-1", necks = (() => { try { return JSON.parse(localStorage.getItem(NECKS_KEY) ?? "{}"); } catch { return {}; } })();
+  const fretsFor = id => (Number.isInteger(necks[id]) && necks[id] >= 5 ? necks[id] : highestFret(id));
+  function keepFrets(frets) {
+    if (frets === highestFret(picker.value)) delete necks[picker.value]; else necks[picker.value] = frets;
+    try { localStorage.setItem(NECKS_KEY, JSON.stringify(necks)); } catch { /* not remembered */ }
+  }
+  function setFrets(frets) {
+    const slider = $("frets"), at = value => (value - slider.min) / (slider.max - slider.min) * 100, usual = highestFret(picker.value);
+    slider.value = String(frets);
+    $("frets-value").textContent = String(frets);
+    slider.style.setProperty("--slider-value", `${at(frets)}%`);
+    const mark = $("frets-usual");
+    $("frets-track").style.setProperty("--tempo-original", String(at(usual) / 100));
+    mark.toggleAttribute("data-current", frets === usual);
+    mark.setAttribute("aria-label", `Back to the instrument's usual highest fret, ${usual}`);
+    mark.title = `The instrument's usual highest fret: ${usual}`;
+  }
+  $("frets-usual").addEventListener("click", () => {
+    if (Number($("frets").value) === highestFret(picker.value)) return;
+    setFrets(highestFret(picker.value));
+    keepFrets(highestFret(picker.value));
+    void recompute();
+  });
   function summary() {
     if (!plan) return;
     const reduced = plan.humanization.timingScale < 1;
@@ -814,12 +839,16 @@ try {
   // Custom settings stay in force (across songs, instruments and difficulties) until Reset; a suggested capo is a toggle.
   let custom = null, capoOn = false, suggestion = null, request;
   const background = createWorkerClient(new Worker(new URL("./scorify/worker-entry.mjs", import.meta.url), { type: "module" }));
-  /** The request the controls describe: the main controls, the capo toggle (or the custom capo) and custom settings. */
+  /**
+   * The request the controls describe: the main controls, the capo toggle (or the custom capo) and custom settings. The
+   * highest fret is part of it only when it is not the instrument's usual one, so the usual neck keeps its cache keys.
+   */
   function requestFor(target = piece) {
-    const instrumentId = picker.value, level = $("level").value, arrangement = custom?.arrangement ?? null;
-    suggestion = custom?.capo === undefined ? suggestCapo(target, { instrumentId, level, transpose: Number($("key").value) || 0, custom: arrangement ?? undefined }) : null;
+    const instrumentId = picker.value, level = $("level").value, arrangement = custom?.arrangement ?? null, frets = Number($("frets").value);
+    const neck = frets === highestFret(instrumentId) ? {} : { frets };
+    suggestion = custom?.capo === undefined ? suggestCapo(target, { instrumentId, level, transpose: Number($("key").value) || 0, ...neck, custom: arrangement ?? undefined }) : null;
     const capo = custom?.capo ?? (capoOn && suggestion ? suggestion.capo : 0);
-    return { instrumentId, level, bpm: Number($("tempo").value), texture: target.texture, capo, transpose: Number($("key").value) || 0, custom: arrangement };
+    return { instrumentId, level, bpm: Number($("tempo").value), texture: target.texture, capo, transpose: Number($("key").value) || 0, ...neck, custom: arrangement };
   }
   function showCapo() {
     const control = $("capo").closest(".sc-control");
@@ -855,7 +884,8 @@ try {
   async function present(outcome, current, id, from) {
     const { prepared, version, simplify } = outcome, { level, instrumentId, bpm } = current;
     const name = instruments.find(i => i.id === instrumentId).short;
-    const tried = outcome.log.filter(e => e.status !== "success").map(e => ({ ...e, version: versionById(piece, e.version) }));
+    // An attempt that ran out with the low-position preference and then played without it is not a version that failed.
+    const tried = outcome.log.filter(e => e.status !== "success" && !(e.version === version.id && e.simplify === simplify)).map(e => ({ ...e, version: versionById(piece, e.version) }));
     arranged = { ...outcome, request: current };
     result = outcome.result; instrument = prepared.options.instrument;
     $("mode-badge").textContent = `${custom ? "Custom · " : ""}${prepared.options.mode === "adaptive" ? "Adaptive accompaniment" : "Exact mode"}`;
@@ -1010,10 +1040,11 @@ try {
       `${keyName(piece, s) ?? (s ? `${sign(s)} semitone${Math.abs(s) === 1 ? "" : "s"}` : "As written")}${s ? (keyName(piece, s) ? ` · ${sign(s)}` : "") : keyName(piece) ? " · original" : ""}`, String(s))));
     $("key").value = String(transpose);
   }
-  /** A song card selects the piece and its own instrument and key; the difficulty stays as chosen. */
+  /** A song card selects the piece and its own instrument (with its highest fret) and key; the difficulty stays as chosen. */
   function choose(next) {
     piece = next;
     picker.value = piece.instrument;
+    setFrets(fretsFor(picker.value));
     capoOn = false;
     showKeys();
     showTextures();
@@ -1124,6 +1155,7 @@ try {
     if (!target) throw new Error(`This page has no song “${origin.id ?? "?"}” to open it with`);
     piece = target;
     picker.value = data.request.instrumentId;
+    setFrets(data.request.frets ?? highestFret(picker.value));
     $("level").value = data.request.level;
     showKeys(data.request.transpose ?? 0);
     if (data.request.texture) piece.texture = data.request.texture;
@@ -1144,7 +1176,7 @@ try {
       const row = Object.assign(document.createElement("li"), { className: "sc-saved-item" });
       const text = Object.assign(document.createElement("span"), { className: "sc-saved-text" });
       text.append(Object.assign(document.createElement("strong"), { textContent: item.title }),
-        ` · ${item.instrument} · ${LEVELS[item.request.level] ?? item.request.level} · ${item.request.bpm} BPM${item.request.capo ? ` · capo ${item.request.capo}` : ""}${item.request.custom ? " · custom" : ""} · ${new Date(item.savedAt).toLocaleString()}`);
+        ` · ${item.instrument} · ${LEVELS[item.request.level] ?? item.request.level} · ${item.request.bpm} BPM${item.request.capo ? ` · capo ${item.request.capo}` : ""}${item.request.frets ? ` · frets up to ${item.request.frets}` : ""}${item.request.custom ? " · custom" : ""} · ${new Date(item.savedAt).toLocaleString()}`);
       const button = (label, action, variant = "outline") => {
         const b = Object.assign(document.createElement("button"), { type: "button", className: "btn", textContent: label });
         b.dataset.size = "sm"; b.dataset.variant = variant;
@@ -1258,7 +1290,9 @@ try {
     }
   }
 
-  picker.addEventListener("change", () => { showDefaults(); void recompute(); });
+  picker.addEventListener("change", () => { showDefaults(); setFrets(fretsFor(picker.value)); void recompute(); });
+  $("frets").addEventListener("input", () => setFrets(Number($("frets").value)));
+  $("frets").addEventListener("change", () => { keepFrets(Number($("frets").value)); void recompute(); });
   $("capo").addEventListener("change", () => { capoOn = $("capo").checked; void recompute(); });
   $("voices").addEventListener("change", () => { piece.texture = $("voices").value; void recompute(); });
   $("key").addEventListener("change", () => void recompute());

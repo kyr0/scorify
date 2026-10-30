@@ -6,7 +6,7 @@ interface PresetOptions {
 }
 /** Construct configurable strings in physical order, including reentrant tunings. */
 declare function createFrettedInstrument(id: string, name: string, tuning: readonly string[], options?: PresetOptions): FrettedInstrument;
-/** 19 frets is an editable nominal default, not a claim about every concert uke. */
+/** 18 frets is an editable nominal default (many concert ukes have 17-20), not a claim about every one. */
 declare function concertUkulele(options?: PresetOptions & {
     readonly tuning?: "highG" | "lowG";
 }): FrettedInstrument;
