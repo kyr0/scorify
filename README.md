@@ -322,7 +322,7 @@ The [docs site](docs/index.html) re-arranges three accompaniment songs, each wri
 
 It is not part of the npm package; install it into your coding agent:
 
-- **Claude Code**: this repository is a plugin marketplace. In Claude Code (2.1.275 or later), run `/plugin install score-import --marketplace kyr0/scorify`, or `claude plugin install score-import --marketplace kyr0/scorify` in a shell. Earlier versions: `/plugin marketplace add kyr0/scorify`, then `/plugin install score-import@scorify`. Ask for a score, or run `/score-import:score-import`. `claude plugin marketplace update scorify` fetches a newer version.
+- **Claude Code**: this repository is a plugin marketplace. In Claude Code (2.1.275 or later), run `/plugin install score-import --marketplace kyr0/scorify`, or `claude plugin install score-import --marketplace kyr0/scorify` in a shell. That clones the whole repository (116 MB on disk, mostly the docs cache); from a shell, two steps work with any version and fetch only the skill (1.7 MB): `claude plugin marketplace add kyr0/scorify --sparse .claude-plugin skills`, then `claude plugin install score-import@scorify`. Ask for a score, or run `/score-import:score-import`. `claude plugin marketplace update scorify` fetches a newer version.
 - **Codex**: `$skill-installer install https://github.com/kyr0/scorify/tree/main/skills/score-import` installs it into `~/.codex/skills/score-import`. Ask for a score, or run `$score-import`.
 - **Other agents or one project**: copy or link the `skills/score-import/` folder into the agent's skills folder, such as `~/.agents/skills/score-import` or a project's `.claude/skills/score-import`.
 
