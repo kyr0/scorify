@@ -26,6 +26,7 @@ A Worker or an AudioWorklet must come from your page's own origin: copy the pack
 
 - Exact rational musical time, voices, rests, ties, gates, tempo/meter/key maps, and stable source identities.
 - Spelled note/key/chord transposition and tempo-map scaling, with unconstrained, exact, and adaptive modes.
+- Spelled scales (`scorify/theory`: major, the three minors, pentatonics, blues, the modes, chromatic) and practice pieces (`scorify/songs`): scale exercises placed on the neck, and the most common Billboard chord progressions in four time signatures.
 - Configurable fretted strings, tunings, capos and geometry; concert ukulele high G/low G and classical guitar presets.
 - Four-finger assignments, open strings, barres, sustained-note contact, released-finger travel, static reach, and picking/strumming checks.
 - Joint musical-edit and fingering search: exhaustive reference, exact dynamic programming, or bounded beam search.
@@ -286,6 +287,22 @@ const run = await arrangeFor(song, request, { arrange: (source, options) => arra
 suggestCapo(song, request); // { capo: 2, shapes: ["Am", "G", "D"], chords: ["Bm", "A", "E"], hard: [1, 0] }
 const slower = retime(song, { ...run, request }, { ...request, bpm: 70 }); // the same fingering, played at 70 BPM
 const again = await arrangeFor(song, request, { arrange, replay: cacheable(run.log) }); // replayed, not searched
+```
+
+### Practice: scales and chord progressions
+
+`scorify/theory` spells scales: `SCALES` (major, natural, harmonic and melodic minor, major and minor pentatonic, blues, Dorian, Phrygian, Lydian, Mixolydian, Locrian, chromatic), `TONICS` (twelve tonics as usually written, per major or minor quality) and `scalePitches(tonic, scale, { octaves, direction })`, which keeps every degree on its own letter (F♯ major has E♯; the melodic minor falls as the natural minor; the chromatic scale rises in sharps and falls in flats).
+
+`scorify/songs` turns them into practice pieces. `scalePiece(exercise, instrument, { instrumentId })` writes a scale up and down over whole octaves, `perBeat` even notes a beat (`scaleRhythms(time)`: 1–4 in simple meters, 1, 3 or 6 in 6/8 and 12/8), the last note held to the bar line, at the lowest octave whose notes all lie on the instrument up to its highest fret (`scaleOnNeck` says whether one does). It is fingered at `SCALE_BPM` (60) as written, never simplified or moved; a difficulty that cannot play it is reported. `PROGRESSIONS` are the most common chord progressions of Billboard Hot 100 songs, counted by scorify over the McGill Billboard corpus (739 songs, 1958–1991, CC0): how many start a phrase with each, and for the 12-bar blues how many have a 12-bar blues chorus. `progressionSong(progression, time)` makes one a chord song in C major or A minor, with a version per difficulty for 4/4, 3/4, 6/8 or 12/8 (`PROGRESSION_VERSIONS`), which `transpose` moves like any song; `chordOfNumeral` reads a roman numeral in a key.
+
+```js
+import { SCALES, scalePitches } from "scorify/theory";
+import { scalePiece, progressionSong, PROGRESSIONS, instrumentFor, arrangeFor } from "scorify/songs";
+
+scalePitches("F#3", "major"); // F#3 G#3 A#3 B3 C#4 D#4 E#4 F#4 E#4 … F#3
+const scale = scalePiece({ scale: "blues", tonic: "A", octaves: 2, perBeat: 2, time: [4, 4] }, instrumentFor("guitar"), { instrumentId: "guitar" });
+const blues = progressionSong(PROGRESSIONS.find((p) => p.id === "12-bar-blues"), [12, 8]);
+const run = await arrangeFor(blues, { instrumentId: "guitar", level: "semi-pro", bpm: 60, transpose: 2, custom: null }, { arrange });
 ```
 
 `arrange` may be a worker client. A `replay` log is used only for attempts whose source, options and `build` fingerprint alike, and only after `validateFrettedArrangement` accepts the replayed fingering. `retime` plays the result at another tempo without a search (tempo is playback only; the time-based limits were judged at the piece's tempo); the result says at which tempo it was searched. `suggestCapo` is a chord-shape heuristic (open, other, barre), not a measured ease. `LEVEL_TEMPO` (maestro 1.2×) is an editable policy. `INSTRUMENTS` and `instrumentFor` cover eight fretted instruments (highest fret: ukuleles 18, guitars 19, mandolin 20, from `highestFret`), with capo, highest-fret and tuning ids from `customInstrumentId`. A request's `frets` sets another highest fret, a hard limit of the instrument.

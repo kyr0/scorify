@@ -98,7 +98,8 @@ try {
   const [songsModule, { createWorkerClient }, { quartersAtSeconds, secondsAt, q, normalizeScore, compilePlayer, pitchToMidi }] = await Promise.all([
     import("./songs.mjs"), import("./scorify/worker.mjs"), import("./scorify/index.mjs"), componentsReady(),
   ]);
-  const { songs, instruments, pieceFromScore, songFromChart, tabFor, strokesFor, arrangeFor, retime, versionById, KEY_SHIFTS, keyName, tempoFor, hardestVersion, hardestNotes, cacheKey, cacheable, searched, suggestCapo, highestFret, SET_SCHEMA, ARRANGEMENT_SCHEMA } = songsModule;
+  const { songs, instruments, pieceFromScore, songFromChart, tabFor, strokesFor, arrangeFor, retime, versionById, KEY_SHIFTS, keyName, tempoFor, hardestVersion, hardestNotes, cacheKey, cacheable, searched, suggestCapo, highestFret, SET_SCHEMA, ARRANGEMENT_SCHEMA,
+    instrumentFor, customInstrumentId, transposeSong, scalePiece, scaleOnNeck, scaleRhythms, progressionSong, PROGRESSIONS, BILLBOARD_SONGS, SCALES, TONICS } = songsModule;
   // The cache version (src/VERSION): results this browser cached under another version are not used.
   const { build } = await import("./scorify/build.mjs");
   const worker = new Worker(new URL("./scorify/worker-entry.mjs", import.meta.url), { type: "module" });
@@ -712,7 +713,7 @@ try {
     if (Number($("frets").value) === highestFret(picker.value)) return;
     setFrets(highestFret(picker.value));
     keepFrets(highestFret(picker.value));
-    void recompute();
+    void rearrange();
   });
   function summary() {
     if (!plan) return;
@@ -752,11 +753,16 @@ try {
     $("song-title").textContent = piece.title;
     $("song-description").textContent = piece.description;
     $("mode-badge").textContent = "Preparing…";
-    $("rhythm-badge").textContent = `Song · ${piece.time[0]}/${piece.time[1]} · ${piece.versions.length} version${piece.versions.length === 1 ? "" : "s"}`;
+    const kind = piece.exercise ? "Scale" : piece.origin?.type === "progression" ? "Progression" : "Song";
+    $("rhythm-badge").textContent = piece.exercise
+      ? `Scale · ${piece.time[0]}/${piece.time[1]} · ${scaleRhythms(piece.time).find(r => r.perBeat === library.scale.perBeat)?.name ?? ""}`
+      : `${kind} · ${piece.time[0]}/${piece.time[1]} · ${piece.versions.length} version${piece.versions.length === 1 ? "" : "s"}`;
     $("tab-title").textContent = `${piece.title} · ${entry.name}`;
     $("tempo-unit").textContent = piece.beat === 1 ? "♩ BPM" : piece.beat === 1.5 ? "♩. BPM" : `× ${piece.beat} ♩ BPM`;
     for (const button of document.querySelectorAll("[data-song]")) button.setAttribute("aria-pressed", String(button.dataset.song === piece.id));
-    $("window-note").textContent = piece.kind === "chart" ? "Chord chart under an imported voice part" : piece.kind === "score" ? "Imported score" : STUDIES_NOTE;
+    $("window-note").textContent = piece.exercise ? "Scale exercise made by scorify: spelled degrees, at the lowest octave the neck holds"
+      : kind === "Progression" ? `Chord progression from the McGill Billboard corpus (Hot 100, 1958–1991), with versions written for the playground`
+      : piece.kind === "chart" ? "Chord chart under an imported voice part" : piece.kind === "score" ? "Imported score" : STUDIES_NOTE;
   }
 
   // ---- arrangement cache ------------------------------------------------------------------------------------------------
@@ -848,7 +854,8 @@ try {
     const neck = frets === highestFret(instrumentId) ? {} : { frets };
     suggestion = custom?.capo === undefined ? suggestCapo(target, { instrumentId, level, transpose: Number($("key").value) || 0, ...neck, custom: arrangement ?? undefined }) : null;
     const capo = custom?.capo ?? (capoOn && suggestion ? suggestion.capo : 0);
-    return { instrumentId, level, bpm: Number($("tempo").value), texture: target.texture, capo, transpose: Number($("key").value) || 0, ...neck, custom: arrangement };
+    const transpose = target.exercise ? 0 : Number($("key").value) || 0;
+    return { instrumentId, level, bpm: Number($("tempo").value), texture: target.texture, capo, transpose, ...neck, custom: arrangement };
   }
   function showCapo() {
     const control = $("capo").closest(".sc-control");
@@ -890,7 +897,7 @@ try {
     result = outcome.result; instrument = prepared.options.instrument;
     $("mode-badge").textContent = `${custom ? "Custom · " : ""}${prepared.options.mode === "adaptive" ? "Adaptive accompaniment" : "Exact mode"}`;
     const kept = result.score.notes.length;
-    const written = simplify
+    const written = piece.exercise ? `${version.label}, every note as written` : simplify
       ? `No version for ${LEVELS[level].toLowerCase()} plays as written on the ${name}; scorify simplified the ${version.difficulty} version (“${version.label}”) and kept ${kept} of its ${prepared.total} notes`
       : `“${version.label}”, the version written for ${version.difficulty}${version.estimated ? " (estimated)" : ""}`;
     const harder = tried.filter(t => !t.simplify).map(t => `${t.version.difficulty} version: ${STATUS[t.status] ?? t.status}`);
@@ -934,7 +941,7 @@ try {
    */
   async function changeTempo() {
     const shown = arranged, current = requestFor(), moved = shown && retime(piece, shown, current);
-    if (!moved) return void recompute();
+    if (!moved) return void rearrange();
     // A new tempo keeps the place: playback goes on from the same beat without a count-in, a pause stays where it
     // was, and a loop of bars is kept. Tab positions are beats, so they hold at any tempo.
     const id = ++revision, was = transport, { position: shownAt, loop } = tab.api.getState().config;
@@ -1000,7 +1007,9 @@ try {
       $("facts").hidden = $("details").hidden = true;
       showProblem(`Nothing plays for ${LEVELS[level].toLowerCase()} on the ${name}`, [
         ...tried.map(t => `${t.simplify ? `Simplified ${t.version.difficulty} version` : t.version.pattern && piece.kind === "score" ? "Strummed chords" : `${LEVELS[t.version.difficulty]} version`}: ${STATUS[t.status] ?? t.status}${t.detail ? `: ${t.detail}` : ""}.`),
-        custom ? "Custom settings are in force: relax them in Custom mode, or press Reset." : `Try a higher difficulty${piece.textures?.length ? ", fewer voices" : ""} or another instrument.`,
+        custom ? "Custom settings are in force: relax them in Custom mode, or press Reset."
+          : piece.exercise ? `${LEVELS[level]} plays nothing shorter than ${shortest(level)}. Try fewer notes per beat, a higher difficulty or another instrument.`
+          : `Try a higher difficulty${piece.textures?.length ? ", fewer voices" : ""} or another instrument.`,
       ]);
       setStatus(`No arrangement · ${tried.map(t => `${t.version.difficulty}${t.simplify ? " simplified" : ""}: ${t.status}`).join(" · ")}`);
       tabState("default", { data: { version: 1, title: piece.title, scores: [{ id: "none", measures: 1, tracks: [] }] }, position: 0 });
@@ -1042,7 +1051,8 @@ try {
   }
   /** A song card selects the piece and its own instrument (with its highest fret) and key; the difficulty stays as chosen. */
   function choose(next) {
-    piece = next;
+    piece = lastSong = next;
+    selectLibrary("songs");
     picker.value = piece.instrument;
     setFrets(fretsFor(picker.value));
     capoOn = false;
@@ -1056,6 +1066,152 @@ try {
   document.querySelector(".sc-songs").addEventListener("click", event => {
     const button = event.target.closest("[data-song]");
     if (button && pieces.has(button.dataset.song)) choose(pieces.get(button.dataset.song));
+  });
+
+  // ---- the library: songs, scales and chord progressions ----------------------------------------------------------------
+  // Three vertical tabs (defuss-shadcn's tabs; they do not announce a change, so the selection is observed). A scale is
+  // made for the instrument on show (its octave, capo, highest fret and tuning) and made again when they change; its
+  // tonic is the Key select. A progression is a chord song in C major or A minor that the Key select moves like a song.
+  // The choices in each tab are remembered in this browser; the page always opens on Songs.
+  const LIBRARY_KEY = "scorify-demo-library-1", METERS = ["4/4", "3/4", "6/8", "12/8"];
+  const library = { tab: "songs", scale: { scale: "major", tonic: "C", octaves: 1, perBeat: 2, time: [4, 4] }, progression: { id: PROGRESSIONS[0].id, time: [4, 4] } };
+  try {
+    const stored = JSON.parse(localStorage.getItem(LIBRARY_KEY) ?? "{}"), meter = t => Array.isArray(t) && METERS.includes(t.join("/"));
+    const s = stored.scale ?? {}, p = stored.progression ?? {};
+    if (SCALES.some(x => x.id === s.scale) && Object.values(TONICS).flat().includes(s.tonic) && [1, 2, 3].includes(s.octaves) && meter(s.time)
+      && scaleRhythms(s.time).some(r => r.perBeat === s.perBeat)) library.scale = { scale: s.scale, tonic: s.tonic, octaves: s.octaves, perBeat: s.perBeat, time: s.time };
+    if (PROGRESSIONS.some(x => x.id === p.id) && meter(p.time)) library.progression = { id: p.id, time: p.time };
+  } catch { /* the defaults */ }
+  const rememberLibrary = () => { try { localStorage.setItem(LIBRARY_KEY, JSON.stringify({ scale: library.scale, progression: library.progression })); } catch { /* not remembered */ } };
+  let lastSong;
+  const withOrigin = (target, origin) => Object.assign(target, { origin });
+  const shortest = level => { const [n, d] = compilePlayer({ level }).minDuration, quarters = n / d; return quarters >= 1 ? `a quarter note` : quarters >= 0.5 ? "an eighth note" : quarters >= 0.25 ? "a sixteenth note" : "a 32nd note"; };
+  /** Moves the arrangement on show after a change of instrument, highest fret or custom settings: a scale is made again. */
+  function rearrange() { return library.tab === "scales" ? showScale() : recompute(); }
+  const tabs = document.querySelector(".sc-library [role=tablist]");
+  /** Selects a tab without the observer acting on it (the caller shows the piece). */
+  function selectLibrary(name) {
+    library.tab = name;
+    const trigger = tabs.querySelector(`[data-library="${name}"]`);
+    if (trigger.getAttribute("aria-selected") !== "true") trigger.click();
+  }
+  new MutationObserver(() => {
+    const name = tabs.querySelector('[aria-selected="true"]')?.dataset.library;
+    if (!name || name === library.tab) return;
+    library.tab = name;
+    if (name === "songs") choose(lastSong ?? pieces.get(songs[0].id));
+    else if (name === "scales") showScale({ fresh: true });
+    else showProgression({ fresh: true });
+  }).observe(tabs, { attributes: true, subtree: true, attributeFilter: ["aria-selected"] });
+
+  // Scales: the scale, octaves, time signature and notes per beat; the tonic is the Key select, spelled as usually written.
+  $("scale").replaceChildren(...SCALES.map(s => new Option(s.name, s.id)));
+  for (const id of ["scale-meter", "progression-meter"]) $(id).replaceChildren(...METERS.map(m => new Option(m, m)));
+  const scaleOf = () => SCALES.find(s => s.id === library.scale.scale);
+  function showScaleForm() {
+    const { scale, octaves, perBeat, time } = library.scale;
+    $("scale").value = scale; $("scale-octaves").value = String(octaves); $("scale-meter").value = time.join("/");
+    $("scale-rhythm").replaceChildren(...scaleRhythms(time).map(r => new Option(`${r.name[0].toUpperCase()}${r.name.slice(1)}`, String(r.perBeat))));
+    $("scale-rhythm").value = String(perBeat);
+  }
+  /** The Key select for a scale: its twelve tonics, spelled for its quality (C♯ minor, D♭ major). */
+  function showScaleKeys() {
+    const scale = scaleOf(), tonics = TONICS[scale.quality];
+    if (!tonics.includes(library.scale.tonic)) {
+      // The same pitch class, spelled for the new quality.
+      const other = TONICS[scale.quality === "major" ? "minor" : "major"].indexOf(library.scale.tonic);
+      library.scale.tonic = tonics[Math.max(0, other)];
+    }
+    $("key").replaceChildren(...tonics.map(t => new Option(`${t} ${scale.mode}`, t)));
+    $("key").value = library.scale.tonic;
+  }
+  /** Shows the scale the Scales tab describes on the instrument on show, or says why it does not fit the neck. */
+  function showScale({ fresh = false } = {}) {
+    showScaleForm();
+    showScaleKeys();
+    const instrument = instrumentFor(customInstrumentId(picker.value, { capo: custom?.capo ?? 0, frets: Number($("frets").value), tuning: custom?.arrangement?.tuning }));
+    if (!scaleOnNeck(library.scale, instrument)) return unfit(instrument);
+    piece = withOrigin(scalePiece(library.scale, instrument, { instrumentId: picker.value }), { type: "scale", exercise: { ...library.scale } });
+    capoOn = false;
+    showTextures();
+    showVersions();
+    if (fresh) setTempo(tempoFor(piece, $("level").value));
+    return recompute();
+  }
+  function unfit(instrument) {
+    revision++;
+    stopAudio(); result = plan = arranged = attempt = undefined; buttons();
+    const { octaves, tonic } = library.scale, title = `${tonic} ${scaleOf().name.toLowerCase()} scale`, name = instruments.find(i => i.id === picker.value).short;
+    $("song-title").textContent = title;
+    $("song-description").textContent = "";
+    playground.dataset.status = "infeasible";
+    playground.setAttribute("aria-busy", "false");
+    $("cancel").hidden = true;
+    $("facts").hidden = $("details").hidden = true;
+    showProblem(`${octaves === 1 ? "One octave" : `${octaves} octaves`} of the ${title} do not fit the ${name}`, [
+      `Its notes must all lie between the lowest open string and fret ${instrument.strings[0].fretCount} (the highest fret); scorify moves none of them.`,
+      "Choose fewer octaves, another key, a higher highest fret or another instrument.",
+    ]);
+    setStatus("Does not fit the neck");
+    tabState("default", { data: { version: 1, title, scores: [{ id: "none", measures: 1, tracks: [] }] }, position: 0 });
+  }
+  $("scale").addEventListener("change", () => { library.scale.scale = $("scale").value; rememberLibrary(); void showScale(); });
+  $("scale-octaves").addEventListener("change", () => { library.scale.octaves = Number($("scale-octaves").value); rememberLibrary(); void showScale(); });
+  $("scale-rhythm").addEventListener("change", () => { library.scale.perBeat = Number($("scale-rhythm").value); rememberLibrary(); void showScale(); });
+  $("scale-meter").addEventListener("change", () => {
+    const time = $("scale-meter").value.split("/").map(Number), was = scaleRhythms(library.scale.time).find(r => r.perBeat === library.scale.perBeat)?.name;
+    // Keep the note value where the new meter has it (eighths stay eighths), else the meter's first.
+    const rhythms = scaleRhythms(time);
+    library.scale = { ...library.scale, time, perBeat: (rhythms.find(r => r.name === was) ?? rhythms[0]).perBeat };
+    rememberLibrary();
+    void showScale();
+  });
+
+  // Chord progressions: the Billboard ranking as cards, with their chords in the key on show.
+  const progressionFor = instrumentId => {
+    const chosen = PROGRESSIONS.find(p => p.id === library.progression.id) ?? PROGRESSIONS[0];
+    return withOrigin(progressionSong(chosen, library.progression.time, { instrument: instrumentId }), { type: "progression", id: chosen.id, time: [...library.progression.time] });
+  };
+  function showProgressions() {
+    const transpose = Number($("key").value) || 0, top = Math.max(...PROGRESSIONS.map(p => p.songs));
+    $("progression-meter").value = library.progression.time.join("/");
+    $("progression-list").replaceChildren(...PROGRESSIONS.map(p => {
+      const song = transposeSong(progressionSong(p, [4, 4]), transpose), chords = p.numerals.map((_, k) => song.progression[k]);
+      const card = Object.assign(document.createElement("button"), { type: "button", className: "sc-progression" });
+      card.dataset.progression = p.id;
+      card.setAttribute("aria-pressed", String(p.id === library.progression.id));
+      const part = (className, text) => Object.assign(document.createElement("span"), { className, textContent: text });
+      const count = part("sc-progression-count", `${p.songs} of ${BILLBOARD_SONGS} songs`);
+      const bar = part("sc-progression-bar", "");
+      bar.style.setProperty("--share", String(p.songs / top));
+      count.prepend(bar);
+      card.append(part("sc-progression-name", p.name), part("sc-progression-chords", chords.filter((c, k) => c !== chords[k - 1]).join(" ")), count, ...(p.note ? [part("sc-progression-note", p.note)] : []));
+      return card;
+    }));
+  }
+  function showProgression({ fresh = false } = {}) {
+    const keep = fresh ? 0 : Number($("key").value) || 0, meterChanged = piece?.origin?.type !== "progression" || piece.time.join("/") !== library.progression.time.join("/");
+    piece = progressionFor(picker.value);
+    capoOn = false;
+    showKeys(keep);
+    showProgressions();
+    showTextures();
+    showVersions();
+    $("tempo").max = String(Math.max(140, Math.ceil(tempoFor(piece, "maestro") / 10) * 10));
+    if (fresh || meterChanged) setTempo(tempoFor(piece, $("level").value));
+    return recompute();
+  }
+  $("progression-list").addEventListener("click", event => {
+    const card = event.target.closest("[data-progression]");
+    if (!card || card.dataset.progression === library.progression.id) return;
+    library.progression.id = card.dataset.progression;
+    rememberLibrary();
+    void showProgression();
+  });
+  $("progression-meter").addEventListener("change", () => {
+    library.progression.time = $("progression-meter").value.split("/").map(Number);
+    rememberLibrary();
+    void showProgression();
   });
 
   // ---- custom mode ----------------------------------------------------------------------------------------------------
@@ -1120,9 +1276,9 @@ try {
     if (!form.reportValidity()) return;
     const settings = readCustom();
     custom = settings.arrangement || settings.capo !== undefined || Object.keys(settings.performance).length ? settings : null;
-    void recompute();
+    void rearrange();
   });
-  $("c-reset").addEventListener("click", () => { custom = null; writeCustom(null); void recompute(); });
+  $("c-reset").addEventListener("click", () => { custom = null; writeCustom(null); void rearrange(); });
 
   // An arrangement file holds the request, the piece it was made for (a built-in song by id, an imported score or a
   // chart with its score) and the log with its result, so opening it replays without a search on the same build.
@@ -1152,12 +1308,23 @@ try {
     let target = origin.type === "song" ? pieces.get(origin.id) : null;
     if (origin.type === "score") target = addScore(origin.data, { id: origin.id, instrument: origin.instrument, select: false });
     if (origin.type === "chart") target = addChart(origin.chart, origin.data, { id: origin.id, instrument: origin.instrument });
+    if (origin.type === "scale") {
+      Object.assign(library.scale, origin.exercise);
+      const { capo = 0, frets, custom: settings } = data.request;
+      target = withOrigin(scalePiece(library.scale, instrumentFor(customInstrumentId(data.request.instrumentId, { capo, frets, tuning: settings?.tuning })), { instrumentId: data.request.instrumentId }), { type: "scale", exercise: { ...library.scale } });
+    }
+    if (origin.type === "progression") {
+      Object.assign(library.progression, { id: origin.id, time: origin.time });
+      target = progressionFor(data.request.instrumentId);
+    }
     if (!target) throw new Error(`This page has no song “${origin.id ?? "?"}” to open it with`);
+    selectLibrary(origin.type === "scale" ? "scales" : origin.type === "progression" ? "progressions" : "songs");
     piece = target;
     picker.value = data.request.instrumentId;
     setFrets(data.request.frets ?? highestFret(picker.value));
     $("level").value = data.request.level;
-    showKeys(data.request.transpose ?? 0);
+    if (piece.exercise) showScaleKeys(); else showKeys(data.request.transpose ?? 0);
+    if (origin.type === "progression") showProgressions();
     if (data.request.texture) piece.texture = data.request.texture;
     custom = data.custom ?? (data.request.custom ? { arrangement: data.request.custom, performance: {} } : null);
     // A capo from the suggestion toggle comes back as the toggle; the suggestion is the same for the same request.
@@ -1290,16 +1457,25 @@ try {
     }
   }
 
-  picker.addEventListener("change", () => { showDefaults(); setFrets(fretsFor(picker.value)); void recompute(); });
+  picker.addEventListener("change", () => { showDefaults(); setFrets(fretsFor(picker.value)); void rearrange(); });
   $("frets").addEventListener("input", () => setFrets(Number($("frets").value)));
-  $("frets").addEventListener("change", () => { keepFrets(Number($("frets").value)); void recompute(); });
+  $("frets").addEventListener("change", () => { keepFrets(Number($("frets").value)); void rearrange(); });
   $("capo").addEventListener("change", () => { capoOn = $("capo").checked; void recompute(); });
   $("voices").addEventListener("change", () => { piece.texture = $("voices").value; void recompute(); });
-  $("key").addEventListener("change", () => void recompute());
+  $("key").addEventListener("change", () => {
+    if (library.tab === "scales") { library.scale.tonic = $("key").value; rememberLibrary(); showScale(); return; }
+    if (library.tab === "progressions") showProgressions();
+    void recompute();
+  });
   $("tempo").addEventListener("input", () => setTempo(Number($("tempo").value)));
   $("tempo").addEventListener("change", () => void changeTempo());
   // Each difficulty starts at its own tempo (maestro 20% faster than the piece).
-  $("level").addEventListener("change", () => { showDefaults(); setTempo(tempoFor(piece, $("level").value)); void recompute(); });
+  $("level").addEventListener("change", () => {
+    showDefaults();
+    if (library.tab === "scales") return void showScale({ fresh: true });
+    setTempo(tempoFor(piece, $("level").value));
+    void recompute();
+  });
   $("download").addEventListener("click", async () => {
     if (!plan) return;
     try {

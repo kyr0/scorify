@@ -117,6 +117,8 @@ interface ScorePiece extends PieceBase {
     readonly rhythm: string;
     /** The piece's chords, inferred from its hardest version and strummed: what baby and beginner play first. */
     readonly chords?: ChordSong;
+    /** A practice exercise (scalePiece), made for one instrument's range: played as written or reported, never simplified or moved. */
+    readonly exercise?: boolean;
     sources?: Map<string, ScoreSource>;
 }
 type Piece = ChordSong | ScorePiece;
@@ -477,6 +479,73 @@ declare function suggestCapo(piece: Piece, request: {
     frets?: number | undefined;
     custom?: CustomSettings | null | undefined;
 }): CapoSuggestion | null;
+/** A scale exercise: up and down over whole octaves from the tonic, `perBeat` even notes a counted beat, the last held to the bar line. */
+interface ScaleExercise {
+    /** A scale id from SCALES. */
+    readonly scale: string;
+    /** The tonic's name, as in TONICS ("F#"). */
+    readonly tonic: string;
+    readonly octaves: number;
+    /** Notes per counted beat: 1 to 4 in simple meters; 1, 3 or 6 in 6/8 and 12/8, whose beat is a dotted quarter. */
+    readonly perBeat: number;
+    readonly time: readonly [number, number];
+}
+/** The tempo a scale exercise is fingered at, in counted beats per minute; another tempo is playback only. */
+declare const SCALE_BPM = 60;
+/** Notes per beat a meter offers for scales, with their names. */
+declare const scaleRhythms: (time: readonly [number, number]) => readonly {
+    readonly perBeat: number;
+    readonly name: string;
+}[];
+/**
+ * An exercise's spelled pitches from the lowest tonic that holds them all on the instrument (up to its highest fret),
+ * or null when no octave does. Lower is chosen because low positions are easier; nothing is left out or moved.
+ */
+declare function scaleOnNeck(exercise: ScaleExercise, instrument: FrettedInstrument): string[] | null;
+/** The exercise as a score for one instrument (see scaleOnNeck); throws a RangeError when it does not fit. */
+declare function scaleScore(exercise: ScaleExercise, instrument: FrettedInstrument): Score;
+/**
+ * A scale exercise as a piece for one catalog instrument (its capo, highest fret and tuning in `instrument`): one
+ * version, fingered as written at SCALE_BPM, never simplified or moved (`exercise`).
+ */
+declare function scalePiece(exercise: ScaleExercise, instrument: FrettedInstrument, { instrumentId, id }: {
+    instrumentId: string;
+    id?: string;
+}): ScorePiece;
+/**
+ * A chord progression by scale degree, a bar each: roman numerals over the tonic, lower case minor, ♭ as "b", "7" a
+ * dominant seventh. `songs` is how many of the 739 distinct songs of the McGill Billboard corpus (Billboard Hot 100,
+ * 1958–1991; Burgoyne, Wild and Fujinaga 2011, CC0) start a phrase with it (the 12-bar blues: have a 12-bar blues
+ * chorus), counted by scripts/billboard-progressions.py over the corpus's chord annotations.
+ */
+interface Progression {
+    readonly id: string;
+    readonly name: string;
+    readonly numerals: readonly string[];
+    readonly mode: "major" | "minor";
+    readonly songs: number;
+    readonly note?: string;
+}
+declare const BILLBOARD_SONGS = 739;
+/**
+ * Every progression that starts on the tonic in at least 12 songs, the 12-bar blues, I–V–vi–IV and the most common
+ * minor ones: i–♭VI–♭VII–i, and of the two at four songs the Andalusian cadence (i–♭VII–♭VI–♭VII has four too).
+ */
+declare const PROGRESSIONS: readonly Progression[];
+/** A roman numeral's chord symbol in a key: "bVII" in C is Bb, "vi" Am, "V7" G7 (spelled plainly). */
+declare function chordOfNumeral(numeral: string, key: string): string;
+type PracticeVersion = Omit<SongVersion, "id">;
+/** One version per difficulty for each meter progressions are played in: strums, a bass, arpeggios, then fills. */
+declare const PROGRESSION_VERSIONS: Readonly<Record<string, readonly PracticeVersion[]>>;
+/** The tempo progressions are played at by meter, in counted beats per minute. */
+declare const PROGRESSION_BPM: Readonly<Record<string, number>>;
+/**
+ * A progression as a chord song in C major (A minor for a minor one), the key selector moving it: a four-bar loop
+ * twice, the 12-bar blues once, then the tonic held a bar; one version per difficulty for the meter.
+ */
+declare function progressionSong(progression: Progression, time: readonly [number, number], { instrument }?: {
+    instrument?: string;
+}): ChordSong;
 interface Stroke {
     readonly id: string;
     readonly at: Q;
@@ -514,6 +583,6 @@ declare function voicingsFor(result: {
     readonly annotations: readonly FrettedAnnotation[];
 }, instrument: FrettedInstrument): ChordShapeUse[];
 
-export { ALL, ARRANGEMENT_SCHEMA, CHART_SCHEMA, DEEP, INSTRUMENTS, KEY_SHIFTS, LEVEL_TEMPO, NO_CHORD, QUICK, RETRIES, SEARCH, SET_SCHEMA, SIMPLIFY, WIDE, arrangeFor, attemptFingerprint, barQuarters, barStart, barsOf, cacheKey, cacheable, chordShapes, chordTones, customInstrumentId, down, estimateLevel, familiarShapes, fingerprint, hardestNotes, hardestVersion, highestFret, instrumentFor, intervalOf, keyName, limitsExceeded, pick, pieceFingerprint, pieceFromScore, prepare, retime, searched, segmentsOf, songFromChart, sourceFor, stableJson, strokesFor, suggestCapo, tempoFor, transposeSong, transposeSymbol, up, versionById, versionsFor, voiceChord, voicingsFor, voicingsForSong };
-export type { AnyVersion, ArrangeRequest, AttemptStatus, BassHit, CapoSuggestion, CatalogInstrument, ChordChart, ChordShapeUse, ChordSong, ChordTones, CustomSettings, Fill, Fret, Hit, LogEntry, Piece, Prepared, PreparedAttempt, Run, RunOptions, RunResult, ScorePiece, ScoreSet, ScoreVersion, Segment, SongSpec, SongVersion, Stroke, SuccessfulRun, Texture, Tones, VersionLayers, VocalEntry, Voicing };
+export { ALL, ARRANGEMENT_SCHEMA, BILLBOARD_SONGS, CHART_SCHEMA, DEEP, INSTRUMENTS, KEY_SHIFTS, LEVEL_TEMPO, NO_CHORD, PROGRESSIONS, PROGRESSION_BPM, PROGRESSION_VERSIONS, QUICK, RETRIES, SCALE_BPM, SEARCH, SET_SCHEMA, SIMPLIFY, WIDE, arrangeFor, attemptFingerprint, barQuarters, barStart, barsOf, cacheKey, cacheable, chordOfNumeral, chordShapes, chordTones, customInstrumentId, down, estimateLevel, familiarShapes, fingerprint, hardestNotes, hardestVersion, highestFret, instrumentFor, intervalOf, keyName, limitsExceeded, pick, pieceFingerprint, pieceFromScore, prepare, progressionSong, retime, scaleOnNeck, scalePiece, scaleRhythms, scaleScore, searched, segmentsOf, songFromChart, sourceFor, stableJson, strokesFor, suggestCapo, tempoFor, transposeSong, transposeSymbol, up, versionById, versionsFor, voiceChord, voicingsFor, voicingsForSong };
+export type { AnyVersion, ArrangeRequest, AttemptStatus, BassHit, CapoSuggestion, CatalogInstrument, ChordChart, ChordShapeUse, ChordSong, ChordTones, CustomSettings, Fill, Fret, Hit, LogEntry, Piece, Prepared, PreparedAttempt, Progression, Run, RunOptions, RunResult, ScaleExercise, ScorePiece, ScoreSet, ScoreVersion, Segment, SongSpec, SongVersion, Stroke, SuccessfulRun, Texture, Tones, VersionLayers, VocalEntry, Voicing };
 //# sourceMappingURL=songs.d.mts.map

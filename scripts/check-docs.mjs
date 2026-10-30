@@ -538,6 +538,8 @@ try {
       await settled();
       state = await view();
       assert.deepEqual([state.mode.startsWith("Custom"), state.capo, await page.isVisible("#custom-state")], [false, null, false]);
+      // The file is read asynchronously: mark the playground busy so settled() waits for the import's own arrangement.
+      await page.evaluate(() => { document.getElementById("playground").dataset.status = "loading"; });
       await page.setInputFiles("#c-file", { name: "rainbow.arrangement.json", mimeType: "application/json", buffer: Buffer.from(JSON.stringify(exported)) });
       await settled();
       state = await view();
@@ -616,6 +618,74 @@ try {
       await page.click("#skill label:has(input[value=codex])");
       assert.match(await page.locator("#skill pre[data-tab=codex]").innerText(), /\$skill-installer install https:\/\/github\.com\/kyr0\/scorify\/tree\/main\/skills\/score-import/);
       report.extras = "effects default and remembered, playback and WAV through the library chain, print view with tab and charts, skill install section";
+
+      // The library's vertical tabs: scales on the instrument on show, then the Billboard chord progressions.
+      await page.click('[data-song="rainbow"]');
+      await settled();
+      const tabNotes = () => page.evaluate(() => document.getElementById("song-tab").api.getState().config.data.scores[0].tracks
+        .find((t) => t.kind === "tab")?.items.flatMap((i) => i.notes ?? []) ?? []);
+      await page.click("#library-tab-scales");
+      await settled();
+      let practiced = await snapshot();
+      assert.equal(practiced.status, "success", practiced.problem);
+      assert.deepEqual([await page.textContent("#song-title"), await page.inputValue("#key"), await page.textContent("#rhythm-badge")], ["C major scale", "C", "Scale · 4/4 · eighths"]);
+      assert.equal((await tabNotes()).length, 15, "one octave up and down: fifteen notes");
+      assert.match(practiced.message, /One octave up and down in eighths, every note as written/);
+      // The Key select sets the tonic, spelled as written for the scale's quality.
+      practiced = await choose("#key", "F#");
+      assert.equal(await page.textContent("#song-title"), "F# major scale");
+      await choose("#scale", "natural-minor");
+      assert.equal(await page.inputValue("#key"), "F#", "F# stays F# in minor");
+      await choose("#scale", "major");
+      // Two octaves of F major end on F6: above an 18-fret high-G ukulele, inside a 20-fret one.
+      await choose("#key", "F");
+      practiced = await choose("#scale-octaves", "2");
+      assert.match(practiced.problem ?? "", /2 octaves of the F major scale do not fit the ukulele/);
+      assert.equal(await page.isDisabled("#play"), true);
+      await page.evaluate(() => { const slider = document.getElementById("frets"); slider.value = "20"; slider.dispatchEvent(new Event("input")); slider.dispatchEvent(new Event("change")); });
+      await settled();
+      practiced = await snapshot();
+      assert.equal(practiced.status, "success", practiced.problem);
+      assert.equal((await tabNotes()).length, 29);
+      await page.click("#frets-usual");
+      await settled();
+      assert.match((await snapshot()).problem ?? "", /do not fit/);
+      await choose("#scale-octaves", "1");
+      // Another meter keeps the note value where it has one: eighths in 4/4 stay eighths in 6/8.
+      practiced = await choose("#scale-meter", "6/8");
+      assert.deepEqual([practiced.status, await page.inputValue("#scale-rhythm"), await page.textContent("#rhythm-badge")], ["success", "3", "Scale · 6/8 · eighths"]);
+      await choose("#scale-meter", "4/4");
+      // Baby plays nothing shorter than a quarter: eighths are reported, not thinned.
+      practiced = await choose("#level", "baby");
+      assert.match(practiced.problem ?? "", /Baby plays nothing shorter than a quarter note/);
+      practiced = await choose("#scale-rhythm", "1");
+      assert.equal(practiced.status, "success", practiced.problem);
+      await choose("#level", "maestro");
+
+      await page.click("#library-tab-progressions");
+      await settled();
+      practiced = await snapshot();
+      assert.equal(practiced.status, "success", practiced.problem);
+      assert.equal(await page.locator("#progression-list .sc-progression").count(), 13);
+      assert.deepEqual([await page.textContent("#song-title"), await page.inputValue("#key")], ["I–IV–V–I", "0"]);
+      assert.match(await page.textContent('[data-progression="I-IV-V-I"]'), /C F G C.*42 of 739 songs/);
+      // The Key select moves the progression and the cards' chords.
+      practiced = await choose("#key", "2");
+      assert.equal(practiced.status, "success", practiced.problem);
+      assert.match(await page.textContent('[data-progression="I-bVII-IV-I"]'), /D C G D/);
+      await page.click('[data-progression="12-bar-blues"]');
+      await settled();
+      assert.deepEqual([await page.textContent("#song-title"), await page.inputValue("#key"), await page.getAttribute('[data-progression="12-bar-blues"]', "aria-pressed")], ["12-bar blues", "2", "true"]);
+      practiced = await choose("#progression-meter", "12/8");
+      assert.deepEqual([practiced.status, await page.textContent("#rhythm-badge"), await page.inputValue("#tempo")], ["success", "Progression · 12/8 · 7 versions", "72"]);
+      assert.deepEqual(await page.evaluate(() => JSON.parse(localStorage.getItem("scorify-demo-library-1"))), {
+        scale: { scale: "major", tonic: "F", octaves: 1, perBeat: 1, time: [4, 4] }, progression: { id: "12-bar-blues", time: [12, 8] },
+      });
+      // Back on Songs, the song that was on show, in its own key.
+      await page.click("#library-tab-songs");
+      await settled();
+      assert.deepEqual([await page.textContent("#song-title"), await page.inputValue("#key"), (await snapshot()).status], ["Somewhere Over the Rainbow", "0", "success"]);
+      report.practice = "scale tab (tonic, spelling, neck fit and highest fret, meters, baby's shortest note), progression tab (Billboard cards, key, blues, 12/8), remembered choices, back to songs";
     }
 
     // The API tabs and the theme switch are wired by defuss-shadcn and app.mjs.

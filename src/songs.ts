@@ -17,6 +17,7 @@ import type { HarmonySpan, NoteEvent, Score } from "./model.js";
 import { addQ, q, secondsAt, subQ } from "./time.js";
 import type { Q, Tempo } from "./time.js";
 import { pitchToMidi, transposePitch } from "./pitch.js";
+import { scaleById, scalePitches } from "./theory.js";
 import { compilePlayer, levels } from "./profiles.js";
 import type { AdaptationPolicy, Level, PlayerCapabilities, PlayerOptions } from "./profiles.js";
 import { classicalGuitar, concertUkulele, createFrettedInstrument } from "./presets.js";
@@ -137,6 +138,8 @@ export interface ScorePiece extends PieceBase {
   readonly rhythm: string;
   /** The piece's chords, inferred from its hardest version and strummed: what baby and beginner play first. */
   readonly chords?: ChordSong;
+  /** A practice exercise (scalePiece), made for one instrument's range: played as written or reported, never simplified or moved. */
+  readonly exercise?: boolean;
   sources?: Map<string, ScoreSource>;
 }
 export type Piece = ChordSong | ScorePiece;
@@ -1034,10 +1037,10 @@ export function prepare(
     [low, high] = rangeOf(instrument),
     midis = source.notes.map((n) => pitchToMidi(pitchString(n.pitch)) + shift);
   const outside = (k: number) => midis.filter((m) => m + 12 * k < low || m + 12 * k > high).length;
-  const octave = [0, -1, 1, -2, 2].reduce((best, k) => (outside(k) < outside(best) ? k : best), 0);
+  const octave = piece.exercise ? 0 : [0, -1, 1, -2, 2].reduce((best, k) => (outside(k) < outside(best) ? k : best), 0);
   const transform: TransformOptions = { tempoScale: (bpm * piece.beat) / source.tempoMap[0]!.quarterBpm, ...(octave || shift ? { interval: intervalOf(shift + 12 * octave) } : {}) };
   const crowded = Math.max(0, ...source.notes.map((n) => source.notes.filter((o) => value(o.onset) <= value(n.onset) && value(o.onset) + value(o.duration) > value(n.onset)).length));
-  const forced = outside(octave) > 0 || crowded > instrument.strings.length,
+  const forced = !piece.exercise && (outside(octave) > 0 || crowded > instrument.strings.length),
     adaptive = simplify || forced;
   const short = INSTRUMENTS.find((i) => i.id === instrumentId)?.short ?? instrument.name;
   const notes = [
@@ -1224,7 +1227,7 @@ async function searchFor(piece: Piece, asked: ArrangeRequest, options: RunOption
           ...candidates.map((version) => ({ version, simplify: false })),
           ...(custom?.mode === "exact" ? [] : [{ version: candidates.at(-1)!, simplify: true }]),
           ...(chords && !first.length ? [{ version: chords as AnyVersion, simplify: false }] : []),
-        ].filter((a) => !(isScore(piece) && "pattern" in a.version && a.simplify));
+        ].filter((a) => !(isScore(piece) && (("pattern" in a.version && a.simplify) || (piece.exercise && a.simplify && custom?.mode !== "adaptive"))));
   const log: LogEntry[] = [];
   for (const { version, simplify } of attempts) {
     await options.onAttempt?.({ version, simplify });
@@ -1348,6 +1351,245 @@ export function suggestCapo(
   if (!(best.hard < open.hard && best.cost <= open.cost)) return null;
   const shapes = [...new Set([...weights.keys()].map((symbol) => transposeSymbol(symbol, intervalOf(-best.capo))))];
   return { capo: best.capo, shapes, chords: [...weights.keys()], hard: [open.hard, best.hard] };
+}
+
+// ---- practice: scales and chord progressions ------------------------------------------------------------------------------
+/** A scale exercise: up and down over whole octaves from the tonic, `perBeat` even notes a counted beat, the last held to the bar line. */
+export interface ScaleExercise {
+  /** A scale id from SCALES. */
+  readonly scale: string;
+  /** The tonic's name, as in TONICS ("F#"). */
+  readonly tonic: string;
+  readonly octaves: number;
+  /** Notes per counted beat: 1 to 4 in simple meters; 1, 3 or 6 in 6/8 and 12/8, whose beat is a dotted quarter. */
+  readonly perBeat: number;
+  readonly time: readonly [number, number];
+}
+/** The tempo a scale exercise is fingered at, in counted beats per minute; another tempo is playback only. */
+export const SCALE_BPM = 60;
+const compoundMeter = ([n, d]: readonly [number, number]) => d >= 8 && n % 3 === 0 && n > 3;
+/** Notes per beat a meter offers for scales, with their names. */
+export const scaleRhythms = (time: readonly [number, number]): readonly { readonly perBeat: number; readonly name: string }[] =>
+  compoundMeter(time)
+    ? [{ perBeat: 1, name: "dotted quarters" }, { perBeat: 3, name: "eighths" }, { perBeat: 6, name: "sixteenths" }]
+    : [{ perBeat: 1, name: "quarters" }, { perBeat: 2, name: "eighths" }, { perBeat: 3, name: "triplets" }, { perBeat: 4, name: "sixteenths" }];
+/** The lowest and highest sounding MIDI notes of an instrument up to its highest fret, a capo counted. */
+function neckRange(instrument: FrettedInstrument): [number, number] {
+  return [Math.min(...instrument.strings.map((s) => pitchToMidi(s.openPitch) + s.capoFret)), Math.max(...instrument.strings.map((s) => pitchToMidi(s.openPitch) + s.fretCount))];
+}
+/**
+ * An exercise's spelled pitches from the lowest tonic that holds them all on the instrument (up to its highest fret),
+ * or null when no octave does. Lower is chosen because low positions are easier; nothing is left out or moved.
+ */
+export function scaleOnNeck(exercise: ScaleExercise, instrument: FrettedInstrument): string[] | null {
+  const [low, high] = neckRange(instrument);
+  for (let octave = 0; octave <= 8; octave++) {
+    const pitches = scalePitches(`${exercise.tonic}${octave}`, exercise.scale, { octaves: exercise.octaves }),
+      midis = pitches.map(pitchToMidi);
+    if (Math.min(...midis) < low) continue;
+    return Math.max(...midis) <= high ? pitches : null;
+  }
+  return null;
+}
+/** The exercise as a score for one instrument (see scaleOnNeck); throws a RangeError when it does not fit. */
+export function scaleScore(exercise: ScaleExercise, instrument: FrettedInstrument): Score {
+  const scale = scaleById(exercise.scale),
+    [n, d] = exercise.time,
+    m = compoundMeter(exercise.time) ? 3 : 1;
+  if (!scaleRhythms(exercise.time).some((r) => r.perBeat === exercise.perBeat)) throw new RangeError(`Invalid notes per beat in ${n}/${d}: ${exercise.perBeat}`);
+  const pitches = scaleOnNeck(exercise, instrument);
+  if (!pitches) throw new RangeError(`${exercise.octaves} octave${exercise.octaves === 1 ? "" : "s"} of ${exercise.tonic} ${scale.name.toLowerCase()} do not fit the ${instrument.name} up to its highest fret`);
+  const per = exercise.perBeat,
+    at = (k: number) => q(4 * m * k, d * per),
+    last = pitches.length - 1,
+    barBeats = n / m;
+  // The last note sounds at least a beat and to the next bar line.
+  const end = Math.ceil((last / per + 1) / barBeats - 1e-9) * barBeats * per;
+  const notes: NoteEvent[] = pitches.map((pitch, k) => ({
+    id: `scale-${k + 1}`,
+    pitch: parsePitch(pitch),
+    onset: at(k),
+    duration: at(k === last ? end - last : 1),
+    partId: "scale",
+    voiceId: "1",
+    role: "melody",
+  }));
+  return createScore(notes, {
+    tempoMap: [{ at: q(0), quarterBpm: SCALE_BPM * (4 * m) / d }],
+    meterMap: [{ at: q(0), numerator: n, denominator: d }],
+    keyMap: [{ at: q(0), tonic: exercise.tonic, mode: scale.mode }],
+    notation: { title: `${exercise.tonic} ${scale.name.toLowerCase()} scale` },
+  });
+}
+/**
+ * A scale exercise as a piece for one catalog instrument (its capo, highest fret and tuning in `instrument`): one
+ * version, fingered as written at SCALE_BPM, never simplified or moved (`exercise`).
+ */
+export function scalePiece(exercise: ScaleExercise, instrument: FrettedInstrument, { instrumentId, id }: { instrumentId: string; id?: string }): ScorePiece {
+  const score = scaleScore(exercise, instrument),
+    scale = scaleById(exercise.scale),
+    rhythm = scaleRhythms(exercise.time).find((r) => r.perBeat === exercise.perBeat)!.name,
+    [n, d] = exercise.time,
+    m = compoundMeter(exercise.time) ? 3 : 1;
+  const label = `${exercise.octaves === 1 ? "One octave" : `${exercise.octaves} octaves`} up and down in ${rhythm}`;
+  return {
+    kind: "score",
+    exercise: true,
+    score,
+    versions: [{ id: "scale", difficulty: estimateLevel(score), label, score, estimated: true }],
+    textures: [],
+    texture: "all",
+    level: estimateLevel(score),
+    pad: 0,
+    id: id ?? `scale-${scale.id}-${exercise.tonic}-${exercise.octaves}-${exercise.perBeat}-${n}-${d}`,
+    instrument: instrumentId,
+    title: notationOf(score).title as string,
+    credit: "Scale exercise",
+    description: `${label}, ${score.notes.length} notes from ${pitchString(score.notes[0]!.pitch)}.`,
+    time: [n, d],
+    beat: (4 * m) / d,
+    bpm: SCALE_BPM,
+    rhythm: `${n}/${d}`,
+  };
+}
+
+/**
+ * A chord progression by scale degree, a bar each: roman numerals over the tonic, lower case minor, ♭ as "b", "7" a
+ * dominant seventh. `songs` is how many of the 739 distinct songs of the McGill Billboard corpus (Billboard Hot 100,
+ * 1958–1991; Burgoyne, Wild and Fujinaga 2011, CC0) start a phrase with it (the 12-bar blues: have a 12-bar blues
+ * chorus), counted by scripts/billboard-progressions.py over the corpus's chord annotations.
+ */
+export interface Progression {
+  readonly id: string;
+  readonly name: string;
+  readonly numerals: readonly string[];
+  readonly mode: "major" | "minor";
+  readonly songs: number;
+  readonly note?: string;
+}
+export const BILLBOARD_SONGS = 739;
+/**
+ * Every progression that starts on the tonic in at least 12 songs, the 12-bar blues, I–V–vi–IV and the most common
+ * minor ones: i–♭VI–♭VII–i, and of the two at four songs the Andalusian cadence (i–♭VII–♭VI–♭VII has four too).
+ */
+export const PROGRESSIONS: readonly Progression[] = [
+  { id: "I-IV-V-I", name: "I–IV–V–I", numerals: ["I", "IV", "V", "I"], mode: "major", songs: 42 },
+  { id: "I-vi-IV-V", name: "I–vi–IV–V", numerals: ["I", "vi", "IV", "V"], mode: "major", songs: 28, note: "the fifties or doo-wop progression" },
+  { id: "I-IV-I-V", name: "I–IV–I–V", numerals: ["I", "IV", "I", "V"], mode: "major", songs: 28 },
+  { id: "I-V-IV-I", name: "I–V–IV–I", numerals: ["I", "V", "IV", "I"], mode: "major", songs: 23 },
+  {
+    id: "12-bar-blues", name: "12-bar blues", mode: "major", songs: 23,
+    numerals: ["I7", "I7", "I7", "I7", "IV7", "IV7", "I7", "I7", "V7", "IV7", "I7", "V7"],
+  },
+  { id: "I-bVII-IV-I", name: "I–♭VII–IV–I", numerals: ["I", "bVII", "IV", "I"], mode: "major", songs: 22, note: "the Mixolydian rock progression" },
+  { id: "I-V-I-IV", name: "I–V–I–IV", numerals: ["I", "V", "I", "IV"], mode: "major", songs: 18 },
+  { id: "I-vi-ii-V", name: "I–vi–ii–V", numerals: ["I", "vi", "ii", "V"], mode: "major", songs: 17, note: "the turnaround" },
+  { id: "I-V-IV-V", name: "I–V–IV–V", numerals: ["I", "V", "IV", "V"], mode: "major", songs: 12 },
+  { id: "I-bIII-IV-I", name: "I–♭III–IV–I", numerals: ["I", "bIII", "IV", "I"], mode: "major", songs: 12 },
+  { id: "I-V-vi-IV", name: "I–V–vi–IV", numerals: ["I", "V", "vi", "IV"], mode: "major", songs: 7, note: "rare before 1992, the corpus's last year, and far more common in later hits" },
+  { id: "i-bVI-bVII-i", name: "i–♭VI–♭VII–i", numerals: ["i", "bVI", "bVII", "i"], mode: "minor", songs: 5 },
+  { id: "i-bVII-bVI-V", name: "i–♭VII–♭VI–V", numerals: ["i", "bVII", "bVI", "V"], mode: "minor", songs: 4, note: "the Andalusian cadence" },
+];
+const DEGREES: Readonly<Record<string, string>> = { I: "1P", II: "2M", III: "3M", IV: "4P", V: "5P", VI: "6M", VII: "7M" };
+/** A roman numeral's chord symbol in a key: "bVII" in C is Bb, "vi" Am, "V7" G7 (spelled plainly). */
+export function chordOfNumeral(numeral: string, key: string): string {
+  const [, flat, degree, seventh] = /^(b?)(i{1,3}|iv|vi{0,2}|v|I{1,3}|IV|VI{0,2}|V)(7?)$/.exec(numeral) ?? [];
+  const interval = degree && DEGREES[degree.toUpperCase()];
+  if (!interval) throw new RangeError(`Invalid roman numeral: ${numeral}`);
+  const lowered = flat ? `${interval[0]}${interval[1] === "P" ? "d" : "m"}` : interval;
+  const root = plainName(transposePitch(`${key}4`, lowered).replace(/-?\d+$/, ""));
+  return `${root}${degree === degree.toLowerCase() ? "m" : ""}${seventh}`;
+}
+const TOP2 = [-2, -1],
+  TOP3 = [-3, -2, -1],
+  TOP4 = [-4, -3, -2, -1];
+type PracticeVersion = Omit<SongVersion, "id">;
+/** One version per difficulty for each meter progressions are played in: strums, a bass, arpeggios, then fills. */
+export const PROGRESSION_VERSIONS: Readonly<Record<string, readonly PracticeVersion[]>> = {
+  "4/4": [
+    { difficulty: "baby", label: "A down strum a bar", pattern: [down(0, TOP3)], release: 1, countStrokes: true },
+    { difficulty: "beginner", label: "Down strums on every beat", pattern: [0, 1, 2, 3].map((at) => down(at, TOP4)), release: 0.5, countStrokes: true },
+    { difficulty: "amateur", label: "Down, up, down, up", pattern: [down(0, TOP4), up(1.5, TOP2), down(2, TOP4), up(3.5, TOP2)], countStrokes: true },
+    { difficulty: "semi-pro", label: "D D U · U D U", pattern: [down(0, TOP4), down(1, TOP4), up(1.5, TOP2), up(2.5, TOP2), down(3, TOP4), up(3.5, TOP2)], release: 0.25, countStrokes: true },
+    { difficulty: "pro", label: "Root, then D U · U D U", pattern: [pick(0, 0), down(1, TOP3), up(1.5, TOP3), up(2.5, TOP3), down(3, TOP3), up(3.5, TOP3)] },
+    { difficulty: "expert", label: "Strums with sixteenth pushes", pattern: [down(0, TOP4), up(0.75, TOP2), down(1, TOP4), up(1.5, TOP3), up(2.5, TOP3), down(3, TOP4), up(3.5, TOP3), up(3.75, TOP2)], countStrokes: true },
+    {
+      difficulty: "maestro", label: "Alternating bass, pushes and fills",
+      bass: [{ at: 0, tone: "root" }, { at: 2, tone: "fifth" }],
+      pattern: [down(1, TOP3), up(1.5, TOP3), up(2.5, TOP3), down(2.75, TOP2), down(3, TOP3)],
+      fill: { every: 4, from: 2.5, steps: [2, 1, 0, -1, -2, 0] },
+    },
+  ],
+  "3/4": [
+    { difficulty: "baby", label: "A down strum a bar", pattern: [down(0, TOP3)], release: 1, countStrokes: true },
+    { difficulty: "beginner", label: "Down strums on every beat", pattern: [down(0, TOP4), down(1, TOP3), down(2, TOP3)], release: 0.5, countStrokes: true },
+    { difficulty: "amateur", label: "Quarter-note arpeggio", pattern: [pick(0, 0), pick(1, 1), pick(2, 2)] },
+    { difficulty: "semi-pro", label: "Down, down-up, down-up", pattern: [down(0, TOP4), down(1, TOP3), up(1.5, TOP2), down(2, TOP3), up(2.5, TOP2)], release: 0.25, countStrokes: true },
+    { difficulty: "pro", label: "Arpeggio p i m i m i", pattern: [pick(0, 0), pick(0.5, 1), pick(1, 2), pick(1.5, 1), pick(2, 2), pick(2.5, 1)] },
+    { difficulty: "expert", label: "Arpeggio over four strings", pattern: [pick(0, 0), pick(0.5, -3), pick(1, -2), pick(1.5, -1), pick(2, -2), pick(2.5, -3)] },
+    {
+      difficulty: "maestro", label: "Arpeggio with sixteenth pickups and fills",
+      pattern: [pick(0, 0), pick(0.5, -3), pick(1, -2), pick(1.5, -1), pick(1.75, -2), pick(2, -1), pick(2.5, -3), pick(2.75, -2)],
+      fill: { every: 4, from: 1.5, steps: [2, 1, 0, -1, 0, 1] },
+    },
+  ],
+  "6/8": [
+    { difficulty: "baby", label: "A down strum a bar", pattern: [down(0, TOP3)], release: 1.5, countStrokes: true },
+    { difficulty: "beginner", label: "Down strums on 1 and 4", pattern: [down(0, TOP4), down(1.5, TOP4)], release: 0.75, countStrokes: true },
+    { difficulty: "amateur", label: "D · D D · D", pattern: [down(0, TOP4), down(1, TOP3), down(1.5, TOP4), down(2.5, TOP3)], countStrokes: true },
+    { difficulty: "semi-pro", label: "D D U D D U", pattern: [down(0, TOP4), down(0.5, TOP3), up(1, TOP3), down(1.5, TOP4), down(2, TOP3), up(2.5, TOP3)], release: 0.25, countStrokes: true },
+    { difficulty: "pro", label: "Arpeggio p i m a m i", pattern: [pick(0, 0), pick(0.5, -3), pick(1, -2), pick(1.5, -1), pick(2, -2), pick(2.5, -3)] },
+    { difficulty: "expert", label: "Arpeggio with sixteenth pickups", pattern: [pick(0, 0), pick(0.5, -3), pick(1, -2), pick(1.5, -1), pick(1.75, -2), pick(2, -1), pick(2.5, -3), pick(2.75, -2)] },
+    {
+      difficulty: "maestro", label: "Alternating bass, arpeggio and fills",
+      bass: [{ at: 0, tone: "root" }, { at: 1.5, tone: "fifth" }],
+      pattern: [pick(0.5, -3), pick(1, -2), pick(1.25, -1), pick(2, -2), pick(2.5, -1)],
+      fill: { every: 4, from: 1.5, steps: [2, 1, 0, -1, 0, 1] },
+    },
+  ],
+  "12/8": [
+    { difficulty: "baby", label: "A down strum a bar", pattern: [down(0, TOP3)], release: 1.5, countStrokes: true },
+    { difficulty: "beginner", label: "Down strums on every beat", pattern: [0, 1.5, 3, 4.5].map((at) => down(at, TOP4)), release: 0.75, countStrokes: true },
+    { difficulty: "amateur", label: "Shuffle: down on the long and short eighth", pattern: [0, 1.5, 3, 4.5].flatMap((at) => [down(at, TOP4), down(at + 1, TOP3)]), release: 0.25, countStrokes: true },
+    { difficulty: "semi-pro", label: "Shuffle, down and up", pattern: [0, 1.5, 3, 4.5].flatMap((at) => [down(at, TOP4), up(at + 1, TOP3)]), release: 0.25, countStrokes: true },
+    { difficulty: "pro", label: "Root, then shuffle strums", pattern: [pick(0, 0), up(1, TOP3), ...[1.5, 3, 4.5].flatMap((at) => [down(at, TOP3), up(at + 1, TOP3)])] },
+    { difficulty: "expert", label: "Triplet arpeggio", pattern: [0, 1.5, 3, 4.5].flatMap((at, k) => [pick(at, k ? -3 : 0), pick(at + 0.5, -2), pick(at + 1, -1)]) },
+    {
+      difficulty: "maestro", label: "Triplet arpeggio over a shuffle bass, and fills",
+      bass: [0, 1.5, 3, 4.5].map((at, k) => ({ at, tone: k % 2 ? "fifth" : "root" }) as const),
+      pattern: [0, 1.5, 3, 4.5].flatMap((at) => [pick(at + 0.5, -2), pick(at + 1, -1)]),
+      fill: { every: 4, from: 4.5, steps: [2, 1, 0, -1, 0, 1] },
+    },
+  ],
+};
+/** The tempo progressions are played at by meter, in counted beats per minute. */
+export const PROGRESSION_BPM: Readonly<Record<string, number>> = { "4/4": 90, "3/4": 96, "6/8": 60, "12/8": 60 };
+/**
+ * A progression as a chord song in C major (A minor for a minor one), the key selector moving it: a four-bar loop
+ * twice, the 12-bar blues once, then the tonic held a bar; one version per difficulty for the meter.
+ */
+export function progressionSong(progression: Progression, time: readonly [number, number], { instrument = "guitar" }: { instrument?: string } = {}): ChordSong {
+  const meter = `${time[0]}/${time[1]}`,
+    versions = PROGRESSION_VERSIONS[meter];
+  if (!versions) throw new RangeError(`No versions for ${meter}: ${Object.keys(PROGRESSION_VERSIONS).join(", ")}`);
+  const key = progression.mode === "minor" ? "A" : "C",
+    chords = progression.numerals.map((n) => chordOfNumeral(n, key)),
+    m = compoundMeter(time) ? 3 : 1;
+  return {
+    id: `progression-${progression.id}-${time[0]}-${time[1]}`,
+    title: progression.name,
+    credit: `${progression.songs} of ${BILLBOARD_SONGS} Billboard Hot 100 songs, 1958–1991`,
+    description: `${progression.note ? `${progression.note[0]!.toUpperCase()}${progression.note.slice(1)}. ` : ""}${chords.join(" ")} in ${key} ${progression.mode}, a bar each.`,
+    instrument,
+    key,
+    mode: progression.mode,
+    time: [time[0], time[1]],
+    beat: (4 * m) / time[1],
+    bpm: PROGRESSION_BPM[meter]!,
+    progression: chords.length >= 8 ? chords : [...chords, ...chords],
+    ending: chordOfNumeral(progression.mode === "minor" ? "i" : "I", key),
+    versions: versions.map((v) => ({ ...v, id: v.difficulty })),
+  };
 }
 
 // ---- performance and display helpers ----------------------------------------------------------------------------------

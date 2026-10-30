@@ -10,8 +10,10 @@ export {
   INSTRUMENTS as instruments, instrumentFor, customInstrumentId, highestFret, LEVEL_TEMPO, tempoFor, intervalOf, barQuarters, voiceChord, voicingsForSong,
   sourceFor, SET_SCHEMA, estimateLevel, pieceFromScore, CHART_SCHEMA, songFromChart, SEARCH, QUICK, WIDE, DEEP, RETRIES, versionsFor, prepare,
   hardestVersion, hardestNotes, stableJson, fingerprint, pieceFingerprint, cacheKey, searched, cacheable, ARRANGEMENT_SCHEMA, suggestCapo,
-  strokesFor, limitsExceeded, voicingsFor, versionById, KEY_SHIFTS, keyName,
+  strokesFor, limitsExceeded, voicingsFor, versionById, KEY_SHIFTS, keyName, transposeSong,
+  scalePiece, scaleOnNeck, scaleRhythms, SCALE_BPM, progressionSong, PROGRESSIONS, BILLBOARD_SONGS,
 } from "./scorify/songs.mjs";
+export { SCALES, TONICS } from "./scorify/theory.mjs";
 export { levels } from "./scorify/index.mjs";
 /** The library's arrangeFor, with this build in every attempt fingerprint, and retime (playback tempo only). */
 export const arrangeFor = (piece, request, options) => library.arrangeFor(piece, request, { build, ...options });

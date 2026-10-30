@@ -36,7 +36,34 @@
     background: linear-gradient(90deg, #ffd58a, #ff9fb2); -webkit-background-clip: text; background-clip: text; color: transparent; }
 
   /* song picker */
-  .sc-songs { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fit, minmax(min(100%, 19rem), 1fr)); margin-block-start: 2.5rem; }
+  /* The library: songs, scales and chord progressions in defuss-shadcn's vertical tabs, stacked on narrow screens. */
+  .sc-library { margin-block-start: 2.5rem; }
+  .sc-library > .tab-list { flex: none; min-inline-size: 12rem; }
+  .sc-library > .tab-content { flex: 1; min-inline-size: 0; }
+  .sc-library .tab-trigger { white-space: nowrap; }
+  @media (max-width: 48rem) {
+    .tabs.sc-library { flex-direction: column; align-items: stretch; }
+    .sc-library > .tab-list { max-inline-size: none; grid-auto-flow: column; grid-auto-columns: 1fr; overflow-x: auto; }
+    .sc-progressions { grid-template-columns: repeat(auto-fill, minmax(min(100%, 9.5rem), 1fr)); }
+    .sc-progression-note { display: none; }
+  }
+  .sc-songs { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fit, minmax(min(100%, 19rem), 1fr)); }
+  .sc-practice { display: flex; flex-direction: column; gap: 1rem; }
+  .sc-practice-intro, .sc-practice-note { margin: 0; max-width: 60rem; font-size: .875rem; color: var(--muted-foreground); text-wrap: pretty; }
+  .sc-practice-note { font-size: .8125rem; }
+  .sc-practice-form { display: grid; gap: .75rem 1rem; grid-template-columns: repeat(auto-fill, minmax(min(100%, 11rem), 1fr)); align-items: end;
+    padding: 1rem; border: 1px solid var(--border); border-radius: var(--radius-lg); background: color-mix(in oklch, var(--muted) 45%, transparent); }
+  .sc-progressions { display: grid; gap: .75rem; grid-template-columns: repeat(auto-fill, minmax(min(100%, 15rem), 1fr)); }
+  .sc-progression { all: unset; box-sizing: border-box; display: flex; flex-direction: column; gap: .25rem; padding: .75rem .875rem; cursor: pointer;
+    border: 1px solid var(--border); border-radius: var(--radius-lg); background: var(--card); transition: border-color .15s, box-shadow .15s; }
+  .sc-progression:hover { box-shadow: var(--shadow-md); }
+  .sc-progression:focus-visible { outline: 2px solid var(--ring); outline-offset: 2px; }
+  .sc-progression[aria-pressed="true"] { border-color: color-mix(in oklch, var(--chart-1) 70%, var(--border)); box-shadow: 0 0 0 1px color-mix(in oklch, var(--chart-1) 70%, transparent); }
+  .sc-progression-name { font-weight: 600; }
+  .sc-progression-chords { font: 500 .8125rem/1.4 var(--font-mono); color: var(--foreground); overflow-wrap: anywhere; }
+  .sc-progression-count { display: flex; align-items: center; gap: .5rem; font-size: .75rem; color: var(--muted-foreground); }
+  .sc-progression-bar { flex: none; inline-size: calc(var(--share) * 5rem); min-inline-size: 2px; block-size: .375rem; border-radius: 999px; background: var(--chart-1); }
+  .sc-progression-note { font-size: .75rem; color: var(--muted-foreground); }
   .sc-song { all: unset; box-sizing: border-box; display: flex; gap: 1rem; align-items: stretch; padding: .75rem; cursor: pointer;
     background: var(--card); color: var(--card-foreground); border: 1px solid var(--border); border-radius: var(--radius-xl);
     box-shadow: var(--shadow-sm); transition: border-color .15s, box-shadow .15s, transform .15s; }
@@ -251,7 +278,7 @@
   @media (min-width: 64rem) { .sc-footer-nav.mk-footer-nav { grid-template-columns: 1fr 1.3fr 1fr 1.2fr; } }
 
   @media (prefers-reduced-motion: reduce) {
-    .sc-song, .sc-progress span { transition: none; }
+    .sc-song, .sc-progression, .sc-progress span { transition: none; }
     .sc-song:hover { transform: none; }
   }
   @media (prefers-contrast: more) {

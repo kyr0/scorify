@@ -181,57 +181,87 @@
       <div class="mk-section-header-copy">
         <span class="mk-section-header-eyebrow">Live playground</span>
         <h2 class="mk-section-header-title" id="demo-title">🎸 Seven difficulties, eight instruments</h2>
-        <p class="mk-section-header-desc">Pick a song, an instrument and a difficulty. The sample accompaniments have seven versions, from <em>baby</em> to <em>maestro</em>; imported scores use their available editions and show vocal pitches and lyrics when present. scorify fingers the accompaniment for the chosen instrument (concert ukulele with high or low G, baritone ukulele, guitar in standard or drop D, 7- and 8-string guitar, mandolin) and checks that it plays.</p>
+        <p class="mk-section-header-desc">Pick a song, a scale or one of the Billboard charts' most common chord progressions, then an instrument and a difficulty. The sample accompaniments have seven versions, from <em>baby</em> to <em>maestro</em>; imported scores use their available editions and show vocal pitches and lyrics when present. scorify fingers the accompaniment for the chosen instrument (concert ukulele with high or low G, baritone ukulele, guitar in standard or drop D, 7- and 8-string guitar, mandolin) and checks that it plays.</p>
       </div>
     </header>
 
-    <div class="sc-songs" role="group" aria-label="Demo songs">
-      <button type="button" class="sc-song" data-song="rainbow" aria-pressed="true">
-        <span class="sc-song-art" data-art="rainbow" aria-hidden="true">🌈</span>
-        <span class="sc-song-copy">
-          <span class="sc-song-kind">Song · 4/4</span>
-          <strong class="sc-song-title">Somewhere Over the Rainbow</strong>
-          <span class="sc-song-credit">Harold Arlen · E. Y. Harburg</span>
-          <span class="sc-song-meta">7 versions · C major · 80 BPM</span>
-        </span>
-      </button>
-      <button type="button" class="sc-song" data-song="wicked" aria-pressed="false">
-        <span class="sc-song-art" data-art="wicked" aria-hidden="true">🌙</span>
-        <span class="sc-song-copy">
-          <span class="sc-song-kind">Song · 4/4</span>
-          <strong class="sc-song-title">Wicked Game</strong>
-          <span class="sc-song-credit">Chris Isaak</span>
-          <span class="sc-song-meta">7 versions · B minor · 108 BPM</span>
-        </span>
-      </button>
-      <button type="button" class="sc-song" data-song="rising" aria-pressed="false">
-        <span class="sc-song-art" data-art="rising" aria-hidden="true">🌅</span>
-        <span class="sc-song-copy">
-          <span class="sc-song-kind">Song · 3/4</span>
-          <strong class="sc-song-title">House of the Rising Sun</strong>
-          <span class="sc-song-credit">Traditional</span>
-          <span class="sc-song-meta">7 versions · A minor · 96 BPM</span>
-        </span>
-      </button>
-      <button type="button" class="sc-song" data-song="greensleeves" data-score-url="assets/scores/greensleeves.scorify.json" data-instrument="guitar" aria-pressed="false">
-        <span class="sc-song-art" data-art="score" aria-hidden="true">📜</span>
-        <span class="sc-song-copy">
-          <span class="sc-song-kind">Song · 6/8</span>
-          <strong class="sc-song-title">Greensleeves (hymn tune)</strong>
-          <span class="sc-song-credit">Traditional</span>
-          <span class="sc-song-meta">Four-part MIDI</span>
-        </span>
-      </button>
-      <button type="button" class="sc-song sc-song-open" id="open-score">
-        <span class="sc-song-art" data-art="open" aria-hidden="true">＋</span>
-        <span class="sc-song-copy">
-          <span class="sc-song-kind">Your score</span>
-          <strong class="sc-song-title">Open a score file…</strong>
-          <span class="sc-song-credit">A <code>.scorify.json</code> or score set from the score-import skill</span>
-          <span class="sc-song-meta">Kept in this browser, never uploaded</span>
-        </span>
-      </button>
-      <input type="file" id="score-file" accept=".json,application/json" multiple hidden>
+    <div class="tabs sc-library">
+      <div class="tab-list" role="tablist" aria-label="What to play" aria-orientation="vertical" data-variant="line">
+        <button type="button" class="tab-trigger" role="tab" id="library-tab-songs" aria-controls="library-songs" aria-selected="true" data-library="songs"><span aria-hidden="true">🎵</span> Songs</button>
+        <button type="button" class="tab-trigger" role="tab" id="library-tab-scales" aria-controls="library-scales" aria-selected="false" tabindex="-1" data-library="scales"><span aria-hidden="true">🎼</span> Scales</button>
+        <button type="button" class="tab-trigger" role="tab" id="library-tab-progressions" aria-controls="library-progressions" aria-selected="false" tabindex="-1" data-library="progressions"><span aria-hidden="true">🔁</span> Chord progressions</button>
+      </div>
+      <div class="tab-content" role="tabpanel" id="library-songs" aria-labelledby="library-tab-songs" tabindex="0">
+        <div class="sc-songs" role="group" aria-label="Demo songs">
+          <button type="button" class="sc-song" data-song="rainbow" aria-pressed="true">
+            <span class="sc-song-art" data-art="rainbow" aria-hidden="true">🌈</span>
+            <span class="sc-song-copy">
+              <span class="sc-song-kind">Song · 4/4</span>
+              <strong class="sc-song-title">Somewhere Over the Rainbow</strong>
+              <span class="sc-song-credit">Harold Arlen · E. Y. Harburg</span>
+              <span class="sc-song-meta">7 versions · C major · 80 BPM</span>
+            </span>
+          </button>
+          <button type="button" class="sc-song" data-song="wicked" aria-pressed="false">
+            <span class="sc-song-art" data-art="wicked" aria-hidden="true">🌙</span>
+            <span class="sc-song-copy">
+              <span class="sc-song-kind">Song · 4/4</span>
+              <strong class="sc-song-title">Wicked Game</strong>
+              <span class="sc-song-credit">Chris Isaak</span>
+              <span class="sc-song-meta">7 versions · B minor · 108 BPM</span>
+            </span>
+          </button>
+          <button type="button" class="sc-song" data-song="rising" aria-pressed="false">
+            <span class="sc-song-art" data-art="rising" aria-hidden="true">🌅</span>
+            <span class="sc-song-copy">
+              <span class="sc-song-kind">Song · 3/4</span>
+              <strong class="sc-song-title">House of the Rising Sun</strong>
+              <span class="sc-song-credit">Traditional</span>
+              <span class="sc-song-meta">7 versions · A minor · 96 BPM</span>
+            </span>
+          </button>
+          <button type="button" class="sc-song" data-song="greensleeves" data-score-url="assets/scores/greensleeves.scorify.json" data-instrument="guitar" aria-pressed="false">
+            <span class="sc-song-art" data-art="score" aria-hidden="true">📜</span>
+            <span class="sc-song-copy">
+              <span class="sc-song-kind">Song · 6/8</span>
+              <strong class="sc-song-title">Greensleeves (hymn tune)</strong>
+              <span class="sc-song-credit">Traditional</span>
+              <span class="sc-song-meta">Four-part MIDI</span>
+            </span>
+          </button>
+          <button type="button" class="sc-song sc-song-open" id="open-score">
+            <span class="sc-song-art" data-art="open" aria-hidden="true">＋</span>
+            <span class="sc-song-copy">
+              <span class="sc-song-kind">Your score</span>
+              <strong class="sc-song-title">Open a score file…</strong>
+              <span class="sc-song-credit">A <code>.scorify.json</code> or score set from the score-import skill</span>
+              <span class="sc-song-meta">Kept in this browser, never uploaded</span>
+            </span>
+          </button>
+          <input type="file" id="score-file" accept=".json,application/json" multiple hidden>
+        </div>
+      </div>
+      <div class="tab-content" role="tabpanel" id="library-scales" aria-labelledby="library-tab-scales" tabindex="0" hidden>
+        <div class="sc-practice">
+          <p class="sc-practice-intro">Up and down from the tonic in even notes, the last one held to the bar line, with the Beat on. <strong>Key</strong> below sets the tonic. scorify spells every degree, starts at the lowest octave the neck holds up to its highest fret, and fingers the scale for the difficulty as written, or says why it cannot.</p>
+          <div class="sc-practice-form">
+            <div class="sc-control"><label class="label" for="scale">Scale</label><select class="select" id="scale"></select></div>
+            <div class="sc-control"><label class="label" for="scale-octaves">Octaves</label><select class="select" id="scale-octaves"><option value="1">One</option><option value="2">Two</option><option value="3">Three</option></select></div>
+            <div class="sc-control"><label class="label" for="scale-meter">Time signature</label><select class="select" id="scale-meter"></select></div>
+            <div class="sc-control"><label class="label" for="scale-rhythm">Notes</label><select class="select" id="scale-rhythm"></select></div>
+          </div>
+        </div>
+      </div>
+      <div class="tab-content" role="tabpanel" id="library-progressions" aria-labelledby="library-tab-progressions" tabindex="0" hidden>
+        <div class="sc-practice">
+          <p class="sc-practice-intro">The most common chord progressions of Billboard Hot 100 hits: how many of 739 songs from 1958 to 1991 start a phrase with each. A bar per chord, seven versions per time signature from a strum a bar to fills; <strong>Key</strong> below moves it.</p>
+          <div class="sc-practice-form">
+            <div class="sc-control"><label class="label" for="progression-meter">Time signature</label><select class="select" id="progression-meter"></select></div>
+          </div>
+          <div class="sc-progressions" role="group" aria-label="Chord progressions" id="progression-list"></div>
+          <p class="sc-practice-note">Counted by scorify's own script over the chord annotations of the <a href="https://ddmal.ca/research/The_McGill_Billboard_Project_(Chord_Analysis_Dataset)/" target="_blank" rel="noopener">McGill Billboard corpus<svg class="sc-icon sc-ext" aria-hidden="true"><use href="#i-external"/></svg><span class="sr-only"> (opens in a new tab)</span></a> (Burgoyne, Wild and Fujinaga 2011; CC0): songs with a phrase that starts with the progression, and for the 12-bar blues, songs with a 12-bar blues chorus. The corpus ends in 1991, before I–V–vi–IV became common in hits.</p>
+        </div>
+      </div>
     </div>
 
     <div class="sc-window" id="playground" data-status="loading" aria-busy="true">
