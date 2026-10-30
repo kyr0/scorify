@@ -8,11 +8,11 @@ import {
   concertUkulele,
 } from "../src/index.js";
 import type { Score } from "../src/index.js";
-// The score-import skill (skill/) is independent of this package; its committed outputs must stay valid scorify input.
+// The score-import skill (skills/score-import/) is independent of this package; its committed outputs must stay valid scorify input.
 const files = [
-  ...readdirSync("skill/tests/fixtures")
+  ...readdirSync("skills/score-import/tests/fixtures")
     .filter((f) => f.endsWith(".scorify.json"))
-    .map((f) => join("skill/tests/fixtures", f)),
+    .map((f) => join("skills/score-import/tests/fixtures", f)),
   ...readdirSync("docs/assets/scores")
     .filter((f) => f.endsWith(".scorify.json"))
     .map((f) => join("docs/assets/scores", f)),
@@ -28,7 +28,7 @@ describe("score-import skill output", () => {
       .source;
     expect(source?.format).toBeTruthy();
   });
-  it.each(files.filter((f) => f.startsWith("skill/")))(
+  it.each(files.filter((f) => f.startsWith("skills/")))(
     "%s arranges in adaptive mode with its melody kept",
     (file) => {
       const score = normalizeScore(load(file));

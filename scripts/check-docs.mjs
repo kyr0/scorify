@@ -82,11 +82,9 @@ try {
       label: document.querySelector("#play span").textContent,
     }));
 
-    // The page opens at amateur and the piece's own tempo; maestro plays 20% faster.
+    // The page opens at maestro, which plays 20% faster than the piece's own tempo (Rainbow: 80 BPM).
     await settled();
-    assert.deepEqual([await page.inputValue("#level"), await page.inputValue("#tempo")], ["amateur", "80"]);
-    await page.selectOption("#level", "maestro");
-    await settled();
+    assert.deepEqual([await page.inputValue("#level"), await page.inputValue("#tempo")], ["maestro", "96"]);
     // Every piece opens at the chosen difficulty (maestro): the version written for it, fingered as written.
     for (const [song, bpm] of [["rainbow", 96], ["wicked", 130], ["rising", 115], ["greensleeves", 48]]) {
       await page.click(`[data-song="${song}"]`);
@@ -421,14 +419,14 @@ try {
     }
 
     // Score files from the skill, opened from disk, get cards and arrange: a single score and a score set.
-    const reel = JSON.parse(await readFile("skill/tests/fixtures/reel.scorify.json", "utf8"));
-    const duet = JSON.parse(await readFile("skill/tests/fixtures/duet.scorify.json", "utf8"));
+    const reel = JSON.parse(await readFile("skills/score-import/tests/fixtures/reel.scorify.json", "utf8"));
+    const duet = JSON.parse(await readFile("skills/score-import/tests/fixtures/duet.scorify.json", "utf8"));
     const setFile = path.join(await mkdtemp(path.join(tmpdir(), "scorify-docs-")), "fixtures.scorify-set.json");
     await writeFile(setFile, JSON.stringify({ schema: "scorify-set-1", title: "Fixture set", variants: [
       { id: "reel", label: "Reel", difficulty: "amateur", score: reel },
       { id: "duet", label: "Duet", difficulty: "pro", score: duet },
     ] }));
-    await page.setInputFiles("#score-file", [path.resolve("skill/tests/fixtures/reel.scorify.json"), setFile]);
+    await page.setInputFiles("#score-file", [path.resolve("skills/score-import/tests/fixtures/reel.scorify.json"), setFile]);
     await page.waitForFunction(() => document.querySelectorAll(".sc-song[data-loaded]").length === 3, undefined, { timeout: 10000 });
     await settled();
     {
@@ -440,7 +438,7 @@ try {
       report.opened = easy.notes;
     }
     // A sung part is shown, not played: one lane of words per verse, and its notes are not counted.
-    await page.setInputFiles("#score-file", path.resolve("skill/tests/fixtures/verses.scorify.json"));
+    await page.setInputFiles("#score-file", path.resolve("skills/score-import/tests/fixtures/verses.scorify.json"));
     await page.waitForFunction(() => document.querySelectorAll(".sc-song[data-loaded]").length === 4, undefined, { timeout: 10000 });
     await settled();
     {
@@ -545,6 +543,7 @@ try {
       await settled();
       await page.click('[data-song="wicked"]');
       await settled();
+      await choose("#level", "amateur");
       assert.equal(await page.inputValue("#level"), "amateur");
       assert.match(await page.textContent("#fact-search"), / · cached$/, "a stale browser entry does not hide the precomputed log");
       assert.equal(JSON.parse(await page.textContent("#result-json")).cache, "the precomputed cache");
@@ -585,8 +584,9 @@ try {
 
       // The skill section names both agents and how to install.
       assert.match(await page.textContent("#skill"), /Claude Code[\s\S]*Codex/);
+      assert.match(await page.locator("#skill pre[data-tab=claude]").innerText(), /\/plugin install score-import --marketplace kyr0\/scorify/);
       await page.click("#skill label:has(input[value=codex])");
-      assert.match(await page.locator("#skill pre[data-tab=codex]").innerText(), /\.agents\/skills\/score-import/);
+      assert.match(await page.locator("#skill pre[data-tab=codex]").innerText(), /\$skill-installer install https:\/\/github\.com\/kyr0\/scorify\/tree\/main\/skills\/score-import/);
       report.extras = "effects default and remembered, playback and WAV through the library chain, print view with tab and charts, skill install section";
     }
 

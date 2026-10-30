@@ -1,0 +1,21 @@
+{
+  "name": "scorify",
+  "description": "Agent skills from scorify (https://kyr0.github.io/scorify/): score-import finds scores on the web and converts them into scorify scores.",
+  "owner": {
+    "name": "Aron Homberg",
+    "url": "https://github.com/kyr0"
+  },
+  "plugins": [
+    {
+      "name": "score-import",
+      "source": "./skills/score-import",
+      "description": "Find scores on the web and convert MusicXML, MXL, ABC and MIDI into scorify scores, with the vocal melody, every verse of the lyrics, and where each file came from.",
+      "author": { "name": "Aron Homberg" },
+      "homepage": "https://kyr0.github.io/scorify/#skill",
+      "repository": "https://github.com/kyr0/scorify",
+      "license": "MIT",
+      "keywords": ["music", "sheet music", "musicxml", "midi", "abc", "lyrics", "ukulele", "guitar"],
+      "category": "music"
+    }
+  ]
+}

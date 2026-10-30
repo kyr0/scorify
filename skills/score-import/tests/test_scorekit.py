@@ -1,4 +1,4 @@
-"""scorekit: readers, the Score builder, the validator and CloakBrowser helpers. Run: python3 -m unittest discover -s skill/tests
+"""scorekit: readers, the Score builder, the validator and CloakBrowser helpers. Run: python3 -m unittest discover -s skills/score-import/tests
 
 The CloakBrowser end-to-end test runs only with SCORE_IMPORT_LIVE=1 (it starts the browser and a local web server).
 """

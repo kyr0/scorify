@@ -2,8 +2,9 @@
 
 ## Unreleased
 
+- Docs playground: the page opens at maestro again (20% above the piece's tempo).
 - Docs playground: the metronome switch is called **Beat** and is on by default, as are Tape delay, Reverb and Saturation. The switches are remembered under new keys (`scorify-demo-practice-2`, `scorify-demo-effects-2`), so choices saved earlier do not hide the new defaults.
-- Docs site and README: install from npm (bun, npm, pnpm, yarn) or, without a bundler, from jsDelivr with an import map (a Worker or AudioWorklet still comes from the page's own origin, via `workletUrl`). The `score-import` skill installs from a sparse clone of only `skill/` (about 2 MB instead of the whole repository), with a self-test and `git pull` to update. The footer links to the rendered docs on GitHub, the npm package and the issue tracker.
+- Docs site and README: install from npm (bun, npm, pnpm, yarn) or, without a bundler, from jsDelivr with an import map (a Worker or AudioWorklet still comes from the page's own origin, via `workletUrl`). The repository is a Claude Code plugin marketplace (`.claude-plugin/marketplace.json`): `/plugin install score-import --marketplace kyr0/scorify` installs the skill; Codex installs it with `$skill-installer` from `skills/score-import`, where the skill now lives (moved from `skill/`). The footer links to the rendered docs on GitHub, the npm package and the issue tracker.
 - Docs site: the ukulele example strums its C chord (`rightHand: "strum"`); picked, its four notes exceed beginner's three picked notes per bar, so it returned `infeasible` in 0.3.0.
 
 ## 0.3.0 — 2026-10-30

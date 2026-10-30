@@ -318,21 +318,15 @@ The [docs site](docs/index.html) re-arranges three accompaniment songs, each wri
 
 ### Importing scores
 
-[`skill/`](skill/SKILL.md) holds `score-import`, a standalone agent skill and CLI (Python 3.9+, standard library) that finds scores on the web with CloakBrowser and converts MusicXML, MXL, ABC and MIDI into scorify Score JSON with lyrics and sung parts, recording where each file came from. `score.py bundle` packs several versions of one piece, each with its difficulty, into a score set. It honors robots.txt and stops at logins, paywalls and human checks. Its tests: `python3 -m unittest discover -s skill/tests`.
+[`skills/score-import/`](skills/score-import/SKILL.md) holds `score-import`, a standalone agent skill and CLI (Python 3.9+, standard library) that finds scores on the web with CloakBrowser and converts MusicXML, MXL, ABC and MIDI into scorify Score JSON with lyrics and sung parts, recording where each file came from. `score.py bundle` packs several versions of one piece, each with its difficulty, into a score set. It honors robots.txt and stops at logins, paywalls and human checks. Its tests: `python3 -m unittest discover -s skills/score-import/tests`.
 
-The same skill works in Codex and Claude Code. It is not part of the npm package. To install it for both on macOS/Linux, fetch only the `skill/` folder (about 2 MB, not the whole repository) and link it (the link names must be unused):
+It is not part of the npm package; install it into your coding agent:
 
-```sh
-git clone --depth 1 --filter=blob:none --sparse https://github.com/kyr0/scorify.git ~/.scorify
-git -C ~/.scorify sparse-checkout set skill
-mkdir -p ~/.agents/skills ~/.claude/skills
-ln -s ~/.scorify/skill ~/.agents/skills/score-import
-ln -s ~/.scorify/skill ~/.claude/skills/score-import
-bunx cloakbrowser install                              # the browser it drives
-python3 -m unittest discover -s ~/.scorify/skill/tests # self-test
-```
+- **Claude Code**: this repository is a plugin marketplace. In Claude Code (2.1.275 or later), run `/plugin install score-import --marketplace kyr0/scorify`, or `claude plugin install score-import --marketplace kyr0/scorify` in a shell. Earlier versions: `/plugin marketplace add kyr0/scorify`, then `/plugin install score-import@scorify`. Ask for a score, or run `/score-import:score-import`. `claude plugin marketplace update scorify` fetches a newer version.
+- **Codex**: `$skill-installer install https://github.com/kyr0/scorify/tree/main/skills/score-import` installs it into `~/.codex/skills/score-import`. Ask for a score, or run `$score-import`.
+- **Other agents or one project**: copy or link the `skills/score-import/` folder into the agent's skills folder, such as `~/.agents/skills/score-import` or a project's `.claude/skills/score-import`.
 
-`git -C ~/.scorify pull` updates both. From a full checkout, link its `skill/` folder the same way. For an independent installation, copy the whole `skill/` directory to each destination instead. Invoke `$score-import` in Codex or `/score-import` in Claude Code, followed by the import request. Both also support automatic selection. Discovery locations and symlink support follow the [official OpenAI skill documentation](https://learn.chatgpt.com/docs/build-skills#where-codex-loads-local-skills) and [Claude Code skill documentation](https://code.claude.com/docs/en/skills#choose-where-skills-load).
+Web pages need CloakBrowser once: `bunx cloakbrowser install`.
 
 Use Bun 1.3.9 and Node 24. `pkgroll` builds ES2022 `.mjs`, declarations, source maps and third-party notices. `check` includes source typechecking, semantic tests, module-graph checks, and a real npm-tarball/declaration-consumer check. The browser check exercises native modules, the module worker, a live level change, actual audio playback and sample-exact worklet/offline parity at 44.1 and 48 kHz.
 

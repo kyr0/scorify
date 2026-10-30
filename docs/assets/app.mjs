@@ -1236,7 +1236,7 @@ try {
         if (data?.schema === ARRANGEMENT_SCHEMA) { await openArrangement(data); continue; }
         addScore(data, { select: k === files.length - 1 });
         remember(data);
-      } catch (error) { showProblem(`${file.name} is not a scorify score`, [error.message, "Convert scores with the score-import skill (skill/ in the repository)."]); }
+      } catch (error) { showProblem(`${file.name} is not a scorify score`, [error.message, "Convert scores with the score-import skill (skills/score-import/ in the repository)."]); }
     }
   });
   for (const card of document.querySelectorAll("[data-score-url]")) {
