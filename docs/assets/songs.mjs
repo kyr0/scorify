@@ -4,14 +4,15 @@
 // re-exports the library functions the page, the precompute script and the tests use, with the cache version
 // (build.mjs, from src/VERSION) in every attempt fingerprint.
 import * as library from "./scorify/songs.mjs";
-import { ALL, down, up, pick, barQuarters, barsOf, barStart, intervalOf, transposeSymbol, voicingsFor, strokesFor, NO_CHORD } from "./scorify/songs.mjs";
+import { ALL, down, up, pick, barQuarters, barsOf, barStart, intervalOf, transposeSymbol, voicingsFor, strokesFor, chordTones, NO_CHORD } from "./scorify/songs.mjs";
 import { build } from "./scorify/build.mjs";
 export {
   INSTRUMENTS as instruments, instrumentFor, customInstrumentId, highestFret, LEVEL_TEMPO, tempoFor, intervalOf, barQuarters, voiceChord, voicingsForSong,
   sourceFor, SET_SCHEMA, estimateLevel, pieceFromScore, CHART_SCHEMA, songFromChart, SEARCH, QUICK, WIDE, DEEP, RETRIES, versionsFor, prepare,
   hardestVersion, hardestNotes, stableJson, fingerprint, pieceFingerprint, cacheKey, searched, cacheable, ARRANGEMENT_SCHEMA, suggestCapo,
   strokesFor, limitsExceeded, voicingsFor, versionById, KEY_SHIFTS, keyName, transposeSong,
-  scalePiece, scaleOnNeck, scaleRhythms, SCALE_BPM, progressionSong, PROGRESSIONS, BILLBOARD_SONGS,
+  scalePiece, scaleOnNeck, scaleRhythms, SCALE_BPM, progressionSong, PROGRESSIONS, BILLBOARD_SONGS, PROGRESSION_STYLES,
+  scaleChordsSong, scaleTriads, INVERSION_NAMES, STRUM_PATTERNS,
 } from "./scorify/songs.mjs";
 export { SCALES, TONICS } from "./scorify/theory.mjs";
 export { levels } from "./scorify/index.mjs";
@@ -135,9 +136,11 @@ const shapeText = frets => frets.some(f => typeof f === "number" && f > 9) ? fre
 
 /**
  * A defuss-shadcn Fretboard song (version 1), built only from the solver's string and fret assignments, plus a lane
- * for the sung part: its words, or its note names when it has none.
+ * for the sung part: its words, or its note names when it has none. With a chord song's `chords` (prepare's chord
+ * segments), every chord name carries its segment as `slot` (for the inversion buttons), and a chord inverted as
+ * asked is named with its bass (C/E).
  */
-export function tabFor(piece, result, instrument, { spec = piece, vocal = [] } = {}) {
+export function tabFor(piece, result, instrument, { spec = piece, vocal = [], chords = [] } = {}) {
   if (result.status !== "success") throw new Error("Only a successful arrangement has a tab");
   const bar = barQuarters(piece), unit = piece.time[1] / 4, pad = piece.pad ?? 0; // the Fretboard counts time-signature beats, scorify quarters
   const place = at => {
@@ -147,15 +150,22 @@ export function tabFor(piece, result, instrument, { spec = piece, vocal = [] } =
   // One chart per chord name; spans that play fewer strings of the same voicing merge into it, a different voicing gets its own chart.
   // With a capo, a song's chords are named by the shapes the hand holds, as on a capo chart: capo 2, Am for B minor.
   const capo = instrument.strings[0].capoFret, shapeOf = chord => (capo && spec.progression ? transposeSymbol(chord, intervalOf(-capo)) : chord);
-  const charts = [], chordItems = voicingsFor(result, instrument).map(found => ({ ...found, chord: shapeOf(found.chord) })).map(v => {
-    if (v.frets.every(f => f === "x")) return { ...place(v.at), name: v.chord };
+  const segmentAt = found => chords.find(c => Math.abs(c.at - found.at) < 1e-6 && c.symbol === found.chord);
+  const named = found => {
+    const slot = segmentAt(found);
+    const chord = slot?.asked && slot.inversion > 0 ? `${shapeOf(found.chord)}/${shapeOf(chordTones(found.chord).names[slot.inversion])}` : shapeOf(found.chord);
+    return { ...found, chord, ...(slot ? { slot } : {}) };
+  };
+  const charts = [], chordItems = voicingsFor(result, instrument).map(named).map(v => {
+    const slot = v.slot ? { slot: v.slot } : {};
+    if (v.frets.every(f => f === "x")) return { ...place(v.at), name: v.chord, ...slot };
     const same = charts.filter(c => c.chord === v.chord);
     let chart = same.find(c => c.frets.every((f, i) => f === "x" || v.frets[i] === "x" || f === v.frets[i]));
     if (chart) {
       chart.frets = chart.frets.map((f, i) => (f === "x" ? v.frets[i] : f));
       chart.barre ??= v.barre;
     } else charts.push(chart = { ...v, name: same.length ? `${v.chord} (${same.length + 1})` : v.chord });
-    return { ...place(v.at), name: chart.name };
+    return { ...place(v.at), name: chart.name, ...slot };
   });
   // Bars a chart leaves silent read "N.C.", so a rest in the accompaniment is not mistaken for a missing chord.
   if (spec.progression) barsOf(spec).forEach((symbols, b) => symbols.trim().split(/\s+/).forEach((symbol, k, all) => {

@@ -1,6 +1,6 @@
 {
   "name": "scorify",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "Instrument-aware arrangement, transposition, fingering constraints, and plucked-string synthesis.",
   "type": "module",
   "license": "MIT",

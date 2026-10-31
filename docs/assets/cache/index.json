@@ -1,6 +1,6 @@
 {
  "schema": "scorify-cache-1",
- "build": "bd416701157b37ac",
+ "build": "8ac1bc6e57f9755c",
  "entries": {
   "0093ec79f01d7215f123b693472a-00124b3516ef1e14879115d6b372": {
    "file": "0093ec79f01d7215f123b693472a-00124b3516ef1e14879115d6b372.json.gz",
@@ -1536,7 +1536,7 @@
    "transpose": 4,
    "custom": null,
    "status": "success",
-   "version": "expert"
+   "version": "maestro"
   },
   "0093ec79f01d7215f123b693472a-03a2ac2cd106560df0f735c0b52e": {
    "file": "0093ec79f01d7215f123b693472a-03a2ac2cd106560df0f735c0b52e.json.gz",
@@ -2844,7 +2844,7 @@
    "transpose": 3,
    "custom": null,
    "status": "success",
-   "version": "expert"
+   "version": "maestro"
   },
   "0093ec79f01d7215f123b693472a-06729baa8d089916b9f9accb6438": {
    "file": "0093ec79f01d7215f123b693472a-06729baa8d089916b9f9accb6438.json.gz",
@@ -3084,7 +3084,7 @@
    "transpose": -2,
    "custom": null,
    "status": "success",
-   "version": "maestro"
+   "version": "expert"
   },
   "0093ec79f01d7215f123b693472a-06ff2b9f981c8300478d19083086": {
    "file": "0093ec79f01d7215f123b693472a-06ff2b9f981c8300478d19083086.json.gz",
@@ -3876,7 +3876,7 @@
    "transpose": 0,
    "custom": null,
    "status": "success",
-   "version": "maestro"
+   "version": "expert"
   },
   "0093ec79f01d7215f123b693472a-08c44fca36fa5514ca9eb68ef8cf": {
    "file": "0093ec79f01d7215f123b693472a-08c44fca36fa5514ca9eb68ef8cf.json.gz",
@@ -6756,7 +6756,7 @@
    "transpose": 1,
    "custom": null,
    "status": "success",
-   "version": "maestro"
+   "version": "expert"
   },
   "0093ec79f01d7215f123b693472a-0f6b42d5c5eb6b152422a9f94757": {
    "file": "0093ec79f01d7215f123b693472a-0f6b42d5c5eb6b152422a9f94757.json.gz",
@@ -7200,7 +7200,7 @@
    "transpose": -1,
    "custom": null,
    "status": "success",
-   "version": "expert"
+   "version": "maestro"
   },
   "0093ec79f01d7215f123b693472a-108fdc363c133115da95e8eb71cf": {
    "file": "0093ec79f01d7215f123b693472a-108fdc363c133115da95e8eb71cf.json.gz",
@@ -8160,7 +8160,7 @@
    "transpose": -3,
    "custom": null,
    "status": "success",
-   "version": "expert"
+   "version": "maestro"
   },
   "0093ec79f01d7215f123b693472a-12d86f5e1444d71ab090685471f0": {
    "file": "0093ec79f01d7215f123b693472a-12d86f5e1444d71ab090685471f0.json.gz",
@@ -9156,7 +9156,7 @@
    "transpose": 4,
    "custom": null,
    "status": "success",
-   "version": "expert"
+   "version": "maestro"
   },
   "0093ec79f01d7215f123b693472a-153af852fb8353097224c3081eb0": {
    "file": "0093ec79f01d7215f123b693472a-153af852fb8353097224c3081eb0.json.gz",
@@ -10164,7 +10164,7 @@
    "transpose": -1,
    "custom": null,
    "status": "success",
-   "version": "maestro"
+   "version": "expert"
   },
   "0093ec79f01d7215f123b693472a-17a72b7942fda80fdc147dea1301": {
    "file": "0093ec79f01d7215f123b693472a-17a72b7942fda80fdc147dea1301.json.gz",
@@ -13584,7 +13584,7 @@
    "transpose": 2,
    "custom": null,
    "status": "success",
-   "version": "maestro"
+   "version": "expert"
   },
   "0093ec79f01d7215f123b693472a-1ede8ba3671a4801cdba62b172a6": {
    "file": "0093ec79f01d7215f123b693472a-1ede8ba3671a4801cdba62b172a6.json.gz",
@@ -13644,7 +13644,7 @@
    "transpose": -3,
    "custom": null,
    "status": "success",
-   "version": "beginner"
+   "version": "amateur"
   },
   "0093ec79f01d7215f123b693472a-1ef9c2ecb07596191c6fb788d67b": {
    "file": "0093ec79f01d7215f123b693472a-1ef9c2ecb07596191c6fb788d67b.json.gz",
@@ -14040,7 +14040,7 @@
    "transpose": 5,
    "custom": null,
    "status": "success",
-   "version": "expert"
+   "version": "maestro"
   },
   "029eece05fc3a116fe1533fee2c9-0017128a7493631c899a6b0cae07": {
    "file": "029eece05fc3a116fe1533fee2c9-0017128a7493631c899a6b0cae07.json.gz",
@@ -15048,7 +15048,7 @@
    "transpose": 4,
    "custom": null,
    "status": "success",
-   "version": "amateur"
+   "version": "beginner"
   },
   "029eece05fc3a116fe1533fee2c9-023f9da93f8e8311c0e9b8e13c67": {
    "file": "029eece05fc3a116fe1533fee2c9-023f9da93f8e8311c0e9b8e13c67.json.gz",
@@ -15408,7 +15408,7 @@
    "transpose": 2,
    "custom": null,
    "status": "success",
-   "version": "expert"
+   "version": "maestro"
   },
   "029eece05fc3a116fe1533fee2c9-0305c185c5e5dd04079191db7315": {
    "file": "029eece05fc3a116fe1533fee2c9-0305c185c5e5dd04079191db7315.json.gz",
@@ -15684,7 +15684,7 @@
    "transpose": 4,
    "custom": null,
    "status": "success",
-   "version": "expert"
+   "version": "maestro"
   },
   "029eece05fc3a116fe1533fee2c9-03a276376a505b02833845bd8b3a": {
    "file": "029eece05fc3a116fe1533fee2c9-03a276376a505b02833845bd8b3a.json.gz",
@@ -15912,7 +15912,7 @@
    "transpose": -1,
    "custom": null,
    "status": "success",
-   "version": "expert"
+   "version": "maestro"
   },
   "029eece05fc3a116fe1533fee2c9-041cf3ede49fe81b832e9fa05543": {
    "file": "029eece05fc3a116fe1533fee2c9-041cf3ede49fe81b832e9fa05543.json.gz",
@@ -16224,7 +16224,7 @@
    "transpose": 3,
    "custom": null,
    "status": "success",
-   "version": "expert"
+   "version": "maestro"
   },
   "029eece05fc3a116fe1533fee2c9-04a9807f5ba40a0c45a86e422243": {
    "file": "029eece05fc3a116fe1533fee2c9-04a9807f5ba40a0c45a86e422243.json.gz",
@@ -16812,7 +16812,7 @@
    "transpose": -6,
    "custom": null,
    "status": "success",
-   "version": "expert"
+   "version": "maestro"
   },
   "029eece05fc3a116fe1533fee2c9-060bf8c48932dd1fe4d42e10358f": {
    "file": "029eece05fc3a116fe1533fee2c9-060bf8c48932dd1fe4d42e10358f.json.gz",
@@ -17316,7 +17316,7 @@
    "transpose": 4,
    "custom": null,
    "status": "success",
-   "version": "expert"
+   "version": "maestro"
   },
   "029eece05fc3a116fe1533fee2c9-072a5b65c18a6e1d7d3964f6a65f": {
    "file": "029eece05fc3a116fe1533fee2c9-072a5b65c18a6e1d7d3964f6a65f.json.gz",
@@ -17604,7 +17604,7 @@
    "transpose": 1,
    "custom": null,
    "status": "success",
-   "version": "expert"
+   "version": "maestro"
   },
   "029eece05fc3a116fe1533fee2c9-07c4d3d85eeeb508eb85d4f1fdff": {
    "file": "029eece05fc3a116fe1533fee2c9-07c4d3d85eeeb508eb85d4f1fdff.json.gz",
@@ -19068,7 +19068,7 @@
    "transpose": 3,
    "custom": null,
    "status": "success",
-   "version": "expert"
+   "version": "maestro"
   },
   "029eece05fc3a116fe1533fee2c9-0ab2a3ff4a7831175e3caf21c6f9": {
    "file": "029eece05fc3a116fe1533fee2c9-0ab2a3ff4a7831175e3caf21c6f9.json.gz",
@@ -19164,7 +19164,7 @@
    "transpose": -6,
    "custom": null,
    "status": "success",
-   "version": "expert"
+   "version": "maestro"
   },
   "029eece05fc3a116fe1533fee2c9-0af02bb20fb63007b2cb23672bab": {
    "file": "029eece05fc3a116fe1533fee2c9-0af02bb20fb63007b2cb23672bab.json.gz",
@@ -19296,7 +19296,7 @@
    "transpose": -1,
    "custom": null,
    "status": "success",
-   "version": "expert"
+   "version": "maestro"
   },
   "029eece05fc3a116fe1533fee2c9-0b36a1339f340e1992900c80424b": {
    "file": "029eece05fc3a116fe1533fee2c9-0b36a1339f340e1992900c80424b.json.gz",
@@ -19416,7 +19416,7 @@
    "transpose": 4,
    "custom": null,
    "status": "success",
-   "version": "semi-pro"
+   "version": "beginner"
   },
   "029eece05fc3a116fe1533fee2c9-0b9aee8d0f1f040b0e4ee202a94c": {
    "file": "029eece05fc3a116fe1533fee2c9-0b9aee8d0f1f040b0e4ee202a94c.json.gz",
@@ -19728,7 +19728,7 @@
    "transpose": 4,
    "custom": null,
    "status": "success",
-   "version": "expert"
+   "version": "maestro"
   },
   "029eece05fc3a116fe1533fee2c9-0c787ba09a1dea187dfa38766262": {
    "file": "029eece05fc3a116fe1533fee2c9-0c787ba09a1dea187dfa38766262.json.gz",
@@ -19740,7 +19740,7 @@
    "transpose": -3,
    "custom": null,
    "status": "success",
-   "version": "expert"
+   "version": "maestro"
   },
   "029eece05fc3a116fe1533fee2c9-0c7bcb0614f7330551557dd9e133": {
    "file": "029eece05fc3a116fe1533fee2c9-0c7bcb0614f7330551557dd9e133.json.gz",
@@ -20472,7 +20472,7 @@
    "transpose": 1,
    "custom": null,
    "status": "success",
-   "version": "expert"
+   "version": "maestro"
   },
   "029eece05fc3a116fe1533fee2c9-0e1598e9d7b92317a9ddbb4c00d6": {
    "file": "029eece05fc3a116fe1533fee2c9-0e1598e9d7b92317a9ddbb4c00d6.json.gz",
@@ -22356,7 +22356,7 @@
    "transpose": -3,
    "custom": null,
    "status": "success",
-   "version": "expert"
+   "version": "maestro"
   },
   "029eece05fc3a116fe1533fee2c9-12d86f5e1444d71ab090685471f0": {
    "file": "029eece05fc3a116fe1533fee2c9-12d86f5e1444d71ab090685471f0.json.gz",
@@ -22512,7 +22512,7 @@
    "transpose": -4,
    "custom": null,
    "status": "success",
-   "version": "expert"
+   "version": "maestro"
   },
   "029eece05fc3a116fe1533fee2c9-1331b8d32600820384fc2bce0074": {
    "file": "029eece05fc3a116fe1533fee2c9-1331b8d32600820384fc2bce0074.json.gz",
@@ -22992,7 +22992,7 @@
    "transpose": 2,
    "custom": null,
    "status": "success",
-   "version": "expert"
+   "version": "maestro"
   },
   "029eece05fc3a116fe1533fee2c9-145544ef7a3e5012da4fcfbdd384": {
    "file": "029eece05fc3a116fe1533fee2c9-145544ef7a3e5012da4fcfbdd384.json.gz",
@@ -23112,7 +23112,7 @@
    "transpose": 5,
    "custom": null,
    "status": "success",
-   "version": "expert"
+   "version": "maestro"
   },
   "029eece05fc3a116fe1533fee2c9-14a8a8f5f62e52055f9952ebb70a": {
    "file": "029eece05fc3a116fe1533fee2c9-14a8a8f5f62e52055f9952ebb70a.json.gz",
@@ -23700,7 +23700,7 @@
    "transpose": 1,
    "custom": null,
    "status": "success",
-   "version": "expert"
+   "version": "maestro"
   },
   "029eece05fc3a116fe1533fee2c9-164f9b86daadbd125b7dd21ae769": {
    "file": "029eece05fc3a116fe1533fee2c9-164f9b86daadbd125b7dd21ae769.json.gz",
@@ -23868,7 +23868,7 @@
    "transpose": -1,
    "custom": null,
    "status": "success",
-   "version": "expert"
+   "version": "maestro"
   },
   "029eece05fc3a116fe1533fee2c9-16cf9553f7292817fe91db13fb8f": {
    "file": "029eece05fc3a116fe1533fee2c9-16cf9553f7292817fe91db13fb8f.json.gz",
@@ -24156,7 +24156,7 @@
    "transpose": -4,
    "custom": null,
    "status": "success",
-   "version": "expert"
+   "version": "maestro"
   },
   "029eece05fc3a116fe1533fee2c9-1772e79e6f103807d364c4f871e1": {
    "file": "029eece05fc3a116fe1533fee2c9-1772e79e6f103807d364c4f871e1.json.gz",
@@ -24264,7 +24264,7 @@
    "transpose": -4,
    "custom": null,
    "status": "success",
-   "version": "expert"
+   "version": "maestro"
   },
   "029eece05fc3a116fe1533fee2c9-178dede45aa4011f19e0b363d046": {
    "file": "029eece05fc3a116fe1533fee2c9-178dede45aa4011f19e0b363d046.json.gz",
@@ -24288,7 +24288,7 @@
    "transpose": -4,
    "custom": null,
    "status": "success",
-   "version": "expert"
+   "version": "maestro"
   },
   "029eece05fc3a116fe1533fee2c9-17d41de951bdb90a8a638f9386af": {
    "file": "029eece05fc3a116fe1533fee2c9-17d41de951bdb90a8a638f9386af.json.gz",
@@ -25296,7 +25296,7 @@
    "transpose": -3,
    "custom": null,
    "status": "success",
-   "version": "expert"
+   "version": "maestro"
   },
   "029eece05fc3a116fe1533fee2c9-1a2326f45f072b18bcdaa6dcb421": {
    "file": "029eece05fc3a116fe1533fee2c9-1a2326f45f072b18bcdaa6dcb421.json.gz",
@@ -25740,7 +25740,7 @@
    "transpose": 5,
    "custom": null,
    "status": "success",
-   "version": "expert"
+   "version": "maestro"
   },
   "029eece05fc3a116fe1533fee2c9-1aff9aa9365be21d4e45a0982348": {
    "file": "029eece05fc3a116fe1533fee2c9-1aff9aa9365be21d4e45a0982348.json.gz",
@@ -25860,7 +25860,7 @@
    "transpose": 1,
    "custom": null,
    "status": "success",
-   "version": "expert"
+   "version": "maestro"
   },
   "029eece05fc3a116fe1533fee2c9-1b5f3e35ce1233002e303210e583": {
    "file": "029eece05fc3a116fe1533fee2c9-1b5f3e35ce1233002e303210e583.json.gz",
@@ -25944,7 +25944,7 @@
    "transpose": -1,
    "custom": null,
    "status": "success",
-   "version": "amateur"
+   "version": "beginner"
   },
   "029eece05fc3a116fe1533fee2c9-1b8d195ae5d49d19cfa461fb00b1": {
    "file": "029eece05fc3a116fe1533fee2c9-1b8d195ae5d49d19cfa461fb00b1.json.gz",
@@ -25968,7 +25968,7 @@
    "transpose": -1,
    "custom": null,
    "status": "success",
-   "version": "semi-pro"
+   "version": "beginner"
   },
   "029eece05fc3a116fe1533fee2c9-1ba5ca6afea66802f0c29ed9da56": {
    "file": "029eece05fc3a116fe1533fee2c9-1ba5ca6afea66802f0c29ed9da56.json.gz",
@@ -26112,7 +26112,7 @@
    "transpose": -3,
    "custom": null,
    "status": "success",
-   "version": "expert"
+   "version": "maestro"
   },
   "029eece05fc3a116fe1533fee2c9-1c03f0566bad34062586da18b372": {
    "file": "029eece05fc3a116fe1533fee2c9-1c03f0566bad34062586da18b372.json.gz",
@@ -26196,7 +26196,7 @@
    "transpose": -6,
    "custom": null,
    "status": "success",
-   "version": "expert"
+   "version": "maestro"
   },
   "029eece05fc3a116fe1533fee2c9-1c2aeb1dbff12b0d966fe5512f9c": {
    "file": "029eece05fc3a116fe1533fee2c9-1c2aeb1dbff12b0d966fe5512f9c.json.gz",
@@ -26244,7 +26244,7 @@
    "transpose": 3,
    "custom": null,
    "status": "success",
-   "version": "expert"
+   "version": "maestro"
   },
   "029eece05fc3a116fe1533fee2c9-1c30531f25ca3d1b66246d6fda75": {
    "file": "029eece05fc3a116fe1533fee2c9-1c30531f25ca3d1b66246d6fda75.json.gz",
@@ -26640,7 +26640,7 @@
    "transpose": -1,
    "custom": null,
    "status": "success",
-   "version": "expert"
+   "version": "maestro"
   },
   "029eece05fc3a116fe1533fee2c9-1d0c27c16d48aa14e25020b421d2": {
    "file": "029eece05fc3a116fe1533fee2c9-1d0c27c16d48aa14e25020b421d2.json.gz",
@@ -27768,7 +27768,7 @@
    "transpose": -6,
    "custom": null,
    "status": "success",
-   "version": "expert"
+   "version": "maestro"
   },
   "029eece05fc3a116fe1533fee2c9-1fc46ad5992efb15be36df7afa84": {
    "file": "029eece05fc3a116fe1533fee2c9-1fc46ad5992efb15be36df7afa84.json.gz",
@@ -42690,7 +42690,7 @@
    "transpose": 3,
    "custom": null,
    "status": "success",
-   "version": "score"
+   "version": "chords-amateur"
   },
   "158e63c11c200e0978b1b64974e7-010e6c7ec6b3a9111ad709091562": {
    "file": "158e63c11c200e0978b1b64974e7-010e6c7ec6b3a9111ad709091562.json.gz",
@@ -44120,7 +44120,7 @@
    "transpose": 3,
    "custom": null,
    "status": "success",
-   "version": "score"
+   "version": "chords-amateur"
   },
   "158e63c11c200e0978b1b64974e7-02d2def3722a63080923b0fe6ba5": {
    "file": "158e63c11c200e0978b1b64974e7-02d2def3722a63080923b0fe6ba5.json.gz",
@@ -44575,7 +44575,7 @@
    "transpose": 4,
    "custom": null,
    "status": "success",
-   "version": "score"
+   "version": "chords-amateur"
   },
   "158e63c11c200e0978b1b64974e7-037179696d732e0e49be4b093c98": {
    "file": "158e63c11c200e0978b1b64974e7-037179696d732e0e49be4b093c98.json.gz",
@@ -44757,7 +44757,7 @@
    "transpose": 4,
    "custom": null,
    "status": "success",
-   "version": "score"
+   "version": "chords-amateur"
   },
   "158e63c11c200e0978b1b64974e7-03bcd8501bdbab0f7e801eb99383": {
    "file": "158e63c11c200e0978b1b64974e7-03bcd8501bdbab0f7e801eb99383.json.gz",
@@ -45732,7 +45732,7 @@
    "transpose": 4,
    "custom": null,
    "status": "success",
-   "version": "score"
+   "version": "chords-amateur"
   },
   "158e63c11c200e0978b1b64974e7-0525048e63bf210c043fcc3e4178": {
    "file": "158e63c11c200e0978b1b64974e7-0525048e63bf210c043fcc3e4178.json.gz",
@@ -47331,7 +47331,7 @@
    "transpose": 4,
    "custom": null,
    "status": "success",
-   "version": "score"
+   "version": "chords-amateur"
   },
   "158e63c11c200e0978b1b64974e7-06f57a5d268b01042ad65abc2f73": {
    "file": "158e63c11c200e0978b1b64974e7-06f57a5d268b01042ad65abc2f73.json.gz",
@@ -54767,7 +54767,7 @@
    "transpose": 3,
    "custom": null,
    "status": "success",
-   "version": "score"
+   "version": "chords-amateur"
   },
   "158e63c11c200e0978b1b64974e7-0ff77ef1abd09418600da97f3c08": {
    "file": "158e63c11c200e0978b1b64974e7-0ff77ef1abd09418600da97f3c08.json.gz",
@@ -56483,7 +56483,7 @@
    "transpose": 4,
    "custom": null,
    "status": "success",
-   "version": "score"
+   "version": "chords-amateur"
   },
   "158e63c11c200e0978b1b64974e7-11f39e82ecd36e0bcb953e9d539d": {
    "file": "158e63c11c200e0978b1b64974e7-11f39e82ecd36e0bcb953e9d539d.json.gz",
@@ -61397,7 +61397,7 @@
    "transpose": 4,
    "custom": null,
    "status": "success",
-   "version": "score"
+   "version": "chords-amateur"
   },
   "158e63c11c200e0978b1b64974e7-17be2cc93895131f27bea8a42631": {
    "file": "158e63c11c200e0978b1b64974e7-17be2cc93895131f27bea8a42631.json.gz",

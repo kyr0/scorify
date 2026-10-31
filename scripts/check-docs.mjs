@@ -652,9 +652,49 @@ try {
       assert.match((await snapshot()).problem ?? "", /do not fit/);
       await choose("#scale-octaves", "1");
       // Another meter keeps the note value where it has one: eighths in 4/4 stay eighths in 6/8.
-      practiced = await choose("#scale-meter", "6/8");
+      // Time sits next to Key for scales and progressions only.
+      assert.deepEqual(await page.evaluate(() => ["key", "meter", "style"].map((id) => document.getElementById(id).closest(".sc-control").previousElementSibling?.querySelector("select")?.id ?? null)), ["level", "key", "meter"]);
+      practiced = await choose("#meter", "6/8");
       assert.deepEqual([practiced.status, await page.inputValue("#scale-rhythm"), await page.textContent("#rhythm-badge")], ["success", "3", "Scale · 6/8 · eighths"]);
-      await choose("#scale-meter", "4/4");
+      await choose("#meter", "4/4");
+      // Play: the scale down, then its chords; chords take neither octaves nor notes per beat.
+      practiced = await choose("#style", "down");
+      assert.deepEqual([practiced.status, (await tabNotes()).length], ["success", 8]);
+      assert.match(practiced.message, /One octave down in eighths/);
+      practiced = await choose("#style", "strum");
+      assert.equal(practiced.status, "success", practiced.problem);
+      // Strummed means strummed at every difficulty: no picked arpeggio or bass.
+      assert.doesNotMatch(practiced.message, /arpeggio|bass/i);
+      assert.deepEqual([await page.textContent("#song-title"), await page.isDisabled("#scale-octaves"), await page.isDisabled("#scale-rhythm")], ["F major scale in chords", true, true]);
+      // Each chord name has an xs button for its next inversion and one back as written. The ukulele's F (2010) has C4
+      // lowest, so it is written in second inversion: the button goes on to root position, then F/A, and back.
+      const chordNames = () => page.evaluate(() => [...document.querySelectorAll("#song-tab .fretboard-chord")].slice(0, 3).map((e) => e.textContent.trim()));
+      const invertLabel = () => page.getAttribute("#song-tab .fretboard-chord >> nth=0 >> .sc-invert", "aria-label");
+      assert.deepEqual((await chordNames()).slice(0, 2), ["F", "Gm"]);
+      assert.equal(await invertLabel(), "F in bar 1: second inversion; next root position");
+      assert.equal(await page.isDisabled("#song-tab .fretboard-chord >> nth=0 >> .sc-invert-reset"), true);
+      await page.click("#song-tab .fretboard-chord >> nth=0 >> .sc-invert");
+      await settled();
+      practiced = await snapshot();
+      assert.equal(practiced.status, "success", practiced.problem);
+      assert.match(practiced.message, /Inverted as asked: F in bar 1 in root position/);
+      assert.deepEqual([(await chordNames())[0], await invertLabel(), await page.isDisabled("#song-tab .fretboard-chord >> nth=0 >> .sc-invert-reset")], ["F", "F in bar 1: root position; next first inversion", false]);
+      await page.click("#song-tab .fretboard-chord >> nth=0 >> .sc-invert");
+      await settled();
+      practiced = await snapshot();
+      assert.equal(practiced.status, "success", practiced.problem);
+      assert.deepEqual((await chordNames()).slice(0, 2), ["F/A", "Gm"]);
+      assert.match(practiced.message, /Inverted as asked: F in bar 1 in first inversion/);
+      assert.equal(await invertLabel(), "F in bar 1: first inversion; next second inversion");
+      await page.click("#song-tab .fretboard-chord >> nth=0 >> .sc-invert-reset");
+      await settled();
+      assert.deepEqual([(await snapshot()).status, (await chordNames())[0]], ["success", "F"]);
+      practiced = await choose("#style", "up-down");
+      assert.deepEqual([await page.isDisabled("#scale-octaves"), await page.textContent("#song-title")], [false, "F major scale"]);
+      // A scale without a chord on every degree offers no chords.
+      await choose("#scale", "blues");
+      assert.equal(await page.isDisabled('#style option[value="strum"]'), true);
+      await choose("#scale", "major");
       // Baby plays nothing shorter than a quarter: eighths are reported, not thinned.
       practiced = await choose("#level", "baby");
       assert.match(practiced.problem ?? "", /Baby plays nothing shorter than a quarter note/);
@@ -668,6 +708,16 @@ try {
       assert.equal(practiced.status, "success", practiced.problem);
       assert.equal(await page.locator("#progression-list .sc-progression").count(), 13);
       assert.deepEqual([await page.textContent("#song-title"), await page.inputValue("#key")], ["I–IV–V–I", "0"]);
+      assert.deepEqual([await page.inputValue("#style"), /arpeggio|bass/i.test(practiced.message)], ["strum", false]);
+      // Pattern: the versions by difficulty, or a strumming pattern of the meter; a bass under the strum needs a guitar.
+      assert.deepEqual([await page.isHidden("#pattern"), await page.inputValue("#pattern"), await page.isDisabled('#pattern option[value="boom-chick"]')], [false, "", true]);
+      assert.deepEqual(await page.evaluate(() => [...document.querySelectorAll("#pattern optgroup")].map((g) => g.label)), ["Island and reggae", "Pop, rock and funk", "Folk and country", "Swing and blues"]);
+      practiced = await choose("#pattern", "island");
+      assert.equal(practiced.status, "success", practiced.problem);
+      assert.match(practiced.message, /“Island strum: D · D U · U D U”/);
+      assert.equal(await page.textContent("#rhythm-badge"), "Progression · 4/4 · 1 version");
+      practiced = await choose("#pattern", "");
+      assert.equal(await page.textContent("#rhythm-badge"), "Progression · 4/4 · 7 versions");
       assert.match(await page.textContent('[data-progression="I-IV-V-I"]'), /C F G C.*42 of 739 songs/);
       // The Key select moves the progression and the cards' chords.
       practiced = await choose("#key", "2");
@@ -676,16 +726,33 @@ try {
       await page.click('[data-progression="12-bar-blues"]');
       await settled();
       assert.deepEqual([await page.textContent("#song-title"), await page.inputValue("#key"), await page.getAttribute('[data-progression="12-bar-blues"]', "aria-pressed")], ["12-bar blues", "2", "true"]);
-      practiced = await choose("#progression-meter", "12/8");
+      practiced = await choose("#meter", "12/8");
       assert.deepEqual([practiced.status, await page.textContent("#rhythm-badge"), await page.inputValue("#tempo")], ["success", "Progression · 12/8 · 7 versions", "72"]);
-      assert.deepEqual(await page.evaluate(() => JSON.parse(localStorage.getItem("scorify-demo-library-1"))), {
-        scale: { scale: "major", tonic: "F", octaves: 1, perBeat: 1, time: [4, 4] }, progression: { id: "12-bar-blues", time: [12, 8] },
+      // Played as an arpeggio, and a chord of it inverted.
+      practiced = await choose("#style", "arpeggio-up");
+      assert.equal(practiced.status, "success", practiced.problem);
+      assert.match(practiced.message, /Arpeggio up, \d+ notes a bar/);
+      assert.equal(await page.isHidden("#pattern"), true);
+      await page.click("#song-tab .fretboard-chord >> nth=0 >> .sc-invert");
+      await settled();
+      practiced = await snapshot();
+      assert.equal(practiced.status, "success", practiced.problem);
+      assert.match((await chordNames())[0], /^D7\/F#$/);
+      assert.deepEqual(await page.evaluate(() => JSON.parse(localStorage.getItem("scorify-demo-library-2"))), {
+        scale: { scale: "major", tonic: "F", octaves: 1, perBeat: 1, time: [4, 4], play: "up-down" }, progression: { id: "12-bar-blues", time: [12, 8], style: "arpeggio-up", pattern: "" },
       });
       // Back on Songs, the song that was on show, in its own key.
       await page.click("#library-tab-songs");
       await settled();
-      assert.deepEqual([await page.textContent("#song-title"), await page.inputValue("#key"), (await snapshot()).status], ["Somewhere Over the Rainbow", "0", "success"]);
-      report.practice = "scale tab (tonic, spelling, neck fit and highest fret, meters, baby's shortest note), progression tab (Billboard cards, key, blues, 12/8), remembered choices, back to songs";
+      assert.deepEqual([await page.textContent("#song-title"), await page.inputValue("#key"), (await snapshot()).status, await page.isHidden("#meter")], ["Somewhere Over the Rainbow", "0", "success", true]);
+      // A song's chords have the buttons too: Rainbow's first C to its first inversion, searched in the browser.
+      await page.click("#song-tab .fretboard-chord >> nth=0 >> .sc-invert");
+      await settled();
+      assert.deepEqual([(await snapshot()).status, (await chordNames())[0]], ["success", "C/E"]);
+      await page.click("#song-tab .fretboard-chord >> nth=0 >> .sc-invert-reset");
+      await settled();
+      assert.deepEqual([(await snapshot()).status, (await chordNames())[0]], ["success", "C"]);
+      report.practice = "scale tab (tonic, spelling, neck fit and highest fret, Time and Play next to Key, directions, chords strummed without arpeggios, baby's shortest note), progression tab (Billboard cards, key, strum without arpeggios, strumming patterns, blues, 12/8, arpeggio), inversion buttons in scales, progressions and songs, remembered choices, back to songs";
     }
 
     // The API tabs and the theme switch are wired by defuss-shadcn and app.mjs.

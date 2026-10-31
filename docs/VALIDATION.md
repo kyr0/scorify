@@ -1,6 +1,64 @@
 # Validation record
 
-Date: 2026-10-31. Version: `0.3.0` on npm, with the unreleased changes below.
+Date: 2026-10-31. Version: `0.4.0` on npm.
+
+## Strum, arpeggios and inversions, 2026-10-31
+
+- **Strum strums.** Every hit of every `PROGRESSION_VERSIONS` version is a strum, with no bass, fill or arpeggio (`tests/practice.test.ts`). Before, Strum picked from pro on: in 4/4 maestro played an alternating bass with fills, 3/4 picked arpeggios from pro and at amateur, 6/8 from pro, and 12/8 from expert, so scale chords and progressions played arpeggios under "Strum". `check:docs` asserts that the story of a strummed scale's chords and of a strummed progression names no arpeggio or bass.
+- **Not every place.** No strum version or strumming pattern strikes more than three quarters of the places on its grid (eighths, or the sixteenths or triplet eighths it uses; rounded up); a test counts them. A first rewrite had filled every sixteenth at maestro (and every eighth at pro in 3/4 and 12/8); those versions now syncopate.
+- **Strum survey.** All 13 progressions and F major's chords in 4/4, 3/4, 6/8 and 12/8, on all 8 instruments at all 7 levels: 3,136 arrangements, all play; 3,092 on the version written for the level (mean 262 ms, slowest 16.9 s). Of the other 44, 32 are baby on the 12-bar blues, whose dominant sevenths baby cannot voice, played simplified; 12 ran out of budget from pro to maestro and play the next easier version: the minor progressions and F major's chords on high-G ukulele (4/4, 6/8, 12/8) and the 4/4 blues on guitar and drop-D guitar.
+- **Strumming patterns.** Tests:
+  - All 16 patterns have distinct ids, and every hit is a strum.
+  - Each written line (D, U, B on their slots) matches the pattern's hits.
+  - A reggae skank's strums are eighths on 2 and 4 at 76 BPM.
+  - The island strum plays as written at maestro on high-G ukulele, and simplified (reported) at baby.
+  - A pattern in another meter or with an arpeggio throws.
+
+  Each difficulty is the easiest level that plays the pattern as written over I–IV–V–I, on the instruments it is typical for:
+
+  | Difficulty | Patterns |
+  |---|---|
+  | Beginner | reggae skank, pop strum, blues shuffle, waltz strum, waltz with a push, 6/8 ballad |
+  | Amateur | island strum (beginner on ukulele), ska upstrokes, rock downstrokes, funk sixteenths, folk strum, swing strum, bluegrass chop (mandolin), boom-chick, boom-chicka, boom-chick-chick (beginner for boom-chick on 8-string guitar) |
+
+  - The bass patterns play on all four guitars.
+  - On high-G ukulele and mandolin they play at no level, and on low-G and baritone ukulele only at maestro, so they need six strings.
+  - `check:docs` covers the Pattern select:
+    - It shows for Strum and hides for an arpeggio.
+    - Its groups are listed by style.
+    - Boom-chick is disabled on the ukulele.
+    - The island strum plays as the one version, and "By difficulty" brings back seven.
+- **Arpeggios.** The arpeggio survey ran with the barre fix and the 512 beam. It took I–V–vi–IV in 4/4, 3/4, 6/8 and 12/8, plus F major's chords in 4/4, in all three directions on high-G ukulele, baritone ukulele, guitar and mandolin, at all 7 levels: 420 runs, 408 of them on the version written for the level. Runs took 767 ms on average; the slowest took 4.2 s. The widest hand span was 2 frets at baby and beginner, 3 at amateur and semi-pro, and 6 from pro to maestro. The 12 others were baby in 6/8 on every instrument and direction. Letting go a quarter before the chord change left the second tone a dotted eighth, below baby's quarter. The release now keeps the level's shortest note, and all 12 play as written (and in a test on guitar). Before the barre fix, guitar arpeggios of I–IV–V–I, the 12-bar blues and C major's chords fell back to amateur from semi-pro up (infeasible or out of budget).
+- **Held barres.** `tests/arrange.test.ts`: an F barre whose bass is picked first and held is fingered with the barre laid flat around it and accepted by the validator. A finger held at one fret is never moved to another while its note sounds.
+- **Beam width for arpeggios.** Total cost, widest span and time, at the songs' first tier (32 states, 512 candidates) against 512/8,192:
+
+  | Maestro arpeggio | 32 | 512 |
+  |---|---|---|
+  | High-G ukulele, I–IV–V–I 4/4 up, F in root position | 11.47, span 8, 0.3 s | 8.95, span 1, 3.7 s |
+  | High-G ukulele, I–IV–V–I 4/4 up | 7.91, span 1, 0.3 s | 7.85, span 1, 3.5 s |
+  | Guitar, 12-bar blues 12/8 up and down | 53.16, span 5, 0.5 s | 48.27, span 2, 4.0 s |
+  | Guitar, F major's chords 4/4 up | 29.63, span 2, 0.5 s | 29.60, span 2, 4.5 s |
+  | High-G ukulele, F major's chords 6/8 down | 16.06, span 6, 0.4 s | 14.72, span 3, 4.6 s |
+
+  - At 128/2,048, the F case still spanned 8 frets (11.46).
+  - At 2,048/16,384, four of the five ran out of their 4,000,000 expansions.
+  - At amateur, both widths gave equal costs.
+  - The amateur guitar blues ran out at 32 and at 512 and plays on the 2,048 retry.
+
+  Songs keep their first tier, so no cached arrangement changes (a test asserts it).
+- **Inversions.** `tests/practice.test.ts`:
+  - Guitar C in first inversion has E lowest.
+  - An alternating bass starts on E in bar 1 only.
+  - The note names the inversion, and the cache key changes only when there are inversions.
+  - The inverted song plays, and the validator accepts it.
+  - Moved up a tone, a key for C is reported ("no chord to invert at 1.1:C"), not dropped.
+  - `check:docs`:
+    - The high-G ukulele's F (written 2010, second inversion) goes to root position, then to F/A, and back.
+    - A 12/8 blues arpeggio's D7 becomes D7/F♯.
+    - Rainbow's C becomes C/E, and back.
+- **Exact triplets.** Chord-song times on thirds of a quarter are 24ths: expert's triplet arpeggio picks at exactly 1/3 and 2/3 of a quarter (a 32nd grid had made two notes meet, "Gate must be positive").
+- **Cache.** The fingering change needs a new cache version (`8ac1bc6e57f9755c`), so all 5,502 public arrangements were searched again, and every one plays. `check:cache` reports 0 stale after the later practice changes. The private library cache is stale until `precompute:docs --private` runs.
+- `bun run check` passes **246 tests in 18 files**; `check:docs`, `check:browser` and `check:cache` (0 of 5,502 stale) pass.
 
 ## Scales and chord progressions, 2026-10-31
 
@@ -214,4 +272,4 @@ Reproduce with `bun run benchmark`; raw data is [BENCHMARK.json](BENCHMARK.json)
 - Whole-result and per-adapter pitch-position caches are implemented. Phrase-local incremental recomputation and reusable structural analysis across worker requests are future optimizations.
 - `proven-in-model` describes the finite search objective and mechanics. It does not establish the best possible human fingering outside that model. Scoring hooks must be pure and versioned by the caller.
 
-The owner published `scorify@0.3.0` on npm and the repository at https://github.com/kyr0/scorify on 2026-10-30. jsDelivr and unpkg serve the package; the import map of the docs' install section, pointing at jsDelivr, arranges a chord and renders it to WAV in Chromium from another origin. The skill lives in `skills/score-import/`; `claude plugin validate .` passes for the repository's marketplace, and the plugin installs with its one skill, `score-import`. From GitHub, `claude plugin install score-import --marketplace kyr0/scorify` (Claude Code 2.1.314, an empty config) installs in 5 s and keeps a 116 MB clone of the repository; adding the marketplace with `--sparse .claude-plugin skills` keeps 1.7 MB. Codex's `install-skill-from-github.py --url …/tree/main/skills/score-import` installs it as `score-import`.
+The owner published `scorify@0.4.0` on npm on 2026-10-31 (the `latest` tag); jsDelivr serves it, and its `index`, `songs`, `theory` and `fingering` modules are byte-identical to this tree's build. The owner published `scorify@0.3.0` on npm and the repository at https://github.com/kyr0/scorify on 2026-10-30. jsDelivr and unpkg serve the package; the import map of the docs' install section, pointing at jsDelivr, arranges a chord and renders it to WAV in Chromium from another origin. The skill lives in `skills/score-import/`; `claude plugin validate .` passes for the repository's marketplace, and the plugin installs with its one skill, `score-import`. From GitHub, `claude plugin install score-import --marketplace kyr0/scorify` (Claude Code 2.1.314, an empty config) installs in 5 s and keeps a 116 MB clone of the repository; adding the marketplace with `--sparse .claude-plugin skills` keeps 1.7 MB. Codex's `install-skill-from-github.py --url …/tree/main/skills/score-import` installs it as `score-import`.

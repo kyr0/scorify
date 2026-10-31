@@ -88,9 +88,15 @@ function makeRealization(
   instrument: FrettedInstrument,
   preserved: readonly FingerContact[] = [],
 ): FrettedRealization {
-  const contacts = contactsFor(assignments, instrument).map(
-      (c) => preserved.find((p) => p.finger === c.finger) ?? c,
-    ),
+  // A held finger keeps its contact, widened at its fret to the strings it now also presses (a barre laid flat
+  // around a held note); at another fret it stays as it was, and validation rejects the move.
+  const contacts = contactsFor(assignments, instrument).map((c) => {
+      const kept = preserved.find((p) => p.finger === c.finger);
+      if (!kept) return c;
+      return kept.fret === c.fret
+        ? { ...kept, fromString: Math.min(kept.fromString, c.fromString), toString: Math.max(kept.toString, c.toString) }
+        : kept;
+    }),
     frets = contacts.map((c) => c.fret),
     spanFrets = frets.length ? Math.max(...frets) - Math.min(...frets) : 0;
   let reachMm: number | null = null;
@@ -405,7 +411,10 @@ export function createFrettedAdapter(
             to.assignments.some((b) => b.id === a.id) &&
             !frame.attackIds.includes(a.id),
         );
-      if (continuing && old && (!next || !sameContact(old, next)))
+      // A finger that keeps holding a note stays at its fret. It may lay flat over more strings there (a barre placed
+      // around the note, as an arpeggio over a barre chord needs) or lift part of a barre, since its contact always
+      // covers the notes it still holds; it may not move to another fret.
+      if (continuing && old && (!next || next.fret !== old.fret))
         diagnostics.push("Held finger/barre cannot move");
       let memory = fingers[finger];
       if (old && !continuing)
@@ -413,7 +422,9 @@ export function createFrettedAdapter(
       if (next) {
         if (memory && !sameContact(memory.contact, next)) {
           if (memory.releasedAt === null) {
-            diagnostics.push("Finger still held");
+            if (continuing && next.fret === memory.contact.fret)
+              cost += (Math.abs(next.fromString - memory.contact.fromString) + Math.abs(next.toString - memory.contact.toString)) * 0.25 / 12;
+            else diagnostics.push("Finger still held");
           } else {
             const available = frame.seconds - memory.releasedAt,
               frets = Math.abs(next.fret - memory.contact.fret),

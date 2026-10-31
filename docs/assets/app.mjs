@@ -99,7 +99,8 @@ try {
     import("./songs.mjs"), import("./scorify/worker.mjs"), import("./scorify/index.mjs"), componentsReady(),
   ]);
   const { songs, instruments, pieceFromScore, songFromChart, tabFor, strokesFor, arrangeFor, retime, versionById, KEY_SHIFTS, keyName, tempoFor, hardestVersion, hardestNotes, cacheKey, cacheable, searched, suggestCapo, highestFret, SET_SCHEMA, ARRANGEMENT_SCHEMA,
-    instrumentFor, customInstrumentId, transposeSong, scalePiece, scaleOnNeck, scaleRhythms, progressionSong, PROGRESSIONS, BILLBOARD_SONGS, SCALES, TONICS } = songsModule;
+    instrumentFor, customInstrumentId, transposeSong, scalePiece, scaleOnNeck, scaleRhythms, progressionSong, PROGRESSIONS, BILLBOARD_SONGS, SCALES, TONICS,
+    PROGRESSION_STYLES, scaleChordsSong, scaleTriads, INVERSION_NAMES, STRUM_PATTERNS } = songsModule;
   // The cache version (src/VERSION): results this browser cached under another version are not used.
   const { build } = await import("./scorify/build.mjs");
   const worker = new Worker(new URL("./scorify/worker-entry.mjs", import.meta.url), { type: "module" });
@@ -753,7 +754,7 @@ try {
     $("song-title").textContent = piece.title;
     $("song-description").textContent = piece.description;
     $("mode-badge").textContent = "Preparing…";
-    const kind = piece.exercise ? "Scale" : piece.origin?.type === "progression" ? "Progression" : "Song";
+    const kind = piece.exercise ? "Scale" : piece.origin?.type === "scale" ? "Scale chords" : piece.origin?.type === "progression" ? "Progression" : "Song";
     $("rhythm-badge").textContent = piece.exercise
       ? `Scale · ${piece.time[0]}/${piece.time[1]} · ${scaleRhythms(piece.time).find(r => r.perBeat === library.scale.perBeat)?.name ?? ""}`
       : `${kind} · ${piece.time[0]}/${piece.time[1]} · ${piece.versions.length} version${piece.versions.length === 1 ? "" : "s"}`;
@@ -761,7 +762,8 @@ try {
     $("tempo-unit").textContent = piece.beat === 1 ? "♩ BPM" : piece.beat === 1.5 ? "♩. BPM" : `× ${piece.beat} ♩ BPM`;
     for (const button of document.querySelectorAll("[data-song]")) button.setAttribute("aria-pressed", String(button.dataset.song === piece.id));
     $("window-note").textContent = piece.exercise ? "Scale exercise made by scorify: spelled degrees, at the lowest octave the neck holds"
-      : kind === "Progression" ? `Chord progression from the McGill Billboard corpus (Hot 100, 1958–1991), with versions written for the playground`
+      : kind === "Scale chords" ? "A scale's chords made by scorify: the triad on every degree, up and back down"
+      : kind === "Progression" ? `Chord progression from the McGill Billboard corpus (Hot 100, 1958–1991), ${piece.origin.pattern ? "in a strumming pattern" : "with versions written for the playground"}`
       : piece.kind === "chart" ? "Chord chart under an imported voice part" : piece.kind === "score" ? "Imported score" : STUDIES_NOTE;
   }
 
@@ -854,8 +856,8 @@ try {
     const neck = frets === highestFret(instrumentId) ? {} : { frets };
     suggestion = custom?.capo === undefined ? suggestCapo(target, { instrumentId, level, transpose: Number($("key").value) || 0, ...neck, custom: arrangement ?? undefined }) : null;
     const capo = custom?.capo ?? (capoOn && suggestion ? suggestion.capo : 0);
-    const transpose = target.exercise ? 0 : Number($("key").value) || 0;
-    return { instrumentId, level, bpm: Number($("tempo").value), texture: target.texture, capo, transpose, ...neck, custom: arrangement };
+    const transpose = target.origin?.type === "scale" ? 0 : Number($("key").value) || 0;
+    return { instrumentId, level, bpm: Number($("tempo").value), texture: target.texture, capo, transpose, ...neck, ...inversionsFor(target, transpose), custom: arrangement };
   }
   function showCapo() {
     const control = $("capo").closest(".sc-control");
@@ -907,8 +909,12 @@ try {
     playground.setAttribute("aria-busy", "false");
     $("cancel").hidden = true;
     // Every fret on the page comes from result.annotations; nothing is re-derived from pitch.
-    const data = tabFor(piece, result, instrument, { spec: prepared.spec, vocal: prepared.vocal });
+    const data = tabFor(piece, result, instrument, { spec: prepared.spec, vocal: prepared.vocal, chords: prepared.chords ?? [] });
+    shownChords = data.scores[0].tracks.find(t => t.kind === "chords")?.items ?? [];
     tabState("default", { data, position: 0, loop: null });
+    // Chord names the tab kept from the last arrangement get this one's buttons.
+    for (const element of document.querySelectorAll("#song-tab .fretboard-chord[data-inversions]")) { element.removeAttribute("data-inversions"); element.querySelector(".sc-inversion")?.remove(); }
+    decorateChords();
     tabBeats = data.scores[0].measures * piece.time[0];
     // Chord changes in tab beats, for the next-chord preview; the preview blinks once per beat.
     chordTimeline = (data.scores[0].tracks.find(t => t.kind === "chords")?.items ?? [])
@@ -1012,7 +1018,15 @@ try {
           : `Try a higher difficulty${piece.textures?.length ? ", fewer voices" : ""} or another instrument.`,
       ]);
       setStatus(`No arrangement · ${tried.map(t => `${t.version.difficulty}${t.simplify ? " simplified" : ""}: ${t.status}`).join(" · ")}`);
+      shownChords = [];
       tabState("default", { data: { version: 1, title: piece.title, scores: [{ id: "none", measures: 1, tracks: [] }] }, position: 0 });
+      // Inverted chords may be why: they can be undone here, where the tab has no chord names.
+      if (current.inversions) {
+        const undo = Object.assign(document.createElement("button"), { type: "button", className: "btn", id: "undo-inversions", textContent: "Play the chords as written" });
+        Object.assign(undo.dataset, { variant: "outline", size: "sm" });
+        undo.addEventListener("click", () => { inversions = {}; void recompute(); });
+        $("problem-text").append(Object.assign(document.createElement("p"), { textContent: `Inverted as asked: ${Object.keys(current.inversions).length} chord${Object.keys(current.inversions).length === 1 ? "" : "s"}.` }), undo);
+      }
     } catch (error) {
       if (id === revision) {
         if (custom) {
@@ -1069,18 +1083,31 @@ try {
   });
 
   // ---- the library: songs, scales and chord progressions ----------------------------------------------------------------
-  // Three vertical tabs (defuss-shadcn's tabs; they do not announce a change, so the selection is observed). A scale is
-  // made for the instrument on show (its octave, capo, highest fret and tuning) and made again when they change; its
-  // tonic is the Key select. A progression is a chord song in C major or A minor that the Key select moves like a song.
-  // The choices in each tab are remembered in this browser; the page always opens on Songs.
-  const LIBRARY_KEY = "scorify-demo-library-1", METERS = ["4/4", "3/4", "6/8", "12/8"];
-  const library = { tab: "songs", scale: { scale: "major", tonic: "C", octaves: 1, perBeat: 2, time: [4, 4] }, progression: { id: PROGRESSIONS[0].id, time: [4, 4] } };
+  // Three vertical tabs (defuss-shadcn's tabs; they do not announce a change, so the selection is observed). Next to
+  // Key, Time and Play set a practice piece's time signature and how it is played. A scale in single notes is made for
+  // the instrument on show (its octave, capo, highest fret and tuning) and made again when they change; a seven-note
+  // scale can also be played as its chords. A scale's tonic is the Key select. A progression is a chord song in C major
+  // or A minor that the Key select moves like a song. The choices are remembered in this browser; the page opens on Songs.
+  const LIBRARY_KEY = "scorify-demo-library-2", METERS = ["4/4", "3/4", "6/8", "12/8"];
+  /** How a scale is played: its notes in a direction, or (seven-note scales) its chords in a progression style. */
+  const SCALE_PLAYS = [
+    { id: "up-down", name: "Scale up and down" }, { id: "up", name: "Scale up" }, { id: "down", name: "Scale down" }, { id: "down-up", name: "Scale down and up" },
+    ...PROGRESSION_STYLES.map(s => ({ id: s.id, name: s.id === "strum" ? "Chords strummed" : `Chords, ${s.name.toLowerCase()}`, chords: true })),
+  ];
+  const library = {
+    tab: "songs",
+    scale: { scale: "major", tonic: "C", octaves: 1, perBeat: 2, time: [4, 4], play: "up-down" },
+    progression: { id: PROGRESSIONS[0].id, time: [4, 4], style: "strum", pattern: "" },
+  };
   try {
     const stored = JSON.parse(localStorage.getItem(LIBRARY_KEY) ?? "{}"), meter = t => Array.isArray(t) && METERS.includes(t.join("/"));
     const s = stored.scale ?? {}, p = stored.progression ?? {};
     if (SCALES.some(x => x.id === s.scale) && Object.values(TONICS).flat().includes(s.tonic) && [1, 2, 3].includes(s.octaves) && meter(s.time)
-      && scaleRhythms(s.time).some(r => r.perBeat === s.perBeat)) library.scale = { scale: s.scale, tonic: s.tonic, octaves: s.octaves, perBeat: s.perBeat, time: s.time };
-    if (PROGRESSIONS.some(x => x.id === p.id) && meter(p.time)) library.progression = { id: p.id, time: p.time };
+      && scaleRhythms(s.time).some(r => r.perBeat === s.perBeat) && SCALE_PLAYS.some(x => x.id === s.play))
+      library.scale = { scale: s.scale, tonic: s.tonic, octaves: s.octaves, perBeat: s.perBeat, time: s.time, play: s.play };
+    // A strumming pattern belongs to its meter; "" plays the versions by difficulty.
+    const pattern = STRUM_PATTERNS.find(x => x.id === p.pattern && meter(p.time) && x.time.join("/") === p.time.join("/"))?.id ?? "";
+    if (PROGRESSIONS.some(x => x.id === p.id) && meter(p.time) && PROGRESSION_STYLES.some(x => x.id === p.style)) library.progression = { id: p.id, time: p.time, style: p.style, pattern };
   } catch { /* the defaults */ }
   const rememberLibrary = () => { try { localStorage.setItem(LIBRARY_KEY, JSON.stringify({ scale: library.scale, progression: library.progression })); } catch { /* not remembered */ } };
   let lastSong;
@@ -1092,6 +1119,7 @@ try {
   /** Selects a tab without the observer acting on it (the caller shows the piece). */
   function selectLibrary(name) {
     library.tab = name;
+    showPracticeControls();
     const trigger = tabs.querySelector(`[data-library="${name}"]`);
     if (trigger.getAttribute("aria-selected") !== "true") trigger.click();
   }
@@ -1099,20 +1127,86 @@ try {
     const name = tabs.querySelector('[aria-selected="true"]')?.dataset.library;
     if (!name || name === library.tab) return;
     library.tab = name;
+    showPracticeControls();
     if (name === "songs") choose(lastSong ?? pieces.get(songs[0].id));
     else if (name === "scales") showScale({ fresh: true });
     else showProgression({ fresh: true });
   }).observe(tabs, { attributes: true, subtree: true, attributeFilter: ["aria-selected"] });
 
-  // Scales: the scale, octaves, time signature and notes per beat; the tonic is the Key select, spelled as usually written.
+  // Time and Play, next to Key: shown for scales and progressions, with the choices of the tab on show; a strummed
+  // progression also has Pattern, its versions by difficulty or a strumming pattern for the meter.
+  $("meter").replaceChildren(...METERS.map(m => new Option(m, m)));
+  const PATTERN_TYPICAL = { ukulele: "ukulele", guitar: "guitar", mandolin: "mandolin" };
+  function showPatterns() {
+    const meter = library.progression.time.join("/"), strings = instrumentFor(picker.value).strings.length;
+    const styles = [...new Set(STRUM_PATTERNS.filter(p => p.time.join("/") === meter).map(p => p.style))];
+    $("pattern").replaceChildren(new Option("By difficulty", ""), ...styles.map(style => {
+      const group = Object.assign(document.createElement("optgroup"), { label: style });
+      group.append(...STRUM_PATTERNS.filter(p => p.style === style && p.time.join("/") === meter).map(p => {
+        const option = new Option(`${p.name} · ${p.strokes}`, p.id);
+        option.title = `Usually on ${p.typical.map(t => PATTERN_TYPICAL[t]).join(" and ")}; written for ${p.difficulty} and up`;
+        // A picked bass under the strum needs a guitar's strings; on four the bass string is strummed while it rings.
+        if (p.strings && strings < p.strings) Object.assign(option, { disabled: true, title: `Needs ${p.strings} strings: a bass under the strum` });
+        return option;
+      }));
+      return group;
+    }));
+    $("pattern").value = library.progression.pattern;
+  }
+  function showPracticeControls() {
+    const practising = library.tab !== "songs";
+    $("meter").closest(".sc-control").hidden = $("style").closest(".sc-control").hidden = !practising;
+    $("pattern").closest(".sc-control").hidden = library.tab !== "progressions" || library.progression.style !== "strum";
+    if (!practising) return;
+    if (library.tab === "progressions") showPatterns();
+    const scales = library.tab === "scales", chords = !!scaleTriads(library.scale.tonic, library.scale.scale);
+    $("meter").value = (scales ? library.scale.time : library.progression.time).join("/");
+    $("style").replaceChildren(...(scales ? SCALE_PLAYS : PROGRESSION_STYLES).map(s => {
+      const option = new Option(s.name, s.id);
+      // A scale's chords need a chord on every degree: seven-note scales only.
+      if (s.chords && !chords) Object.assign(option, { disabled: true, title: "Only seven-note scales have a chord on every degree" });
+      return option;
+    }));
+    $("style").value = scales ? library.scale.play : library.progression.style;
+  }
+  $("meter").addEventListener("change", () => {
+    const time = $("meter").value.split("/").map(Number);
+    if (library.tab === "scales") {
+      // Keep the note value where the new meter has it (eighths stay eighths), else the meter's first.
+      const was = scaleRhythms(library.scale.time).find(r => r.perBeat === library.scale.perBeat)?.name, rhythms = scaleRhythms(time);
+      library.scale = { ...library.scale, time, perBeat: (rhythms.find(r => r.name === was) ?? rhythms[0]).perBeat };
+      rememberLibrary();
+      return void showScale();
+    }
+    library.progression.time = time;
+    // A pattern is written in one meter; another meter plays the versions by difficulty.
+    if (STRUM_PATTERNS.find(p => p.id === library.progression.pattern)?.time.join("/") !== time.join("/")) library.progression.pattern = "";
+    rememberLibrary();
+    void showProgression();
+  });
+  $("style").addEventListener("change", () => {
+    if (library.tab === "scales") { library.scale.play = $("style").value; rememberLibrary(); return void showScale({ fresh: true }); }
+    library.progression.style = $("style").value;
+    rememberLibrary();
+    void showProgression();
+  });
+  $("pattern").addEventListener("change", () => {
+    library.progression.pattern = $("pattern").value;
+    rememberLibrary();
+    void showProgression();
+  });
+
+  // Scales: the scale, octaves and notes per beat (single notes only); the tonic is the Key select, spelled as usually written.
   $("scale").replaceChildren(...SCALES.map(s => new Option(s.name, s.id)));
-  for (const id of ["scale-meter", "progression-meter"]) $(id).replaceChildren(...METERS.map(m => new Option(m, m)));
   const scaleOf = () => SCALES.find(s => s.id === library.scale.scale);
+  const playsChords = () => !!SCALE_PLAYS.find(p => p.id === library.scale.play)?.chords;
   function showScaleForm() {
     const { scale, octaves, perBeat, time } = library.scale;
-    $("scale").value = scale; $("scale-octaves").value = String(octaves); $("scale-meter").value = time.join("/");
+    $("scale").value = scale; $("scale-octaves").value = String(octaves);
     $("scale-rhythm").replaceChildren(...scaleRhythms(time).map(r => new Option(`${r.name[0].toUpperCase()}${r.name.slice(1)}`, String(r.perBeat))));
     $("scale-rhythm").value = String(perBeat);
+    // Chords take their rhythm from the difficulty's version and their range from the chord shapes.
+    $("scale-octaves").disabled = $("scale-rhythm").disabled = playsChords();
   }
   /** The Key select for a scale: its twelve tonics, spelled for its quality (C♯ minor, D♭ major). */
   function showScaleKeys() {
@@ -1127,14 +1221,23 @@ try {
   }
   /** Shows the scale the Scales tab describes on the instrument on show, or says why it does not fit the neck. */
   function showScale({ fresh = false } = {}) {
+    // A scale without a chord on every degree is played in single notes.
+    if (playsChords() && !scaleTriads(library.scale.tonic, library.scale.scale)) library.scale.play = "up-down";
     showScaleForm();
     showScaleKeys();
-    const instrument = instrumentFor(customInstrumentId(picker.value, { capo: custom?.capo ?? 0, frets: Number($("frets").value), tuning: custom?.arrangement?.tuning }));
-    if (!scaleOnNeck(library.scale, instrument)) return unfit(instrument);
-    piece = withOrigin(scalePiece(library.scale, instrument, { instrumentId: picker.value }), { type: "scale", exercise: { ...library.scale } });
+    showPracticeControls();
+    const { scale, tonic, time, play } = library.scale, origin = { type: "scale", exercise: { ...library.scale } };
+    if (playsChords()) piece = withOrigin(scaleChordsSong({ scale, tonic, time }, { instrument: picker.value, style: play }), origin);
+    else {
+      const instrument = instrumentFor(customInstrumentId(picker.value, { capo: custom?.capo ?? 0, frets: Number($("frets").value), tuning: custom?.arrangement?.tuning })),
+        exercise = { ...library.scale, direction: play };
+      if (!scaleOnNeck(exercise, instrument)) return unfit(instrument);
+      piece = withOrigin(scalePiece(exercise, instrument, { instrumentId: picker.value }), origin);
+    }
     capoOn = false;
     showTextures();
     showVersions();
+    $("tempo").max = String(Math.max(140, Math.ceil(tempoFor(piece, "maestro") / 10) * 10));
     if (fresh) setTempo(tempoFor(piece, $("level").value));
     return recompute();
   }
@@ -1158,23 +1261,15 @@ try {
   $("scale").addEventListener("change", () => { library.scale.scale = $("scale").value; rememberLibrary(); void showScale(); });
   $("scale-octaves").addEventListener("change", () => { library.scale.octaves = Number($("scale-octaves").value); rememberLibrary(); void showScale(); });
   $("scale-rhythm").addEventListener("change", () => { library.scale.perBeat = Number($("scale-rhythm").value); rememberLibrary(); void showScale(); });
-  $("scale-meter").addEventListener("change", () => {
-    const time = $("scale-meter").value.split("/").map(Number), was = scaleRhythms(library.scale.time).find(r => r.perBeat === library.scale.perBeat)?.name;
-    // Keep the note value where the new meter has it (eighths stay eighths), else the meter's first.
-    const rhythms = scaleRhythms(time);
-    library.scale = { ...library.scale, time, perBeat: (rhythms.find(r => r.name === was) ?? rhythms[0]).perBeat };
-    rememberLibrary();
-    void showScale();
-  });
 
   // Chord progressions: the Billboard ranking as cards, with their chords in the key on show.
   const progressionFor = instrumentId => {
-    const chosen = PROGRESSIONS.find(p => p.id === library.progression.id) ?? PROGRESSIONS[0];
-    return withOrigin(progressionSong(chosen, library.progression.time, { instrument: instrumentId }), { type: "progression", id: chosen.id, time: [...library.progression.time] });
+    const chosen = PROGRESSIONS.find(p => p.id === library.progression.id) ?? PROGRESSIONS[0], { time, style } = library.progression;
+    const pattern = style === "strum" && library.progression.pattern ? library.progression.pattern : undefined;
+    return withOrigin(progressionSong(chosen, time, { instrument: instrumentId, style, ...(pattern ? { pattern } : {}) }), { type: "progression", id: chosen.id, time: [...time], style, ...(pattern ? { pattern } : {}) });
   };
   function showProgressions() {
     const transpose = Number($("key").value) || 0, top = Math.max(...PROGRESSIONS.map(p => p.songs));
-    $("progression-meter").value = library.progression.time.join("/");
     $("progression-list").replaceChildren(...PROGRESSIONS.map(p => {
       const song = transposeSong(progressionSong(p, [4, 4]), transpose), chords = p.numerals.map((_, k) => song.progression[k]);
       const card = Object.assign(document.createElement("button"), { type: "button", className: "sc-progression" });
@@ -1190,15 +1285,17 @@ try {
     }));
   }
   function showProgression({ fresh = false } = {}) {
-    const keep = fresh ? 0 : Number($("key").value) || 0, meterChanged = piece?.origin?.type !== "progression" || piece.time.join("/") !== library.progression.time.join("/");
+    const keep = fresh ? 0 : Number($("key").value) || 0, meterChanged = piece?.origin?.type !== "progression" || piece.time.join("/") !== library.progression.time.join("/"), before = piece;
     piece = progressionFor(picker.value);
     capoOn = false;
     showKeys(keep);
+    showPracticeControls();
     showProgressions();
     showTextures();
     showVersions();
     $("tempo").max = String(Math.max(140, Math.ceil(tempoFor(piece, "maestro") / 10) * 10));
-    if (fresh || meterChanged) setTempo(tempoFor(piece, $("level").value));
+    // A strumming pattern has its own tempo.
+    if (fresh || meterChanged || before?.bpm !== piece.bpm) setTempo(tempoFor(piece, $("level").value));
     return recompute();
   }
   $("progression-list").addEventListener("click", event => {
@@ -1208,11 +1305,45 @@ try {
     rememberLibrary();
     void showProgression();
   });
-  $("progression-meter").addEventListener("change", () => {
-    library.progression.time = $("progression-meter").value.split("/").map(Number);
-    rememberLibrary();
-    void showProgression();
-  });
+
+  // ---- inversions -------------------------------------------------------------------------------------------------------
+  // Every chord name of a chord song in the tab (songs, charts, progressions, a scale's chords, an imported score's
+  // chords) gets two xs buttons: the next inversion of that chord, and back to the chord as written. An inversion asks
+  // scorify for a voicing with that chord tone in the bass and is searched again under the difficulty's limits; when
+  // nothing plays, the page says so and the inversions can be undone there. Inversions belong to the piece and key on
+  // show; another piece or key starts without them.
+  let inversions = {}, inversionScope = "";
+  /** The inversions in force for a request: none after the piece or the key changed. */
+  function inversionsFor(target, transpose) {
+    const scope = `${target.id}|${transpose}`;
+    if (scope !== inversionScope) { inversions = {}; inversionScope = scope; }
+    return Object.keys(inversions).length ? { inversions: { ...inversions } } : {};
+  }
+  let shownChords = [];
+  const invertButton = (icon, label, className, action) => {
+    const button = Object.assign(document.createElement("button"), { type: "button", className: `btn ${className}`, title: label });
+    Object.assign(button.dataset, { variant: "ghost", size: "icon-xs" });
+    button.setAttribute("aria-label", label);
+    button.innerHTML = `<svg class="sc-icon" aria-hidden="true"><use href="#${icon}"/></svg>`;
+    // The tab seeks and loops on pointer gestures; these buttons only invert.
+    for (const type of ["pointerdown", "mousedown", "dblclick"]) button.addEventListener(type, event => event.stopPropagation());
+    button.addEventListener("click", event => { event.stopPropagation(); action(); });
+    return button;
+  };
+  function decorateChords() {
+    for (const element of document.querySelectorAll("#song-tab .fretboard-chord:not([data-inversions])")) {
+      const slot = shownChords[Number(element.dataset.item?.replace("chords-", ""))]?.slot;
+      element.dataset.inversions = slot ? "" : "none";
+      if (!slot) continue;
+      const now = INVERSION_NAMES[slot.inversion] ?? "another tone in the bass", next = slot.inversion < 0 ? 0 : (slot.inversion + 1) % slot.tones;
+      const box = Object.assign(document.createElement("span"), { className: "sc-inversion" });
+      const reset = invertButton("i-undo", `${slot.symbol} in bar ${slot.key.split(".")[0]} as written`, "sc-invert-reset", () => { delete inversions[slot.key]; void recompute(); });
+      reset.disabled = !slot.asked;
+      box.append(invertButton("i-cycle", `${slot.symbol} in bar ${slot.key.split(".")[0]}: ${now}; next ${INVERSION_NAMES[next]}`, "sc-invert", () => { inversions[slot.key] = next; void recompute(); }), reset);
+      element.append(box);
+    }
+  }
+  new MutationObserver(decorateChords).observe($("song-tab"), { childList: true, subtree: true });
 
   // ---- custom mode ----------------------------------------------------------------------------------------------------
   // Every option the playground otherwise chooses: version, mode, key, capo, tuning, the player's limits, what adaptive
@@ -1309,12 +1440,14 @@ try {
     if (origin.type === "score") target = addScore(origin.data, { id: origin.id, instrument: origin.instrument, select: false });
     if (origin.type === "chart") target = addChart(origin.chart, origin.data, { id: origin.id, instrument: origin.instrument });
     if (origin.type === "scale") {
-      Object.assign(library.scale, origin.exercise);
-      const { capo = 0, frets, custom: settings } = data.request;
-      target = withOrigin(scalePiece(library.scale, instrumentFor(customInstrumentId(data.request.instrumentId, { capo, frets, tuning: settings?.tuning })), { instrumentId: data.request.instrumentId }), { type: "scale", exercise: { ...library.scale } });
+      Object.assign(library.scale, { play: "up-down" }, origin.exercise);
+      const { capo = 0, frets, custom: settings } = data.request, { scale, tonic, time, play } = library.scale, kept = { type: "scale", exercise: { ...library.scale } };
+      target = playsChords()
+        ? withOrigin(scaleChordsSong({ scale, tonic, time }, { instrument: data.request.instrumentId, style: play }), kept)
+        : withOrigin(scalePiece({ ...library.scale, direction: play }, instrumentFor(customInstrumentId(data.request.instrumentId, { capo, frets, tuning: settings?.tuning })), { instrumentId: data.request.instrumentId }), kept);
     }
     if (origin.type === "progression") {
-      Object.assign(library.progression, { id: origin.id, time: origin.time });
+      Object.assign(library.progression, { id: origin.id, time: origin.time, style: origin.style ?? "strum", pattern: origin.pattern ?? "" });
       target = progressionFor(data.request.instrumentId);
     }
     if (!target) throw new Error(`This page has no song “${origin.id ?? "?"}” to open it with`);
@@ -1323,8 +1456,11 @@ try {
     picker.value = data.request.instrumentId;
     setFrets(data.request.frets ?? highestFret(picker.value));
     $("level").value = data.request.level;
-    if (piece.exercise) showScaleKeys(); else showKeys(data.request.transpose ?? 0);
+    if (origin.type === "scale") { showScaleForm(); showScaleKeys(); } else showKeys(data.request.transpose ?? 0);
     if (origin.type === "progression") showProgressions();
+    showPracticeControls();
+    inversions = { ...(data.request.inversions ?? {}) };
+    inversionScope = `${piece.id}|${data.request.transpose ?? 0}`;
     if (data.request.texture) piece.texture = data.request.texture;
     custom = data.custom ?? (data.request.custom ? { arrangement: data.request.custom, performance: {} } : null);
     // A capo from the suggestion toggle comes back as the toggle; the suggestion is the same for the same request.
@@ -1457,7 +1593,7 @@ try {
     }
   }
 
-  picker.addEventListener("change", () => { showDefaults(); setFrets(fretsFor(picker.value)); void rearrange(); });
+  picker.addEventListener("change", () => { showDefaults(); setFrets(fretsFor(picker.value)); showPracticeControls(); void rearrange(); });
   $("frets").addEventListener("input", () => setFrets(Number($("frets").value)));
   $("frets").addEventListener("change", () => { keepFrets(Number($("frets").value)); void rearrange(); });
   $("capo").addEventListener("change", () => { capoOn = $("capo").checked; void recompute(); });

@@ -1,6 +1,7 @@
 import { SearchOptions, ArrangementResult, ArrangementSuccess, ArrangementOptions } from './arrange.mjs';
 import { Score } from './model.mjs';
 import { Tempo, Q } from './index.mjs';
+import { ScaleDirection } from './theory.mjs';
 import { Level, PlayerCapabilities, AdaptationPolicy, PlayerOptions } from './profiles.mjs';
 import { FrettedInstrument } from './fretted.mjs';
 import { TransformOptions } from './transforms.mjs';
@@ -14,6 +15,8 @@ interface Hit {
     readonly at: number;
     readonly tones: Tones;
     readonly stroke?: "down" | "up";
+    /** Quarters the strings ring (a chop or a skank); otherwise until struck again or the chord ends. */
+    readonly length?: number;
 }
 /** An alternating bass hit: the voicing's root, its fifth (below when the strings reach it) or a semitone into the next root. */
 interface BassHit {
@@ -27,9 +30,19 @@ interface Fill {
     readonly every?: number;
     readonly bars?: readonly number[];
 }
+/**
+ * Single tones at `at` (quarters after the bar line), walking the strings of whatever voicing sounds: up from the bass,
+ * down from the top, or up and back; it starts again at every chord.
+ */
+interface Arpeggio {
+    readonly direction: "up" | "down" | "up-down";
+    readonly at: readonly number[];
+}
 /** The layers one version plays over the chords. */
 interface VersionLayers {
     readonly pattern: readonly Hit[];
+    /** Picked in place of the pattern, over every voicing's strings. */
+    readonly arpeggio?: Arpeggio;
     /** The hit a held bar strikes once (else the first hit of the pattern). */
     readonly hold?: Hit;
     readonly bass?: readonly BassHit[];
@@ -200,36 +213,64 @@ interface Proposal {
  * strings, no unison on neighbouring strings, nothing above the fourth fret, more strings, no barre, fewer fretted
  * notes, lower frets. A span over three frets is never proposed; more than four fretted notes need a barre.
  */
-declare function chordShapes(instrument: FrettedInstrument, tones: ChordTones, { maxFret, maxNotes }: {
+declare function chordShapes(instrument: FrettedInstrument, tones: ChordTones, { maxFret, maxNotes, inBass }: {
     maxFret: number;
     maxNotes: number;
+    inBass?: number;
 }): Proposal[];
 interface Voicing {
     readonly symbol: string;
     readonly frets: readonly Fret[];
     readonly pitches: readonly string[];
+    /** The chord tone asked for in the bass (0 the root, 1 the third, 2 the fifth, 3 the seventh or sixth). */
+    readonly inversion?: number;
 }
-/** The first proposed shape scorify can play as one chord under this level (the rhythm is checked with the song). */
-declare function voiceChord(symbol: string, instrumentId: string, { level, rightHand }: {
+/** Names of the inversions by the chord tone in the bass. */
+declare const INVERSION_NAMES: readonly string[];
+/** Which chord tone a voicing has in the bass (its lowest sounding pitch): 0 the root, 1 the third, …; -1 another tone. */
+declare function chordInversion(symbol: string, pitches: readonly string[]): number;
+/** Inversions asked for, by chord segment (segmentKey): which chord tone goes in the bass. */
+type Inversions = Readonly<Record<string, number>>;
+/** A chord segment's key: its bar and its place in the bar, from 1, and its symbol ("3.1:Eb"). */
+declare const segmentKey: (b: number, s: number, symbol: string) => string;
+/**
+ * The first proposed shape scorify can play as one chord under this level (the rhythm is checked with the song); with
+ * `inversion`, only shapes with that chord tone in the bass.
+ */
+declare function voiceChord(symbol: string, instrumentId: string, { level, rightHand, inversion }: {
     level: Level;
     rightHand: "strum" | "pick";
+    inversion?: number;
 }): Voicing | null;
 /** Every part of the voicings a pattern can sound, as shape signatures ("x-2-3-2"): the player's familiar shapes. */
 declare function familiarShapes(voicings: Readonly<Record<string, Voicing>>): string[];
-/** The voicing of every chord a song plays, by symbol, or the chord no voicing was found for. */
-declare function voicingsForSong(song: SongSpec, instrumentId: string, level: Level): {
+/**
+ * The voicing of every chord a song plays, by symbol (and "symbol@inversion" for a segment with an inversion asked
+ * for), or the chord no voicing was found for.
+ */
+declare function voicingsForSong(song: SongSpec, instrumentId: string, level: Level, inversions?: Inversions): {
     voicings: Record<string, Voicing>;
     missing?: never;
 } | {
     missing: string;
     voicings?: never;
 };
+/** A chord segment as played: where it starts (quarters), its symbol, how many tones it has and which one is in the bass. */
+interface ChordSegment {
+    readonly key: string;
+    readonly symbol: string;
+    readonly at: number;
+    readonly tones: number;
+    readonly inversion: number;
+    /** The inversion was asked for. */
+    readonly asked: boolean;
+}
 /**
  * One version of a song as a score: its bars of chords with the version's layers (pattern, alternating bass, fills),
  * ending on a held chord. Roles say what may go first if it is simplified: fills are ornaments, the pattern harmony,
  * the bass line bass. The sung part is not in it.
  */
-declare function sourceFor(song: SongSpec, voicings: Readonly<Record<string, Voicing>>, instrument: FrettedInstrument): Score;
+declare function sourceFor(song: SongSpec, voicings: Readonly<Record<string, Voicing>>, instrument: FrettedInstrument, inversions?: Inversions): Score;
 declare const SET_SCHEMA = "scorify-set-1";
 interface ScoreSet {
     readonly schema: typeof SET_SCHEMA;
@@ -302,6 +343,12 @@ declare const SEARCH: SearchOptions;
 declare const QUICK: SearchOptions;
 declare const WIDE: SearchOptions;
 declare const DEEP: SearchOptions;
+/**
+ * The first try for arpeggio versions. An arpeggio adds one note a frame, so a narrow beam settles on what is cheap
+ * for the first notes of a chord (open strings) and keeps stretches it would never choose for the whole shape: at 32
+ * the ukulele's root-position F (2553) became 0-1-9-5, an eight-fret span; at 512 it is played in fifth position.
+ */
+declare const ARPEGGIO_SEARCH: SearchOptions;
 declare const RETRIES: readonly SearchOptions[];
 /** Settings that replace what a request otherwise uses; every one is reported in an attempt's notes. */
 interface CustomSettings {
@@ -332,6 +379,8 @@ interface ArrangeRequest {
     readonly transpose?: number;
     /** The instrument's highest fret, a hard limit; its own (highestFret) when left out. */
     readonly frets?: number | undefined;
+    /** Chords to play in another inversion, by segment (segmentKey); a chord song's chords only. */
+    readonly inversions?: Inversions | undefined;
     readonly custom?: CustomSettings | null;
 }
 type AnyVersion = SongVersion | ScoreVersion;
@@ -343,6 +392,8 @@ interface PreparedAttempt {
     readonly vocal: readonly VocalEntry[];
     /** What the arrangement changes or assumes, one line each. */
     readonly notes: readonly string[];
+    /** A chord song's chords as played, with their inversions. */
+    readonly chords?: readonly ChordSegment[];
     readonly options: ArrangementOptions & {
         readonly instrument: FrettedInstrument;
         readonly mode: "exact" | "adaptive";
@@ -381,7 +432,7 @@ declare function pieceFingerprint(piece: Piece): string;
  * The cache key of a request: the piece, instrument, difficulty, voices, key, capo, highest fret (when not the
  * instrument's own) and custom settings; not the tempo, which is playback only.
  */
-declare const cacheKey: (piece: Piece, { instrumentId, level, texture, capo, transpose, frets, custom }: ArrangeRequest) => string;
+declare const cacheKey: (piece: Piece, { instrumentId, level, texture, capo, transpose, frets, inversions, custom }: ArrangeRequest) => string;
 /** An attempt's inputs and the build that searches them: equal fingerprints give equal results. */
 declare const attemptFingerprint: (prepared: PreparedAttempt, build?: string) => string;
 type AttemptStatus = ArrangementResult["status"] | "voicing" | "limits";
@@ -479,7 +530,10 @@ declare function suggestCapo(piece: Piece, request: {
     frets?: number | undefined;
     custom?: CustomSettings | null | undefined;
 }): CapoSuggestion | null;
-/** A scale exercise: up and down over whole octaves from the tonic, `perBeat` even notes a counted beat, the last held to the bar line. */
+/**
+ * A scale exercise: over whole octaves from the tonic in `direction` (up and down unless given), `perBeat` even notes a
+ * counted beat, the last held to the bar line.
+ */
 interface ScaleExercise {
     /** A scale id from SCALES. */
     readonly scale: string;
@@ -489,6 +543,7 @@ interface ScaleExercise {
     /** Notes per counted beat: 1 to 4 in simple meters; 1, 3 or 6 in 6/8 and 12/8, whose beat is a dotted quarter. */
     readonly perBeat: number;
     readonly time: readonly [number, number];
+    readonly direction?: ScaleDirection;
 }
 /** The tempo a scale exercise is fingered at, in counted beats per minute; another tempo is playback only. */
 declare const SCALE_BPM = 60;
@@ -535,16 +590,93 @@ declare const PROGRESSIONS: readonly Progression[];
 /** A roman numeral's chord symbol in a key: "bVII" in C is Bb, "vi" Am, "V7" G7 (spelled plainly). */
 declare function chordOfNumeral(numeral: string, key: string): string;
 type PracticeVersion = Omit<SongVersion, "id">;
-/** One version per difficulty for each meter progressions are played in: strums, a bass, arpeggios, then fills. */
+/**
+ * Strokes as players write them, one slot per `step` quarters: D down, U up, · a rest (spaces are ignored). A down
+ * strum on a counted beat (every `beat` quarters) sounds four strings, others three; an up strum the top two or three.
+ */
+declare function writtenStrokes(written: string, step: number, beat: number, ups?: Tones): Hit[];
+/**
+ * One strummed version per difficulty for each meter progressions are played in: down strums, then ups, syncopation
+ * and sixteenths. Every hit is a strum, and no version strikes more than three quarters of the places on its grid
+ * (eighths, or sixteenths when it has them): harder versions rest and push, they do not fill every place.
+ */
 declare const PROGRESSION_VERSIONS: Readonly<Record<string, readonly PracticeVersion[]>>;
 /** The tempo progressions are played at by meter, in counted beats per minute. */
 declare const PROGRESSION_BPM: Readonly<Record<string, number>>;
+/** How a progression's chords are played: strummed at every difficulty, or picked as an arpeggio. */
+type ProgressionStyle = "strum" | "arpeggio-up" | "arpeggio-down" | "arpeggio-up-down";
+declare const PROGRESSION_STYLES: readonly {
+    readonly id: ProgressionStyle;
+    readonly name: string;
+}[];
+/**
+ * When an arpeggio picks, by meter and difficulty (quarters after the bar line): up to 2, 3, 4, 6 and 8 notes a bar from
+ * baby to pro (their picked-notes limits), then triplets or sixteenths.
+ */
+declare const ARPEGGIO_TIMES: Readonly<Record<string, Readonly<Record<Level, readonly number[]>>>>;
+/**
+ * One arpeggio version per difficulty for a meter; the last chord is picked once, bass and top. The release never
+ * makes a bar's last tone shorter than the level's shortest note (baby's second tone in 6/8 keeps a quarter).
+ */
+declare function arpeggioVersions(time: readonly [number, number], direction: Arpeggio["direction"]): PracticeVersion[];
+/** A strumming pattern: one bar, repeated over a progression in place of the versions by difficulty. */
+interface StrumPattern {
+    readonly id: string;
+    readonly name: string;
+    /** The family it is listed under. */
+    readonly style: string;
+    readonly time: readonly [number, number];
+    /** The bar as players write it, a slot per eighth (sixteenth, or triplet eighth, when it has them): D down, U up, B a picked bass note, · a rest. */
+    readonly strokes: string;
+    readonly pattern: readonly Hit[];
+    readonly bass?: readonly BassHit[];
+    /** Counted beats a minute it is fingered at. */
+    readonly bpm: number;
+    /**
+     * The easiest difficulty that plays it as written over I–IV–V–I on the instruments it is typical for (measured);
+     * easier ones play it simplified, as any song's easiest version.
+     */
+    readonly difficulty: Level;
+    /** Where it is usually played. */
+    readonly typical: readonly ("ukulele" | "guitar" | "mandolin")[];
+    /**
+     * The fewest strings it needs. A picked bass under a strum needs a guitar's: on four strings the bass string is
+     * strummed while the bass still rings (no difficulty below maestro plays it on a ukulele or mandolin).
+     */
+    readonly strings?: number;
+}
+/**
+ * Common strumming patterns by style. None strikes more than three quarters of the places on its grid. Chucks and
+ * other muted, percussive strokes have no pitch and are not written; a chop or a skank is a short strum.
+ */
+declare const STRUM_PATTERNS: readonly StrumPattern[];
+/** A strumming pattern by id. */
+declare function strumPattern(id: string): StrumPattern;
 /**
  * A progression as a chord song in C major (A minor for a minor one), the key selector moving it: a four-bar loop
  * twice, the 12-bar blues once, then the tonic held a bar; one version per difficulty for the meter.
  */
-declare function progressionSong(progression: Progression, time: readonly [number, number], { instrument }?: {
+declare function progressionSong(progression: Progression, time: readonly [number, number], { instrument, style, pattern }?: {
     instrument?: string;
+    style?: ProgressionStyle;
+    pattern?: string;
+}): ChordSong;
+/**
+ * The triad on every degree of a seven-note scale, spelled plainly ("Bdim", "Caug"), or null for other scales. The
+ * melodic minor uses its rising form.
+ */
+declare function scaleTriads(tonic: string, scale: string): string[] | null;
+/**
+ * A seven-note scale played as its chords, a bar each: up the degrees to the octave, back down, and the tonic held,
+ * in one of the progression styles (strummed or arpeggiated), one version per difficulty.
+ */
+declare function scaleChordsSong({ scale, tonic, time }: {
+    scale: string;
+    tonic: string;
+    time: readonly [number, number];
+}, { instrument, style }?: {
+    instrument?: string;
+    style?: ProgressionStyle;
 }): ChordSong;
 interface Stroke {
     readonly id: string;
@@ -583,6 +715,6 @@ declare function voicingsFor(result: {
     readonly annotations: readonly FrettedAnnotation[];
 }, instrument: FrettedInstrument): ChordShapeUse[];
 
-export { ALL, ARRANGEMENT_SCHEMA, BILLBOARD_SONGS, CHART_SCHEMA, DEEP, INSTRUMENTS, KEY_SHIFTS, LEVEL_TEMPO, NO_CHORD, PROGRESSIONS, PROGRESSION_BPM, PROGRESSION_VERSIONS, QUICK, RETRIES, SCALE_BPM, SEARCH, SET_SCHEMA, SIMPLIFY, WIDE, arrangeFor, attemptFingerprint, barQuarters, barStart, barsOf, cacheKey, cacheable, chordOfNumeral, chordShapes, chordTones, customInstrumentId, down, estimateLevel, familiarShapes, fingerprint, hardestNotes, hardestVersion, highestFret, instrumentFor, intervalOf, keyName, limitsExceeded, pick, pieceFingerprint, pieceFromScore, prepare, progressionSong, retime, scaleOnNeck, scalePiece, scaleRhythms, scaleScore, searched, segmentsOf, songFromChart, sourceFor, stableJson, strokesFor, suggestCapo, tempoFor, transposeSong, transposeSymbol, up, versionById, versionsFor, voiceChord, voicingsFor, voicingsForSong };
-export type { AnyVersion, ArrangeRequest, AttemptStatus, BassHit, CapoSuggestion, CatalogInstrument, ChordChart, ChordShapeUse, ChordSong, ChordTones, CustomSettings, Fill, Fret, Hit, LogEntry, Piece, Prepared, PreparedAttempt, Progression, Run, RunOptions, RunResult, ScaleExercise, ScorePiece, ScoreSet, ScoreVersion, Segment, SongSpec, SongVersion, Stroke, SuccessfulRun, Texture, Tones, VersionLayers, VocalEntry, Voicing };
+export { ALL, ARPEGGIO_SEARCH, ARPEGGIO_TIMES, ARRANGEMENT_SCHEMA, BILLBOARD_SONGS, CHART_SCHEMA, DEEP, INSTRUMENTS, INVERSION_NAMES, KEY_SHIFTS, LEVEL_TEMPO, NO_CHORD, PROGRESSIONS, PROGRESSION_BPM, PROGRESSION_STYLES, PROGRESSION_VERSIONS, QUICK, RETRIES, SCALE_BPM, SEARCH, SET_SCHEMA, SIMPLIFY, STRUM_PATTERNS, WIDE, arpeggioVersions, arrangeFor, attemptFingerprint, barQuarters, barStart, barsOf, cacheKey, cacheable, chordInversion, chordOfNumeral, chordShapes, chordTones, customInstrumentId, down, estimateLevel, familiarShapes, fingerprint, hardestNotes, hardestVersion, highestFret, instrumentFor, intervalOf, keyName, limitsExceeded, pick, pieceFingerprint, pieceFromScore, prepare, progressionSong, retime, scaleChordsSong, scaleOnNeck, scalePiece, scaleRhythms, scaleScore, scaleTriads, searched, segmentKey, segmentsOf, songFromChart, sourceFor, stableJson, strokesFor, strumPattern, suggestCapo, tempoFor, transposeSong, transposeSymbol, up, versionById, versionsFor, voiceChord, voicingsFor, voicingsForSong, writtenStrokes };
+export type { AnyVersion, Arpeggio, ArrangeRequest, AttemptStatus, BassHit, CapoSuggestion, CatalogInstrument, ChordChart, ChordSegment, ChordShapeUse, ChordSong, ChordTones, CustomSettings, Fill, Fret, Hit, Inversions, LogEntry, Piece, Prepared, PreparedAttempt, Progression, ProgressionStyle, Run, RunOptions, RunResult, ScaleExercise, ScorePiece, ScoreSet, ScoreVersion, Segment, SongSpec, SongVersion, Stroke, StrumPattern, SuccessfulRun, Texture, Tones, VersionLayers, VocalEntry, Voicing };
 //# sourceMappingURL=songs.d.mts.map

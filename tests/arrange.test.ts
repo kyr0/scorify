@@ -12,6 +12,7 @@ import {
   levels,
   pitchString,
   createArrangementSession,
+  validateFrettedArrangement,
 } from "../src/index.js";
 import type {
   NoteEvent,
@@ -172,6 +173,27 @@ describe("exact fretted search", () => {
     expect(r.score.notes).toHaveLength(2);
     expect(r.annotations.flatMap((a) => a.attackIds)).toEqual(["a"]);
     expect(r.annotations[0]!.assignments[0]!.noteIds).toEqual(["a", "b"]);
+  });
+  it("lays a held finger flat into a barre around the note it holds, but never moves it to another fret", () => {
+    // An F barre picked string by string: F2 (sixth string, fret 1) sounds while C4 and F4 join it at fret 1, so the
+    // first finger must widen from one string to a barre without letting go.
+    const arpeggio = createScore([
+      n("f2", "F2", 0, 6), n("c3", "C3", 1, 5), n("f3", "F3", 2, 4), n("a3", "A3", 3, 3), n("c4", "C4", 4, 2), n("f4", "F4", 5, 1),
+    ]);
+    const r = success(arpeggio, { instrument: classicalGuitar(), player: { level: "maestro" }, search: exact });
+    const first = (k: number) => r.annotations[k]!.contacts.find((c) => c.finger === 1)!;
+    expect([first(0).toString - first(0).fromString, first(5).toString - first(5).fromString]).toEqual([0, 5]);
+    expect(r.annotations.filter((a) => a.assignments.length).every((a) => a.contacts.find((c) => c.finger === 1)?.fret === 1)).toBe(true);
+    expect(validateFrettedArrangement(r.score, classicalGuitar(), r.annotations).valid).toBe(true);
+    // A finger that holds a note still cannot slide to another fret: F2 held, G2 on the same string next.
+    const slide = createScore([n("f2", "F2", 0, 3), n("a3", "A3", 1, 2), n("d4", "D4", 2, 1)]);
+    const moved = arrange(slide, { instrument: classicalGuitar(), player: { level: "maestro", overrides: { maxFretSpan: 2 } }, search: exact });
+    if (moved.status === "success")
+      for (const [k, a] of moved.annotations.entries()) {
+        const before = moved.annotations[k - 1]?.assignments.find((x) => x.id === "f2"),
+          now = a.assignments.find((x) => x.id === "f2");
+        if (before && now) expect([now.finger, now.absoluteFret]).toEqual([before.finger, before.absoluteFret]);
+      }
   });
   it("rejects a held finger changing to a distant chord without release time", () => {
     const instrument = createFrettedInstrument(

@@ -64,6 +64,14 @@
   .sc-progression-count { display: flex; align-items: center; gap: .5rem; font-size: .75rem; color: var(--muted-foreground); }
   .sc-progression-bar { flex: none; inline-size: calc(var(--share) * 5rem); min-inline-size: 2px; block-size: .375rem; border-radius: 999px; background: var(--chart-1); }
   .sc-progression-note { font-size: .75rem; color: var(--muted-foreground); }
+  /* Inversion buttons inside the tab's chord names: the next inversion and back as written, extra small. */
+  .sc-inversion { display: inline-flex; gap: 1px; margin-inline-start: .125rem; vertical-align: middle; }
+  .sc-inversion .btn { inline-size: 1rem; block-size: 1rem; min-inline-size: 0; min-block-size: 0; padding: 0; border-radius: var(--radius-sm); color: inherit; opacity: .6; }
+  .sc-inversion .btn:hover, .sc-inversion .btn:focus-visible { opacity: 1; }
+  .sc-inversion .btn:disabled { opacity: .25; }
+  .sc-inversion .sc-icon { inline-size: .6875rem; block-size: .6875rem; }
+  [data-printing] .sc-inversion { display: none; }
+  @media print { .sc-inversion { display: none; } }
   .sc-song { all: unset; box-sizing: border-box; display: flex; gap: 1rem; align-items: stretch; padding: .75rem; cursor: pointer;
     background: var(--card); color: var(--card-foreground); border: 1px solid var(--border); border-radius: var(--radius-xl);
     box-shadow: var(--shadow-sm); transition: border-color .15s, box-shadow .15s, transform .15s; }

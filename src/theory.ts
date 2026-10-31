@@ -58,14 +58,16 @@ export function scaleById(id: string): Scale {
   if (!scale) throw new RangeError(`Unknown scale: ${id}`);
   return scale;
 }
+/** Which way a scale is played over its octaves: up to the top tonic, down from it, or there and back. */
+export type ScaleDirection = "up-down" | "up" | "down" | "down-up";
 /**
- * A scale's spelled pitches from `tonic` (a pitch with octave) over whole octaves: up to the top tonic, then (with
- * `direction` "up-down") back down to the tonic. Every degree keeps its letter (F♯ major has E♯, A blues E♭).
+ * A scale's spelled pitches from `tonic` (a pitch with octave) over whole octaves, in `direction`: "up-down" rises to
+ * the top tonic and falls back, "down-up" starts at the top. Every degree keeps its letter (F♯ major has E♯, A blues E♭).
  */
 export function scalePitches(
   tonic: string,
   scale: Scale | string,
-  { octaves = 1, direction = "up-down" }: { octaves?: number; direction?: "up" | "up-down" } = {},
+  { octaves = 1, direction = "up-down" }: { octaves?: number; direction?: ScaleDirection } = {},
 ): string[] {
   const { up, down = up } = typeof scale === "string" ? scaleById(scale) : scale;
   if (!Number.isSafeInteger(octaves) || octaves < 1) throw new RangeError(`Invalid octave count: ${octaves}`);
@@ -77,5 +79,7 @@ export function scalePitches(
   const falling = Array.from({ length: octaves }, (_, k) => octaves - 1 - k).flatMap((o) =>
     down.slice(1).reverse().map((i) => transposePitch(base(o), i)).concat(base(o)),
   );
+  if (direction === "down") return [top, ...falling];
+  if (direction === "down-up") return [top, ...falling, ...rising.slice(1), top];
   return [...rising, top, ...falling];
 }

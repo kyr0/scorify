@@ -25,15 +25,17 @@ declare const SCALES: readonly Scale[];
 /** Tonics as usually written, C upward: the key with fewer accidentals (F♯ for the tritone, as major and minor). */
 declare const TONICS: Readonly<Record<Scale["quality"], readonly string[]>>;
 declare function scaleById(id: string): Scale;
+/** Which way a scale is played over its octaves: up to the top tonic, down from it, or there and back. */
+type ScaleDirection = "up-down" | "up" | "down" | "down-up";
 /**
- * A scale's spelled pitches from `tonic` (a pitch with octave) over whole octaves: up to the top tonic, then (with
- * `direction` "up-down") back down to the tonic. Every degree keeps its letter (F♯ major has E♯, A blues E♭).
+ * A scale's spelled pitches from `tonic` (a pitch with octave) over whole octaves, in `direction`: "up-down" rises to
+ * the top tonic and falls back, "down-up" starts at the top. Every degree keeps its letter (F♯ major has E♯, A blues E♭).
  */
 declare function scalePitches(tonic: string, scale: Scale | string, { octaves, direction }?: {
     octaves?: number;
-    direction?: "up" | "up-down";
+    direction?: ScaleDirection;
 }): string[];
 
 export { SCALES, TONICS, chordCandidates, pitchToMidi, scaleById, scalePitches, transposePitch };
-export type { Scale };
+export type { Scale, ScaleDirection };
 //# sourceMappingURL=theory.d.mts.map

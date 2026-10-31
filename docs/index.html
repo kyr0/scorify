@@ -52,6 +52,8 @@
   <symbol id="i-file" viewBox="0 0 24 24"><path d="M10 12.5 8 15l2 2.5m4-5 2 2.5-2 2.5M14 2v4a2 2 0 0 0 2 2h4"/><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7z"/></symbol>
   <symbol id="i-bot" viewBox="0 0 24 24"><path d="M12 8V4H8"/><rect width="16" height="12" x="4" y="8" rx="2"/><path d="M2 14h2m16 0h2m-7-1v2m-6-2v2"/></symbol>
   <symbol id="i-alert" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 8v4m0 4h.01"/></symbol>
+  <symbol id="i-cycle" viewBox="0 0 24 24"><path d="M21 12a9 9 0 0 1-15.5 6.2L3 16m0 5v-5h5M3 12a9 9 0 0 1 15.5-6.2L21 8m0-5v5h-5"/></symbol>
+  <symbol id="i-undo" viewBox="0 0 24 24"><path d="M9 14 4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11"/></symbol>
   <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4m0-4h.01"/></symbol>
 </svg>
 
@@ -112,7 +114,7 @@
     <div class="parallax-content">
       <section class="mk-hero" style="width:100%">
         <div class="mk-hero-copy">
-          <a class="mk-hero-pill" href="#install"><span class="badge" data-variant="default" data-size="sm">v0.3.0</span>Native ESM · no runtime dependencies · ukulele &amp; guitar<svg class="sc-icon" aria-hidden="true"><use href="#i-arrow"/></svg></a>
+          <a class="mk-hero-pill" href="#install"><span class="badge" data-variant="default" data-size="sm">v0.4.0</span>Native ESM · no runtime dependencies · ukulele &amp; guitar<svg class="sc-icon" aria-hidden="true"><use href="#i-arrow"/></svg></a>
           <h1 class="mk-hero-title">Turn a score into music <strong>your hands can play</strong></h1>
           <p class="sc-flip"><span class="text-rotate"><span>
               <span class="sc-accent">on a high-G ukulele</span>
@@ -243,21 +245,17 @@
       </div>
       <div class="tab-content" role="tabpanel" id="library-scales" aria-labelledby="library-tab-scales" tabindex="0" hidden>
         <div class="sc-practice">
-          <p class="sc-practice-intro">Up and down from the tonic in even notes, the last one held to the bar line, with the Beat on. <strong>Key</strong> below sets the tonic. scorify spells every degree, starts at the lowest octave the neck holds up to its highest fret, and fingers the scale for the difficulty as written, or says why it cannot.</p>
+          <p class="sc-practice-intro">A scale in even notes, the last one held to the bar line, with the Beat on; or, for a seven-note scale, its chords strummed or as arpeggios. <strong>Key</strong>, <strong>Time</strong> and <strong>Play</strong> below set the tonic, the time signature and how it is played. scorify spells every degree, starts at the lowest octave the neck holds up to its highest fret, and fingers the scale for the difficulty as written, or says why it cannot.</p>
           <div class="sc-practice-form">
             <div class="sc-control"><label class="label" for="scale">Scale</label><select class="select" id="scale"></select></div>
             <div class="sc-control"><label class="label" for="scale-octaves">Octaves</label><select class="select" id="scale-octaves"><option value="1">One</option><option value="2">Two</option><option value="3">Three</option></select></div>
-            <div class="sc-control"><label class="label" for="scale-meter">Time signature</label><select class="select" id="scale-meter"></select></div>
             <div class="sc-control"><label class="label" for="scale-rhythm">Notes</label><select class="select" id="scale-rhythm"></select></div>
           </div>
         </div>
       </div>
       <div class="tab-content" role="tabpanel" id="library-progressions" aria-labelledby="library-tab-progressions" tabindex="0" hidden>
         <div class="sc-practice">
-          <p class="sc-practice-intro">The most common chord progressions of Billboard Hot 100 hits: how many of 739 songs from 1958 to 1991 start a phrase with each. A bar per chord, seven versions per time signature from a strum a bar to fills; <strong>Key</strong> below moves it.</p>
-          <div class="sc-practice-form">
-            <div class="sc-control"><label class="label" for="progression-meter">Time signature</label><select class="select" id="progression-meter"></select></div>
-          </div>
+          <p class="sc-practice-intro">The most common chord progressions of Billboard Hot 100 hits: how many of 739 songs from 1958 to 1991 start a phrase with each. A bar per chord, strummed or as an arpeggio, seven versions per time signature, or in a strumming pattern: the island strum, reggae skank, boom-chick, a waltz, a blues shuffle and more; <strong>Key</strong>, <strong>Time</strong>, <strong>Play</strong> and <strong>Pattern</strong> below set the key, the time signature, how it is played and the pattern. The small buttons by each chord name in the tab turn that chord to its next inversion, or back.</p>
           <div class="sc-progressions" role="group" aria-label="Chord progressions" id="progression-list"></div>
           <p class="sc-practice-note">Counted by scorify's own script over the chord annotations of the <a href="https://ddmal.ca/research/The_McGill_Billboard_Project_(Chord_Analysis_Dataset)/" target="_blank" rel="noopener">McGill Billboard corpus<svg class="sc-icon sc-ext" aria-hidden="true"><use href="#i-external"/></svg><span class="sr-only"> (opens in a new tab)</span></a> (Burgoyne, Wild and Fujinaga 2011; CC0): songs with a phrase that starts with the progression, and for the 12-bar blues, songs with a 12-bar blues chorus. The corpus ends in 1991, before I–V–vi–IV became common in hits.</p>
         </div>
@@ -316,6 +314,18 @@
         <div class="sc-control">
           <label class="label" for="key">Key</label>
           <select class="select" id="key"></select>
+        </div>
+        <div class="sc-control sc-meter" hidden>
+          <label class="label" for="meter">Time</label>
+          <select class="select" id="meter"></select>
+        </div>
+        <div class="sc-control sc-style" hidden>
+          <label class="label" for="style">Play</label>
+          <select class="select" id="style"></select>
+        </div>
+        <div class="sc-control sc-pattern" hidden>
+          <label class="label" for="pattern">Pattern</label>
+          <select class="select" id="pattern"></select>
         </div>
         <div class="sc-control sc-voices" hidden>
           <label class="label" for="voices">Voices</label>
@@ -682,7 +692,7 @@
         <p class="sc-way-desc">An import map loads the modules from a CDN, and each entry fetches its shared chunks from there. A Worker or an AudioWorklet must come from your page's own origin: copy the whole <code>dist/</code> folder of the package next to your page for those, and pass <code>workletUrl</code> to the audio player. This page loads its own copy of <code>dist/</code> the same way.</p>
         <figure class="mk-code-block sc-code-scroll" data-variant="file">
           <div class="mk-code-block-head"><span class="mk-code-block-file"><svg class="sc-icon" aria-hidden="true"><use href="#i-file"/></svg>index.html</span><button class="mk-code-block-copy" type="button" aria-label="Copy code"><svg class="sc-icon" aria-hidden="true"><use href="#i-copy"/></svg></button></div>
-          <pre><code><span><span class="mk-code-block-k">&lt;script</span> type=<span class="mk-code-block-s">"importmap"</span><span class="mk-code-block-k">&gt;</span></span><span>{ <span class="mk-code-block-s">"imports"</span>: {</span><span>  <span class="mk-code-block-s">"scorify"</span>: <span class="mk-code-block-s">"https://cdn.jsdelivr.net/npm/scorify@0.3.0/dist/index.mjs"</span>,</span><span>  <span class="mk-code-block-s">"scorify/worker"</span>: <span class="mk-code-block-s">"https://cdn.jsdelivr.net/npm/scorify@0.3.0/dist/worker.mjs"</span>,</span><span>  <span class="mk-code-block-s">"scorify/audio"</span>: <span class="mk-code-block-s">"https://cdn.jsdelivr.net/npm/scorify@0.3.0/dist/audio.mjs"</span></span><span>} }</span><span><span class="mk-code-block-k">&lt;/script&gt;</span></span><span><span class="mk-code-block-k">&lt;script</span> type=<span class="mk-code-block-s">"module"</span><span class="mk-code-block-k">&gt;</span></span><span>  <span class="mk-code-block-k">import</span> { createScore, arrange, concertUkulele } <span class="mk-code-block-k">from</span> <span class="mk-code-block-s">"scorify"</span>;</span><span><span class="mk-code-block-k">&lt;/script&gt;</span></span></code></pre>
+          <pre><code><span><span class="mk-code-block-k">&lt;script</span> type=<span class="mk-code-block-s">"importmap"</span><span class="mk-code-block-k">&gt;</span></span><span>{ <span class="mk-code-block-s">"imports"</span>: {</span><span>  <span class="mk-code-block-s">"scorify"</span>: <span class="mk-code-block-s">"https://cdn.jsdelivr.net/npm/scorify@0.4.0/dist/index.mjs"</span>,</span><span>  <span class="mk-code-block-s">"scorify/worker"</span>: <span class="mk-code-block-s">"https://cdn.jsdelivr.net/npm/scorify@0.4.0/dist/worker.mjs"</span>,</span><span>  <span class="mk-code-block-s">"scorify/audio"</span>: <span class="mk-code-block-s">"https://cdn.jsdelivr.net/npm/scorify@0.4.0/dist/audio.mjs"</span></span><span>} }</span><span><span class="mk-code-block-k">&lt;/script&gt;</span></span><span><span class="mk-code-block-k">&lt;script</span> type=<span class="mk-code-block-s">"module"</span><span class="mk-code-block-k">&gt;</span></span><span>  <span class="mk-code-block-k">import</span> { createScore, arrange, concertUkulele } <span class="mk-code-block-k">from</span> <span class="mk-code-block-s">"scorify"</span>;</span><span><span class="mk-code-block-k">&lt;/script&gt;</span></span></code></pre>
           <span class="mk-code-block-status" role="status"></span>
         </figure>
       </div>
@@ -770,7 +780,7 @@
           <a class="btn" data-size="lg" href="https://github.com/kyr0/scorify" target="_blank" rel="noopener">View on GitHub<svg class="sc-icon" aria-hidden="true"><use href="#i-external"/></svg><span class="sr-only"> (opens in a new tab)</span></a>
           <a class="btn" data-variant="outline" data-size="lg" href="#demo">Play a song</a>
         </div>
-        <p class="mk-cta-note">MIT licensed · v0.3.0 · <code>npm install scorify</code></p>
+        <p class="mk-cta-note">MIT licensed · v0.4.0 · <code>npm install scorify</code></p>
       </div>
     </section>
   </div>

@@ -13,9 +13,9 @@ Plain ESM with TypeScript declarations and no runtime dependencies. Without a bu
 ```html
 <script type="importmap">
 { "imports": {
-  "scorify": "https://cdn.jsdelivr.net/npm/scorify@0.3.0/dist/index.mjs",
-  "scorify/worker": "https://cdn.jsdelivr.net/npm/scorify@0.3.0/dist/worker.mjs",
-  "scorify/audio": "https://cdn.jsdelivr.net/npm/scorify@0.3.0/dist/audio.mjs"
+  "scorify": "https://cdn.jsdelivr.net/npm/scorify@0.4.0/dist/index.mjs",
+  "scorify/worker": "https://cdn.jsdelivr.net/npm/scorify@0.4.0/dist/worker.mjs",
+  "scorify/audio": "https://cdn.jsdelivr.net/npm/scorify@0.4.0/dist/audio.mjs"
 } }
 </script>
 ```
@@ -291,18 +291,25 @@ const again = await arrangeFor(song, request, { arrange, replay: cacheable(run.l
 
 ### Practice: scales and chord progressions
 
-`scorify/theory` spells scales: `SCALES` (major, natural, harmonic and melodic minor, major and minor pentatonic, blues, Dorian, Phrygian, Lydian, Mixolydian, Locrian, chromatic), `TONICS` (twelve tonics as usually written, per major or minor quality) and `scalePitches(tonic, scale, { octaves, direction })`, which keeps every degree on its own letter (F♯ major has E♯; the melodic minor falls as the natural minor; the chromatic scale rises in sharps and falls in flats).
+`scorify/theory` spells scales: `SCALES` (major, natural, harmonic and melodic minor, major and minor pentatonic, blues, Dorian, Phrygian, Lydian, Mixolydian, Locrian, chromatic), `TONICS` (twelve tonics as usually written, per major or minor quality) and `scalePitches(tonic, scale, { octaves, direction })` (`up-down`, `up`, `down` from the top, `down-up`), which keeps every degree on its own letter (F♯ major has E♯; the melodic minor falls as the natural minor; the chromatic scale rises in sharps and falls in flats).
 
-`scorify/songs` turns them into practice pieces. `scalePiece(exercise, instrument, { instrumentId })` writes a scale up and down over whole octaves, `perBeat` even notes a beat (`scaleRhythms(time)`: 1–4 in simple meters, 1, 3 or 6 in 6/8 and 12/8), the last note held to the bar line, at the lowest octave whose notes all lie on the instrument up to its highest fret (`scaleOnNeck` says whether one does). It is fingered at `SCALE_BPM` (60) as written, never simplified or moved; a difficulty that cannot play it is reported. `PROGRESSIONS` are the most common chord progressions of Billboard Hot 100 songs, counted by scorify over the McGill Billboard corpus (739 songs, 1958–1991, CC0): how many start a phrase with each, and for the 12-bar blues how many have a 12-bar blues chorus. `progressionSong(progression, time)` makes one a chord song in C major or A minor, with a version per difficulty for 4/4, 3/4, 6/8 or 12/8 (`PROGRESSION_VERSIONS`), which `transpose` moves like any song; `chordOfNumeral` reads a roman numeral in a key.
+`scorify/songs` turns them into practice pieces. `scalePiece(exercise, instrument, { instrumentId })` writes a scale over whole octaves in the exercise's `direction` (up and down by default), `perBeat` even notes a beat (`scaleRhythms(time)`: 1–4 in simple meters, 1, 3 or 6 in 6/8 and 12/8), the last note held to the bar line, at the lowest octave whose notes all lie on the instrument up to its highest fret (`scaleOnNeck` says whether one does). It is fingered at `SCALE_BPM` (60) as written, never simplified or moved; a difficulty that cannot play it is reported. `PROGRESSIONS` are the most common chord progressions of Billboard Hot 100 songs, counted by scorify over the McGill Billboard corpus (739 songs, 1958–1991, CC0): how many start a phrase with each, and for the 12-bar blues how many have a 12-bar blues chorus. `progressionSong(progression, time, { style })` makes one a chord song in C major or A minor, with a version per difficulty for 4/4, 3/4, 6/8 or 12/8, which `transpose` moves like any song; `chordOfNumeral` reads a roman numeral in a key. The `style` (`PROGRESSION_STYLES`) is `strum` (`PROGRESSION_VERSIONS`: every hit a strum, from one down strum a bar to syncopated sixteenths, never more than three quarters of the places on the bar's grid) or an arpeggio, `arpeggio-up`, `arpeggio-down` or `arpeggio-up-down` (`arpeggioVersions`): single picked tones walking the strings of each chord's voicing, from two notes a bar at baby to sixteenths or triplets at maestro (`ARPEGGIO_TIMES`). A strummed progression can instead play one of `STRUM_PATTERNS` (`progressionSong(progression, time, { pattern: "island" })`, `strumPattern(id)`): sixteen common patterns by style (island strum, reggae skank, ska upstrokes, rock downstrokes, pop and folk strums, funk sixteenths, boom-chick and boom-chicka, bluegrass chop, swing and blues shuffle, three waltz patterns, a 6/8 ballad), each written as players write it (`D · D U · U D U`; `writtenStrokes` turns such a line into hits), with its meter, tempo, the instruments it is typical on, and the easiest difficulty that plays it as written there (measured; an easier one plays it simplified and says so). Patterns with a picked bass need six strings (`strings`). A hit's `length` makes a short strum (a skank or a chop). Chucks and other muted, percussive strokes are not written: they have no pitch.
+
+`scaleChordsSong({ scale, tonic, time }, { style })` plays a seven-note scale as its chords (`scaleTriads`: the triad on every degree, up to the octave and back) in the same styles.
+
+A request's `inversions` puts another chord tone in the bass of single chords: keys from `segmentKey(bar, place, symbol)` (from 0; `"2.1:F"` is the first chord of bar 2), naming the chord as played (after `transpose`), values the chord tone (0 root position, 1 first inversion, … up to the seventh or sixth; `INVERSION_NAMES`); a key that names no chord of the version is reported in the notes. Each one is voiced again with that tone lowest (`voiceChord(symbol, instrumentId, { level, rightHand, inversion })`), its bass line follows, and the whole song is searched again under the difficulty's limits: an inversion that does not play is reported, never dropped. The prepared attempt lists every chord as played (`chords`: bar, symbol, chord tone in the bass, whether it was asked), the arrangement notes name the inverted ones, and the cache key includes them. `chordInversion(symbol, pitches)` names a voicing's inversion by its lowest sounding pitch, so the ukulele's open F (2010, C4 lowest) is in second inversion. Arpeggio versions start their search with a beam of 512 (`ARPEGGIO_SEARCH`): adding one picked note at a time, a narrow beam keeps stretches it would not choose for the whole chord.
 
 ```js
 import { SCALES, scalePitches } from "scorify/theory";
-import { scalePiece, progressionSong, PROGRESSIONS, instrumentFor, arrangeFor } from "scorify/songs";
+import { scalePiece, scaleChordsSong, progressionSong, segmentKey, PROGRESSIONS, STRUM_PATTERNS, instrumentFor, arrangeFor } from "scorify/songs";
 
 scalePitches("F#3", "major"); // F#3 G#3 A#3 B3 C#4 D#4 E#4 F#4 E#4 … F#3
 const scale = scalePiece({ scale: "blues", tonic: "A", octaves: 2, perBeat: 2, time: [4, 4] }, instrumentFor("guitar"), { instrumentId: "guitar" });
-const blues = progressionSong(PROGRESSIONS.find((p) => p.id === "12-bar-blues"), [12, 8]);
-const run = await arrangeFor(blues, { instrumentId: "guitar", level: "semi-pro", bpm: 60, transpose: 2, custom: null }, { arrange });
+const blues = progressionSong(PROGRESSIONS.find((p) => p.id === "12-bar-blues"), [12, 8], { style: "arpeggio-up" });
+// Up a whole tone to D, the first chord with its third in the bass: D7/F#. Keys name the chords as played.
+const run = await arrangeFor(blues, { instrumentId: "guitar", level: "semi-pro", bpm: 60, transpose: 2, inversions: { [segmentKey(0, 0, "D7")]: 1 }, custom: null }, { arrange });
+const chords = scaleChordsSong({ scale: "major", tonic: "F", time: [3, 4] }, { style: "strum" }); // F Gm Am Bb C Dm Edim F …
+const island = progressionSong(PROGRESSIONS.find((p) => p.id === "I-V-vi-IV"), [4, 4], { instrument: "uke-high-g", pattern: "island" }); // D · D U · U D U, 100 BPM
 ```
 
 `arrange` may be a worker client. A `replay` log is used only for attempts whose source, options and `build` fingerprint alike, and only after `validateFrettedArrangement` accepts the replayed fingering. `retime` plays the result at another tempo without a search (tempo is playback only; the time-based limits were judged at the piece's tempo); the result says at which tempo it was searched. `suggestCapo` is a chord-shape heuristic (open, other, barre), not a measured ease. `LEVEL_TEMPO` (maestro 1.2×) is an editable policy. `INSTRUMENTS` and `instrumentFor` cover eight fretted instruments (highest fret: ukuleles 18, guitars 19, mandolin 20, from `highestFret`), with capo, highest-fret and tuning ids from `customInstrumentId`. A request's `frets` sets another highest fret, a hard limit of the instrument.
@@ -349,7 +356,7 @@ Use Bun 1.3.9 and Node 24. `pkgroll` builds ES2022 `.mjs`, declarations, source 
 
 Root exports cover the score/arrangement API; audio uses optional subpaths. Smaller subpaths are `model`, `theory`, `fretted`, `presets`, `profiles`, `transforms`, `analysis`, `quantize`, `fingering`, `arrange`, `validate`, `adapters`, `songs`, and `worker`. Optional subpaths are `performance`, `audio-dsp`, `audio-effects`, `audio-guide`, `audio`, `pitch-detect`, and `tuner`. `worker-entry.mjs`, `audio-worklet.mjs` and `pitch-worklet.mjs` are side-effect entries for their respective worker contexts.
 
-Native browser imports can use an exact-version CDN URL such as `https://cdn.jsdelivr.net/npm/scorify@0.3.0/dist/index.mjs`; the relative chunks are fetched from there. Browser Worker URLs should be served from your app's origin. For CDN-only use, `arrangeAsync` works directly; bundle/self-host a worker bootstrap if your origin policy requires it.
+Native browser imports can use an exact-version CDN URL such as `https://cdn.jsdelivr.net/npm/scorify@0.4.0/dist/index.mjs`; the relative chunks are fetched from there. Browser Worker URLs should be served from your app's origin. For CDN-only use, `arrangeAsync` works directly; bundle/self-host a worker bootstrap if your origin policy requires it.
 
 ## Scope and evidence
 
