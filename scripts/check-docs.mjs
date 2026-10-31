@@ -138,6 +138,29 @@ try {
       }
       report[song] = state;
     }
+    // The imported songs with their chord charts: every verse's words under the tab, the pickup sung before bar 1's
+    // chords, and amateur strums (the cache answers at once).
+    await page.selectOption("#level", "amateur");
+    await settled();
+    for (const [song, verses, first] of [["amazing-grace", 5, "A-"], ["scarborough-fair", 1, "Are"], ["shenandoah", 4, "Oh"], ["red-river-valley", 4, "From"],
+      ["loch-lomond", 3, "By"], ["auld-lang-syne", 4, "Should"], ["silent-night", 4, "Si-"], ["happy-birthday", 1, "Hap-"]]) {
+      await page.click(`[data-song="${song}"]`);
+      await settled();
+      const state = await snapshot();
+      assert.equal(state.status, "success", `${song}: ${state.problem}`);
+      assert.match(state.message, /the version written for amateur/, `${song}: amateur plays its own strum`);
+      assert.match(state.message, /A strum counts once/, `${song}: amateur only strums`);
+      const lanes = await page.evaluate(() => {
+        const score = document.getElementById("song-tab").api.getState().config.data.scores[0];
+        return { words: score.tracks.filter((t) => t.kind === "lyrics" && t.label !== "Voice").map((t) => t.items[0]?.text), chords: score.tracks.find((t) => t.kind === "chords").items[0] };
+      });
+      assert.equal(lanes.words.length, verses, `${song}: a row for each verse`);
+      assert.equal(lanes.words[0], first, `${song}: verse 1 starts with its first syllable`);
+      assert.ok(lanes.chords.measure >= 1, `${song}: chords render`);
+      report[song] = state;
+    }
+    await page.selectOption("#level", "maestro");
+    await settled();
 
     if (scheme === "light") {
       // Play becomes Pause, then Resume; Space (nothing focused) and the tab's loop make sound too.
@@ -468,8 +491,11 @@ try {
       { id: "reel", label: "Reel", difficulty: "amateur", score: reel },
       { id: "duet", label: "Duet", difficulty: "pro", score: duet },
     ] }));
+    // The page's own imported cards (Greensleeves and the eight chart songs) are loaded; opened files add to them.
+    const bundled = await page.locator(".sc-song[data-loaded]").count();
+    assert.equal(bundled, 9, "the page's imported cards load");
     await page.setInputFiles("#score-file", [path.resolve("skills/score-import/tests/fixtures/reel.scorify.json"), setFile]);
-    await page.waitForFunction(() => document.querySelectorAll(".sc-song[data-loaded]").length === 3, undefined, { timeout: 10000 });
+    await page.waitForFunction((n) => document.querySelectorAll(".sc-song[data-loaded]").length === n, bundled + 2, { timeout: 10000 });
     await settled();
     {
       const state = await snapshot();
@@ -481,7 +507,7 @@ try {
     }
     // A sung part is shown, not played: one lane of words per verse, and its notes are not counted.
     await page.setInputFiles("#score-file", path.resolve("skills/score-import/tests/fixtures/verses.scorify.json"));
-    await page.waitForFunction(() => document.querySelectorAll(".sc-song[data-loaded]").length === 4, undefined, { timeout: 10000 });
+    await page.waitForFunction((n) => document.querySelectorAll(".sc-song[data-loaded]").length === n, bundled + 3, { timeout: 10000 });
     await settled();
     {
       const state = await snapshot();
@@ -494,7 +520,7 @@ try {
       assert.match(state.message, /sung part \(9 notes\)/);
       report.verses = lanes.length;
       await page.reload();
-      await page.waitForFunction(() => document.querySelectorAll(".sc-song[data-loaded]").length === 4, undefined, { timeout: 15000 });
+      await page.waitForFunction((n) => document.querySelectorAll(".sc-song[data-loaded]").length === n, bundled + 3, { timeout: 15000 });
       await settled();
       report.remembered = await page.locator(".sc-song[data-loaded]").count();
     }

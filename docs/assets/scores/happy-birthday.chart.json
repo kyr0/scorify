@@ -1,0 +1,281 @@
+{
+ "schema": "scorify-chart-1",
+ "id": "happy-birthday",
+ "title": "Happy Birthday to You",
+ "credit": "Mildred J. Hill and Patty Hill",
+ "instrument": "uke-high-g",
+ "key": "G",
+ "mode": "major",
+ "lyricLanguages": [
+  "en"
+ ],
+ "description": "The song in G. Strummed up to semi-pro; pro picks a bass note under the strum, expert and maestro pick an arpeggio. Bar 6, the name, strikes once and rings.",
+ "chartSource": "The source has no chords; these are the usual ones: G, D, C, with G7 into C and D7 into the last bar. Baby and beginner play G, D and C.",
+ "progression": [
+  "G",
+  "D",
+  "D",
+  "G",
+  "G G G7",
+  "C",
+  "G G D7",
+  "G"
+ ],
+ "simpleProgression": [
+  "G",
+  "D",
+  "D",
+  "G",
+  "G",
+  "C",
+  "G",
+  "G"
+ ],
+ "holds": [
+  6,
+  8
+ ],
+ "versions": [
+  {
+   "difficulty": "baby",
+   "label": "A down strum a bar",
+   "pattern": [
+    {
+     "at": 0,
+     "tones": [
+      -3,
+      -2,
+      -1
+     ],
+     "stroke": "down"
+    }
+   ],
+   "release": 1,
+   "countStrokes": true,
+   "simple": true
+  },
+  {
+   "difficulty": "beginner",
+   "label": "Down strums on every beat",
+   "pattern": [
+    {
+     "at": 0,
+     "tones": [
+      -4,
+      -3,
+      -2,
+      -1
+     ],
+     "stroke": "down"
+    },
+    {
+     "at": 1,
+     "tones": [
+      -3,
+      -2,
+      -1
+     ],
+     "stroke": "down"
+    },
+    {
+     "at": 2,
+     "tones": [
+      -3,
+      -2,
+      -1
+     ],
+     "stroke": "down"
+    }
+   ],
+   "release": 0.5,
+   "countStrokes": true,
+   "simple": true
+  },
+  {
+   "difficulty": "amateur",
+   "label": "D · D · D U",
+   "pattern": [
+    {
+     "at": 0,
+     "tones": [
+      -4,
+      -3,
+      -2,
+      -1
+     ],
+     "stroke": "down"
+    },
+    {
+     "at": 1,
+     "tones": [
+      -4,
+      -3,
+      -2,
+      -1
+     ],
+     "stroke": "down"
+    },
+    {
+     "at": 2,
+     "tones": [
+      -4,
+      -3,
+      -2,
+      -1
+     ],
+     "stroke": "down"
+    },
+    {
+     "at": 2.5,
+     "tones": [
+      -2,
+      -1
+     ],
+     "stroke": "up"
+    }
+   ],
+   "release": 0.25,
+   "countStrokes": true
+  },
+  {
+   "difficulty": "semi-pro",
+   "label": "D · D U D U",
+   "pattern": [
+    {
+     "at": 0,
+     "tones": [
+      -4,
+      -3,
+      -2,
+      -1
+     ],
+     "stroke": "down"
+    },
+    {
+     "at": 1,
+     "tones": [
+      -3,
+      -2,
+      -1
+     ],
+     "stroke": "down"
+    },
+    {
+     "at": 1.5,
+     "tones": [
+      -2,
+      -1
+     ],
+     "stroke": "up"
+    },
+    {
+     "at": 2,
+     "tones": [
+      -3,
+      -2,
+      -1
+     ],
+     "stroke": "down"
+    },
+    {
+     "at": 2.5,
+     "tones": [
+      -2,
+      -1
+     ],
+     "stroke": "up"
+    }
+   ],
+   "release": 0.25,
+   "countStrokes": true
+  },
+  {
+   "difficulty": "pro",
+   "label": "Bass note on 1, strums on 2 and 3 (D U D)",
+   "pattern": [
+    {
+     "at": 0,
+     "tones": [
+      0
+     ]
+    },
+    {
+     "at": 1,
+     "tones": [
+      -3,
+      -2,
+      -1
+     ],
+     "stroke": "down"
+    },
+    {
+     "at": 1.5,
+     "tones": [
+      -2,
+      -1
+     ],
+     "stroke": "up"
+    },
+    {
+     "at": 2,
+     "tones": [
+      -3,
+      -2,
+      -1
+     ],
+     "stroke": "down"
+    }
+   ]
+  },
+  {
+   "difficulty": "expert",
+   "label": "Arpeggio up and down in eighths",
+   "pattern": [],
+   "arpeggio": {
+    "direction": "up-down",
+    "at": [
+     0,
+     0.5,
+     1,
+     1.5,
+     2,
+     2.5
+    ]
+   },
+   "hold": {
+    "at": 0,
+    "tones": [
+     0,
+     -1
+    ]
+   },
+   "release": 0.25
+  },
+  {
+   "difficulty": "maestro",
+   "label": "Arpeggio with sixteenth pushes",
+   "pattern": [],
+   "arpeggio": {
+    "direction": "up-down",
+    "at": [
+     0,
+     0.5,
+     1,
+     1.5,
+     1.75,
+     2,
+     2.5,
+     2.75
+    ]
+   },
+   "hold": {
+    "at": 0,
+    "tones": [
+     0,
+     -1
+    ]
+   },
+   "release": 0.25
+  }
+ ]
+}

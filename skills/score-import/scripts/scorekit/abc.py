@@ -112,8 +112,12 @@ class Tune:
             num, den = 4, 4
         self.meter = (num, den)
         self.compound = num % 3 == 0 and num > 3
-        if self.voice is not None:
-            self.voice.measure.meter = self.meter
+        for voice in self.unstarted():
+            voice.measure.meter = self.meter
+
+    def unstarted(self) -> List[Voice]:
+        """The voices a key or meter field applies to: the current one, and in the header every voice defined there."""
+        return [v for v in self.voices.values() if v is self.voice or (self.voice is None and v.offset == 0 and not v.measure.events)]
 
     def default_unit(self) -> Fraction:
         if self.unit is not None:
@@ -162,8 +166,8 @@ class Tune:
             fifths = 0
         self.alters = signature_alters(fifths)
         self.key = (tonic, mode)
-        if self.voice is not None:
-            self.voice.measure.key = self.key
+        for voice in self.unstarted():
+            voice.measure.key = self.key
 
     def target_voice(self) -> Voice:
         if self.voice is None:

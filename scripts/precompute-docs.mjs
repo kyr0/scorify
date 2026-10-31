@@ -20,7 +20,7 @@ const { build } = await import("../docs/assets/scorify/build.mjs");
 const docs = new URL("../docs/", import.meta.url), library = new URL("../work/private-scores/", import.meta.url);
 const json = async url => JSON.parse(await readFile(url, "utf8"));
 
-/** The pieces exactly as the page builds them: the songs, the score cards of index.html, or the local library. */
+/** The pieces exactly as the page builds them: the songs, the score and chart cards of index.html, or the local library. */
 async function piecesFor(privateLibrary) {
   if (privateLibrary) {
     return Promise.all((await json(new URL("index.json", library))).map(async entry => {
@@ -34,8 +34,10 @@ async function piecesFor(privateLibrary) {
     }));
   }
   const html = await readFile(new URL("index.html", docs), "utf8"), cards = [];
-  for (const [, id, url, instrument] of html.matchAll(/data-song="([^"]+)" data-score-url="([^"]+)" data-instrument="([^"]+)"/g))
-    cards.push(pieceFromScore(normalizeScore(await json(new URL(url, docs))), { id, instrument }));
+  for (const [, id, url, chart, instrument] of html.matchAll(/data-song="([^"]+)" data-score-url="([^"]+)"(?: data-chart-url="([^"]+)")? data-instrument="([^"]+)"/g)) {
+    const score = normalizeScore(await json(new URL(url, docs)));
+    cards.push(chart ? songFromChart(await json(new URL(chart, docs)), score, { id, instrument }) : pieceFromScore(score, { id, instrument }));
+  }
   return [...songs, ...cards];
 }
 /** Every usual request: each instrument, difficulty, key and choice of voices, and with the capo suggested there. */

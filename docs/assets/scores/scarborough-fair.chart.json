@@ -1,0 +1,311 @@
+{
+ "schema": "scorify-chart-1",
+ "id": "scarborough-fair",
+ "title": "Scarborough Fair",
+ "credit": "Traditional English ballad",
+ "instrument": "guitar",
+ "key": "D",
+ "mode": "minor",
+ "lyricLanguages": [
+  "en"
+ ],
+ "description": "The verse as it is usually sung today, in D Dorian, with its words. Strummed up to semi-pro; pro picks a bass note under the strum, expert and maestro pick an arpeggio.",
+ "chartSource": "Chords from the source's own chord line: Dm, Am, G in bar 7 and Am7. Baby and beginner play Dm in bar 7 and Am for Am7.",
+ "progression": [
+  "Dm",
+  "Dm",
+  "Am",
+  "Dm",
+  "Am",
+  "Dm",
+  "Dm G G",
+  "Dm",
+  "Dm",
+  "Am",
+  "Dm",
+  "Am",
+  "Dm",
+  "Am7",
+  "Am7",
+  "Dm"
+ ],
+ "simpleProgression": [
+  "Dm",
+  "Dm",
+  "Am",
+  "Dm",
+  "Am",
+  "Dm",
+  "Dm",
+  "Dm",
+  "Dm",
+  "Am",
+  "Dm",
+  "Am",
+  "Dm",
+  "Am",
+  "Am",
+  "Dm"
+ ],
+ "holds": [
+  16
+ ],
+ "versions": [
+  {
+   "difficulty": "baby",
+   "label": "A down strum a bar",
+   "pattern": [
+    {
+     "at": 0,
+     "tones": [
+      -3,
+      -2,
+      -1
+     ],
+     "stroke": "down"
+    }
+   ],
+   "release": 1,
+   "countStrokes": true,
+   "simple": true
+  },
+  {
+   "difficulty": "beginner",
+   "label": "Down strums on every beat",
+   "pattern": [
+    {
+     "at": 0,
+     "tones": [
+      -4,
+      -3,
+      -2,
+      -1
+     ],
+     "stroke": "down"
+    },
+    {
+     "at": 1,
+     "tones": [
+      -3,
+      -2,
+      -1
+     ],
+     "stroke": "down"
+    },
+    {
+     "at": 2,
+     "tones": [
+      -3,
+      -2,
+      -1
+     ],
+     "stroke": "down"
+    }
+   ],
+   "release": 0.5,
+   "countStrokes": true,
+   "simple": true
+  },
+  {
+   "difficulty": "amateur",
+   "label": "D · D · D U",
+   "pattern": [
+    {
+     "at": 0,
+     "tones": [
+      -4,
+      -3,
+      -2,
+      -1
+     ],
+     "stroke": "down"
+    },
+    {
+     "at": 1,
+     "tones": [
+      -4,
+      -3,
+      -2,
+      -1
+     ],
+     "stroke": "down"
+    },
+    {
+     "at": 2,
+     "tones": [
+      -4,
+      -3,
+      -2,
+      -1
+     ],
+     "stroke": "down"
+    },
+    {
+     "at": 2.5,
+     "tones": [
+      -2,
+      -1
+     ],
+     "stroke": "up"
+    }
+   ],
+   "release": 0.25,
+   "countStrokes": true
+  },
+  {
+   "difficulty": "semi-pro",
+   "label": "D · D U D U",
+   "pattern": [
+    {
+     "at": 0,
+     "tones": [
+      -4,
+      -3,
+      -2,
+      -1
+     ],
+     "stroke": "down"
+    },
+    {
+     "at": 1,
+     "tones": [
+      -3,
+      -2,
+      -1
+     ],
+     "stroke": "down"
+    },
+    {
+     "at": 1.5,
+     "tones": [
+      -2,
+      -1
+     ],
+     "stroke": "up"
+    },
+    {
+     "at": 2,
+     "tones": [
+      -3,
+      -2,
+      -1
+     ],
+     "stroke": "down"
+    },
+    {
+     "at": 2.5,
+     "tones": [
+      -2,
+      -1
+     ],
+     "stroke": "up"
+    }
+   ],
+   "release": 0.25,
+   "countStrokes": true
+  },
+  {
+   "difficulty": "pro",
+   "label": "Bass note on 1, strums on 2 and 3 (D U D)",
+   "pattern": [
+    {
+     "at": 0,
+     "tones": [
+      0
+     ]
+    },
+    {
+     "at": 1,
+     "tones": [
+      -3,
+      -2,
+      -1
+     ],
+     "stroke": "down"
+    },
+    {
+     "at": 1.5,
+     "tones": [
+      -2,
+      -1
+     ],
+     "stroke": "up"
+    },
+    {
+     "at": 2,
+     "tones": [
+      -3,
+      -2,
+      -1
+     ],
+     "stroke": "down"
+    }
+   ]
+  },
+  {
+   "difficulty": "expert",
+   "label": "Arpeggio up and down in eighths",
+   "pattern": [],
+   "arpeggio": {
+    "direction": "up-down",
+    "at": [
+     0,
+     0.5,
+     1,
+     1.5,
+     2,
+     2.5
+    ]
+   },
+   "hold": {
+    "at": 0,
+    "tones": [
+     0,
+     -1
+    ]
+   },
+   "release": 0.25
+  },
+  {
+   "difficulty": "maestro",
+   "label": "Arpeggio with sixteenth pushes, runs where the voice holds (bars 4, 12)",
+   "pattern": [],
+   "arpeggio": {
+    "direction": "up-down",
+    "at": [
+     0,
+     0.5,
+     1,
+     1.5,
+     1.75,
+     2,
+     2.5,
+     2.75
+    ]
+   },
+   "hold": {
+    "at": 0,
+    "tones": [
+     0,
+     -1
+    ]
+   },
+   "release": 0.25,
+   "fill": {
+    "from": 1.5,
+    "steps": [
+     2,
+     1,
+     0,
+     -1,
+     0,
+     1
+    ],
+    "bars": [
+     4,
+     12
+    ]
+   }
+  }
+ ]
+}

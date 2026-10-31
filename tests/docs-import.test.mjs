@@ -1,11 +1,12 @@
 import { it, expect } from "vitest";
-import { mkdtemp, writeFile, symlink, rm } from "node:fs/promises";
+import { mkdtemp, writeFile, symlink, rm, readFile } from "node:fs/promises";
+import { createHash } from "node:crypto";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { docsServer } from "../scripts/serve-docs.mjs";
 import { tabFor, instrumentFor, songFromChart, prepare, strokesFor, limitsExceeded, CHART_SCHEMA, songs, suggestCapo, customInstrumentId,
   intervalOf, cacheKey, arrangeFor, cacheable, searched, retime, tempoFor, hardestVersion, hardestNotes, pieceFromScore, versionById } from "../docs/assets/songs.mjs";
-import { arrange, compilePlayer, createScore } from "../docs/assets/scorify/index.mjs";
+import { arrange, compilePlayer, createScore, normalizeScore } from "../docs/assets/scorify/index.mjs";
 
 it("serves only listed private scores locally, excludes symlink escapes, and leaves static docs private-free", async () => {
   const dir = await mkdtemp(path.join(tmpdir(), "scorify-private-"));
@@ -126,6 +127,53 @@ it("plays a chord chart under an imported voice: chords by segment, holds, silen
   const chords = data.scores[0].tracks.find(t => t.kind === "chords").items;
   expect(chords.map(c => [c.measure, c.beat, c.name])).toEqual([[1, 1, "Dm"], [1, 3, "C"], [2, 1, "G"], [3, 1, "N.C."]]);
   expect(data.scores[0].tracks.find(t => t.id === "vocal-pitches").items.map(i => i.text)).toEqual(["D4", "E4", "F4"]);
+});
+
+it("plays a chart over a score that starts with a pickup: the pickup is sung without chords, bars count after it", () => {
+  // The score-import skill writes a pickup as a short first meter: one quarter, then 4/4.
+  const score = sungScore();
+  score.meterMap = [{ at: [0, 1], numerator: 1, denominator: 4 }, { at: [1, 1], numerator: 4, denominator: 4 }];
+  score.notes = score.notes.map(n => n.partId === "V" ? { ...n, onset: [n.onset[0] - 2, 1] } : { ...n, duration: [9, 1] });
+  // Sung onsets 1, 2 and 6: the pickup quarter is empty here, the voice ends at 10, two bars after the pickup and a quarter.
+  const song = songFromChart(chart({ progression: ["Dm", "C", "G"], simpleProgression: ["Dm", "C", "G"], holds: [], vocalTranspose: [{ bars: [2, 2], interval: "3m", reason: "bar 2 a minor third higher" }] }), score);
+  expect([song.pickup, song.pad, song.progression.length]).toEqual([1, 3, 3]);
+  // Bar 2 starts at 5 (after the pickup), so only the note sung at 6 is moved.
+  expect(song.vocal.map(v => [v[0], v[2]])).toEqual([[1, "B3"], [2, "C#4"], [6, "Ab4"]]);
+  const prepared = prepare(song, { instrumentId: "guitar", level: "pro", bpm: 100, version: song.versions[1] });
+  expect(prepared.source.harmony.map(h => [h.selected, h.onset])).toEqual([["Dm", [1, 1]], ["C", [5, 1]], ["G", [9, 1]]]);
+  expect(prepared.source.meterMap.map(m => [m.at, m.numerator, m.denominator])).toEqual([[[0, 1], 2, 8], [[1, 1], 4, 4]]);
+  expect(Math.min(...prepared.source.notes.map(n => n.onset[0] / n.onset[1]))).toBe(1);
+  expect(() => songFromChart(chart({ progression: ["Dm", "C"], simpleProgression: ["Dm", "C"] }), score)).toThrow(/2 bars, the score 3/);
+  // A meter that changes later is not a pickup.
+  const changing = { ...score, meterMap: [{ at: [0, 1], numerator: 4, denominator: 4 }, { at: [4, 1], numerator: 3, denominator: 4 }] };
+  expect(() => songFromChart(chart(), changing)).toThrow(/one meter, after an optional pickup/);
+});
+
+it("plays the page's public songs from their imported scores and charts: every verse, strummed up to semi-pro", async () => {
+  const docs = new URL("../docs/", import.meta.url), root = new URL("../", import.meta.url);
+  const html = await readFile(new URL("index.html", docs), "utf8");
+  const cards = [...html.matchAll(/data-song="([^"]+)" data-score-url="([^"]+)" data-chart-url="([^"]+)"/g)];
+  expect(cards.map(c => c[1])).toEqual(["amazing-grace", "scarborough-fair", "shenandoah", "red-river-valley", "loch-lomond", "auld-lang-syne", "silent-night", "happy-birthday"]);
+  for (const [, id, scoreUrl, chartUrl] of cards) {
+    const data = JSON.parse(await readFile(new URL(scoreUrl, docs), "utf8")), chart = JSON.parse(await readFile(new URL(chartUrl, docs), "utf8"));
+    // The imported file is the one in scores/<id>/, as its provenance says.
+    const source = await readFile(new URL(`scores/${id}/${id}.abc`, root));
+    expect(createHash("sha256").update(source).digest("hex"), id).toBe(data.notation.source.sha256);
+    const song = songFromChart(chart, normalizeScore(data), { id });
+    const verses = song.vocal[0][3].length;
+    // Every verse has words, and every syllable of the source is shown.
+    for (let v = 0; v < verses; v++) expect(song.vocal.some(n => n[3][v]), `${id} verse ${v + 1}`).toBe(true);
+    expect(song.vocal.reduce((sum, n) => sum + n[3].filter(Boolean).length, 0)).toBe([data.notation.lyrics, ...(data.notation.verses ?? [])].reduce((sum, verse) => sum + Object.keys(verse).length, 0));
+    const level = (difficulty) => song.versions.find(v => v.difficulty === difficulty);
+    for (const difficulty of ["baby", "beginner", "amateur", "semi-pro"]) {
+      const version = level(difficulty);
+      expect(version.countStrokes && !version.arpeggio && version.pattern.every(hit => hit.stroke), `${id} ${difficulty} strums`).toBe(true);
+    }
+    expect([level("baby").simple, level("beginner").simple, level("amateur").simple]).toEqual([true, true, undefined]);
+    expect(level("pro").pattern.some(hit => !hit.stroke) && level("pro").pattern.some(hit => hit.stroke)).toBe(true);
+    expect([level("expert").arpeggio?.direction, level("maestro").arpeggio?.direction]).toEqual(["up-down", "up-down"]);
+    expect(song.holds).toContain(song.progression.length);
+  }
 });
 
 it("rejects a chart that does not fit its score", () => {

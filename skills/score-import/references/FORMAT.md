@@ -53,10 +53,10 @@ A span lasts until the next chord symbol (or the end). `provenance: "provided"` 
  "assumptions": ["first bar is a 1/2-quarter pickup, written as its own short meter"],
  "warnings": [], "dropped": {"grace notes": 2},
  "source": {"url": "<page>", "site": "<host>", "file": "<file url>", "retrievedAt": "<ISO time>",
-            "sha256": "…", "format": "midi"}}
+            "sha256": "…", "format": "midi", "license": "public domain"}}
 ```
 
-Keep this block when editing a converted file. Anything a reader needs to judge the fidelity of the conversion is here.
+Keep this block when editing a converted file. Anything a reader needs to judge the fidelity of the conversion is here. `license` is copied from the download sidecar when it has one: the source's reuse terms as its page states them, not a legal finding.
 
 ### Words and sung parts
 

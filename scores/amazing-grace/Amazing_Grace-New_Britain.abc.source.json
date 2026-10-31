@@ -1,0 +1,11 @@
+{
+ "url": "http://openhymnal.org/Abc/Amazing_Grace-New_Britain.abc",
+ "requested": "http://openhymnal.org/Abc/Amazing_Grace-New_Britain.abc",
+ "page": "http://openhymnal.org/Pdf/Amazing_Grace-New_Britain.pdf",
+ "retrievedAt": "2026-10-31T14:48:56+00:00",
+ "status": 200,
+ "contentType": "text/plain",
+ "bytes": 6196,
+ "sha256": "1c5a62eae58411a00e7dc97fb9bb7a15d7c1cef9e4d04b3525754ec5cf0a261f",
+ "license": "Open Hymnal Project: public domain (score header: \"copyright: public domain\"; openhymnal.org/copying.html)"
+}

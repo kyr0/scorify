@@ -225,7 +225,7 @@ def cmd_convert(args) -> int:
     meta = json.loads(sidecar.read_text()) if sidecar.is_file() else {}
     source = Source(url=args.source_url or meta.get("page") or meta.get("url", ""), site=args.site or urllib.parse.urlparse(args.source_url or meta.get("page") or meta.get("url", "")).netloc,
                     retrieved_at=meta.get("retrievedAt", ""), file=meta.get("url", "") if meta.get("page") else "",
-                    sha256=hashlib.sha256(data).hexdigest(), format=fmt)
+                    sha256=hashlib.sha256(data).hexdigest(), format=fmt, license=meta.get("license", ""))
     score = build_score(doc, unfold_repeats=args.repeats == "unfold", role=role_function(doc, args), source=source,
                         default_tempo=args.tempo)
     from scorekit.check import report, validate

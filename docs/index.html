@@ -22,7 +22,7 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/kyr0/defuss-shadcn@v0.9.11/dist/components/core.min.css" integrity="sha384-qUQCm/MM2DNkdT3uEdx8Mpocj+GwXlgLat0FnWv657c16tHWOouZFT2nV7kg5pBE" crossorigin="anonymous">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/kyr0/defuss-shadcn@v0.9.11/dist/theme/utils/shapes.min.css" integrity="sha384-ZmqJOMYRZyhvc1zR5eOVub6RQoBcnL3oe8ubon6JcjkLJK/0Fy3THAhfLP8K3C71" crossorigin="anonymous">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/kyr0/defuss-shadcn@v0.9.11/dist/components/all.min.css" integrity="sha384-D6ChEYfIRnfJpWB03vSS4b4b1ZdHsnCNUwg2VBFrBkjDVHIVvdVDXaJ1M2hFAdK2" crossorigin="anonymous">
-  <link rel="stylesheet" href="assets/site.css?v=c5f61fe2ebc1">
+  <link rel="stylesheet" href="assets/site.css?v=793bcb6fbf3d">
   <link rel="modulepreload" href="assets/scorify/index.mjs">
 </head>
 <body>
@@ -183,7 +183,7 @@
       <div class="mk-section-header-copy">
         <span class="mk-section-header-eyebrow">Live playground</span>
         <h2 class="mk-section-header-title" id="demo-title">🎸 Seven difficulties, eight instruments</h2>
-        <p class="mk-section-header-desc">Pick a song, a scale or one of the Billboard charts' most common chord progressions, then an instrument and a difficulty. The sample accompaniments have seven versions, from <em>baby</em> to <em>maestro</em>; imported scores use their available editions and show vocal pitches and lyrics when present. scorify fingers the accompaniment for the chosen instrument (concert ukulele with high or low G, baritone ukulele, guitar in standard or drop D, 7- and 8-string guitar, mandolin) and checks that it plays.</p>
+        <p class="mk-section-header-desc">Pick a song, a scale or one of the Billboard charts' most common chord progressions, then an instrument and a difficulty. The sample accompaniments have seven versions, from <em>baby</em> to <em>maestro</em>; imported scores use their available editions and show vocal pitches and lyrics when present. Eight public-domain songs, from Amazing Grace to Happy Birthday, come with every verse of their words under the tab, strummed up to semi-pro and picked above. scorify fingers the accompaniment for the chosen instrument (concert ukulele with high or low G, baritone ukulele, guitar in standard or drop D, 7- and 8-string guitar, mandolin) and checks that it plays.</p>
       </div>
     </header>
 
@@ -229,6 +229,78 @@
               <strong class="sc-song-title">Greensleeves (hymn tune)</strong>
               <span class="sc-song-credit">Traditional</span>
               <span class="sc-song-meta">Four-part MIDI</span>
+            </span>
+          </button>
+          <button type="button" class="sc-song" data-song="amazing-grace" data-score-url="assets/scores/amazing-grace.scorify.json" data-chart-url="assets/scores/amazing-grace.chart.json" data-instrument="guitar" aria-pressed="false">
+            <span class="sc-song-art" data-art="grace" aria-hidden="true">🕊️</span>
+            <span class="sc-song-copy">
+              <span class="sc-song-kind">Song · 3/4</span>
+              <strong class="sc-song-title">Amazing Grace</strong>
+              <span class="sc-song-credit">John Newton (words, 1779) · tune New Britain (1831)</span>
+              <span class="sc-song-meta">37 vocal notes · 7 versions · G major · 100 BPM</span>
+            </span>
+          </button>
+          <button type="button" class="sc-song" data-song="scarborough-fair" data-score-url="assets/scores/scarborough-fair.scorify.json" data-chart-url="assets/scores/scarborough-fair.chart.json" data-instrument="guitar" aria-pressed="false">
+            <span class="sc-song-art" data-art="scarborough" aria-hidden="true">🌿</span>
+            <span class="sc-song-copy">
+              <span class="sc-song-kind">Song · 3/4</span>
+              <strong class="sc-song-title">Scarborough Fair</strong>
+              <span class="sc-song-credit">Traditional English ballad</span>
+              <span class="sc-song-meta">34 vocal notes · 7 versions · D minor · 135 BPM</span>
+            </span>
+          </button>
+          <button type="button" class="sc-song" data-song="shenandoah" data-score-url="assets/scores/shenandoah.scorify.json" data-chart-url="assets/scores/shenandoah.chart.json" data-instrument="guitar" aria-pressed="false">
+            <span class="sc-song-art" data-art="shenandoah" aria-hidden="true">🛶</span>
+            <span class="sc-song-copy">
+              <span class="sc-song-kind">Song · 2/2</span>
+              <strong class="sc-song-title">Shenandoah</strong>
+              <span class="sc-song-credit">Traditional</span>
+              <span class="sc-song-meta">47 vocal notes · 7 versions · D major · 45 BPM</span>
+            </span>
+          </button>
+          <button type="button" class="sc-song" data-song="red-river-valley" data-score-url="assets/scores/red-river-valley.scorify.json" data-chart-url="assets/scores/red-river-valley.chart.json" data-instrument="guitar" aria-pressed="false">
+            <span class="sc-song-art" data-art="valley" aria-hidden="true">🤠</span>
+            <span class="sc-song-copy">
+              <span class="sc-song-kind">Song · 4/4</span>
+              <strong class="sc-song-title">Red River Valley</strong>
+              <span class="sc-song-credit">Traditional</span>
+              <span class="sc-song-meta">76 vocal notes · 7 versions · G major · 90 BPM</span>
+            </span>
+          </button>
+          <button type="button" class="sc-song" data-song="loch-lomond" data-score-url="assets/scores/loch-lomond.scorify.json" data-chart-url="assets/scores/loch-lomond.chart.json" data-instrument="uke-high-g" aria-pressed="false">
+            <span class="sc-song-art" data-art="lomond" aria-hidden="true">🏞️</span>
+            <span class="sc-song-copy">
+              <span class="sc-song-kind">Song · 4/4</span>
+              <strong class="sc-song-title">Loch Lomond</strong>
+              <span class="sc-song-credit">Traditional Scottish</span>
+              <span class="sc-song-meta">92 vocal notes · 7 versions · F major · 75 BPM</span>
+            </span>
+          </button>
+          <button type="button" class="sc-song" data-song="auld-lang-syne" data-score-url="assets/scores/auld-lang-syne.scorify.json" data-chart-url="assets/scores/auld-lang-syne.chart.json" data-instrument="guitar" aria-pressed="false">
+            <span class="sc-song-art" data-art="auld" aria-hidden="true">🥂</span>
+            <span class="sc-song-copy">
+              <span class="sc-song-kind">Song · 2/4</span>
+              <strong class="sc-song-title">Auld Lang Syne</strong>
+              <span class="sc-song-credit">Traditional · words by Robert Burns</span>
+              <span class="sc-song-meta">56 vocal notes · 7 versions · G major · 50 BPM</span>
+            </span>
+          </button>
+          <button type="button" class="sc-song" data-song="silent-night" data-score-url="assets/scores/silent-night.scorify.json" data-chart-url="assets/scores/silent-night.chart.json" data-instrument="uke-high-g" aria-pressed="false">
+            <span class="sc-song-art" data-art="silent" aria-hidden="true">⭐</span>
+            <span class="sc-song-copy">
+              <span class="sc-song-kind">Song · 3/4</span>
+              <strong class="sc-song-title">Silent Night</strong>
+              <span class="sc-song-credit">Franz Xaver Gruber · words by Joseph Mohr, English by John Freeman Young</span>
+              <span class="sc-song-meta">46 vocal notes · 7 versions · Bb major · 60 BPM</span>
+            </span>
+          </button>
+          <button type="button" class="sc-song" data-song="happy-birthday" data-score-url="assets/scores/happy-birthday.scorify.json" data-chart-url="assets/scores/happy-birthday.chart.json" data-instrument="uke-high-g" aria-pressed="false">
+            <span class="sc-song-art" data-art="birthday" aria-hidden="true">🎂</span>
+            <span class="sc-song-copy">
+              <span class="sc-song-kind">Song · 3/4</span>
+              <strong class="sc-song-title">Happy Birthday to You</strong>
+              <span class="sc-song-credit">Mildred J. Hill and Patty Hill</span>
+              <span class="sc-song-meta">25 vocal notes · 7 versions · G major · 90 BPM</span>
             </span>
           </button>
           <button type="button" class="sc-song sc-song-open" id="open-score">
@@ -846,7 +918,7 @@
 </div>
 
 <script type="module" src="https://cdn.jsdelivr.net/gh/kyr0/defuss-shadcn@v0.9.11/dist/components/all.min.js" integrity="sha384-smU3aE2UPGvVE+nQS/ekmmE86ccjq2yap/zPMBoITba6SOq71Fil6vo4HZHaFZRY" crossorigin="anonymous"></script>
-<script type="module" src="assets/v/3c9ea6dd7945/app.mjs"></script>
+<script type="module" src="assets/v/057695eed503/app.mjs"></script>
   <div class="sc-print" id="print-sheet" aria-hidden="true"></div>
 </body>
 </html>

@@ -329,8 +329,10 @@ interface ChordChart {
 /**
  * A song from a chord chart (schema "scorify-chart-1") and the normalized score it was written for: the chart's
  * versions are played under the score's sung part, words and tempo map; its other parts are not played. The chart needs
- * a bar of chords for every bar of the score; `vocalTranspose` moves (and reports) a sung passage written in another key,
- * `sungLine` shows one sung part per span of bars (a tune passed between choir parts) instead of every sung part.
+ * a bar of chords for every bar of the score after its pickup, if it has one (a first bar shorter than the meter, as the
+ * score-import skill writes it); the pickup is sung without chords. `vocalTranspose` moves (and reports) a sung passage
+ * written in another key, `sungLine` shows one sung part per span of bars (a tune passed between choir parts) instead of
+ * every sung part. Bar numbers count from 1 after the pickup.
  */
 declare function songFromChart(chart: ChordChart, score: Score, { id, instrument }?: {
     id?: string | undefined;

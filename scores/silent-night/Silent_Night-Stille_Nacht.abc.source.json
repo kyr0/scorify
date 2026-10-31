@@ -1,0 +1,11 @@
+{
+ "url": "http://openhymnal.org/Abc/Silent_Night-Stille_Nacht.abc",
+ "requested": "http://openhymnal.org/Abc/Silent_Night-Stille_Nacht.abc",
+ "page": "http://openhymnal.org/Pdf/Silent_Night-Stille_Nacht.pdf",
+ "retrievedAt": "2026-10-31T14:48:57+00:00",
+ "status": 200,
+ "contentType": "text/plain",
+ "bytes": 5765,
+ "sha256": "223054c49c630cf3c3e2e70cbceff634fe16cd4fd0a849fe34ed96d53b25c5f8",
+ "license": "Open Hymnal Project: public domain (score header: \"copyright: public domain\"; openhymnal.org/copying.html)"
+}

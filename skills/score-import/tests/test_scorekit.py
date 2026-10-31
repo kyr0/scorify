@@ -151,6 +151,14 @@ class AbcTest(unittest.TestCase):
         self.assertEqual(second, ["Sec-", "ond", "verse", None, "here"])
         self.assertEqual(score["notation"]["dropped"], {})
 
+    def test_header_key_applies_to_voices_defined_before_it(self):
+        # Hymnals declare their voices first: V: lines, then K:. The key and its signature reach every voice.
+        score = build_score(read_abc("X:1\nM:3/4\nL:1/4\nV:S clef=treble\nV:B clef=bass\nK:G % key signature\n[V:S] F G A|\n[V:B] G,, D, G,|\n"))
+        self.assertEqual(validate(score), [])
+        self.assertEqual(score["keyMap"], [{"at": [0, 1], "tonic": "G", "mode": "major"}])
+        self.assertEqual(score["meterMap"], [{"at": [0, 1], "numerator": 3, "denominator": 4}])
+        self.assertEqual([n["pitch"]["alter"] for n in score["notes"] if n["pitch"]["step"] == "F"], [1])
+
 
 class MusicXmlTest(unittest.TestCase):
     def setUp(self):
@@ -205,6 +213,17 @@ class MidiTest(unittest.TestCase):
         flute = notes({"notes": [n for n in score["notes"] if n["partId"] == "P1"]})
         self.assertEqual([f[0] for f in flute], [F(0), F(1), F(2), F(3), F(4), F(5)])
         self.assertTrue(any("snapped to 1/4" in a for a in score["notation"]["assumptions"]))
+
+    def test_cli_keeps_the_sidecar_source_and_license(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "song.abc"
+            path.write_text("X:1\nT:Song\nM:3/4\nL:1/4\nK:C\nC D E|\nw:la la la\n")
+            Path(str(path) + ".source.json").write_text(json.dumps({"url": "https://example.org/song.abc", "page": "https://example.org/song",
+                                                                     "retrievedAt": "2026-10-31T12:00:00+00:00", "license": "public domain"}))
+            run = subprocess.run([sys.executable, str(SCRIPTS / "score.py"), "convert", str(path)], capture_output=True, text=True)
+            self.assertEqual(run.returncode, 0, run.stdout + run.stderr)
+            source = json.loads(path.with_suffix(".scorify.json").read_text())["notation"]["source"]
+            self.assertEqual((source["url"], source["file"], source["license"]), ("https://example.org/song", "https://example.org/song.abc", "public domain"))
 
     def test_cli_assigns_roles_by_register(self):
         with tempfile.TemporaryDirectory() as tmp:

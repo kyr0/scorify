@@ -1,0 +1,10 @@
+{
+ "url": "https://raw.githubusercontent.com/bbloomf/lilypond-songs/master/ly/Shenendoah.ly",
+ "page": "https://github.com/bbloomf/lilypond-songs/blob/master/ly/Shenendoah.ly",
+ "retrievedAt": "2026-10-31T14:48:55+00:00",
+ "sourceSha256": "b776baa713d390e7d1c65d3569d8fa03c5bfd5eafc949cc2c2ec5c1f3da583f6",
+ "license": "Songs from the Public Domain (github.com/bbloomf/lilypond-songs), LICENSE.md: public domain",
+ "derivedFrom": "Shenendoah.ly",
+ "derivedWith": "scripts/lilypond-abc.py (the melody and every verse of its words, transcribed from the LilyPond source)",
+ "sha256": "a869b03440d0a6403126ed1cbd00b382d3d57fde10722870e0f9169211d45511"
+}

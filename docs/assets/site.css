@@ -88,6 +88,14 @@
   .sc-song-art[data-art="wicked"] { background: radial-gradient(circle at 70% 30%, #4b3c8f, #16122e 70%); }
   .sc-song-art[data-art="rising"] { background: linear-gradient(180deg, #ffb46b, #e8505b 70%, #7a2048); }
   .sc-song-art[data-art="score"] { background: linear-gradient(160deg, #f4ead2, #d9c39a); }
+  .sc-song-art[data-art="grace"] { background: linear-gradient(160deg, #eef4ff, #bcd2f5); }
+  .sc-song-art[data-art="scarborough"] { background: linear-gradient(160deg, #f1f8e8, #b3d495); }
+  .sc-song-art[data-art="shenandoah"] { background: linear-gradient(180deg, #d6eefa, #5f9fc7); }
+  .sc-song-art[data-art="valley"] { background: linear-gradient(180deg, #ffe2b8, #c98146); }
+  .sc-song-art[data-art="lomond"] { background: linear-gradient(180deg, #dcefe3, #6c9f80); }
+  .sc-song-art[data-art="auld"] { background: linear-gradient(160deg, #fff4d8, #e9bd62); }
+  .sc-song-art[data-art="silent"] { background: radial-gradient(circle at 70% 30%, #3b4c8c, #11183a 70%); }
+  .sc-song-art[data-art="birthday"] { background: linear-gradient(160deg, #ffe6f1, #f7b6cf); }
   .sc-song-art[data-art="open"] { font-size: 2rem; color: var(--muted-foreground); background: transparent; border: 2px dashed var(--border); }
   .sc-song-open { border-style: dashed; box-shadow: none; }
   .sc-song:disabled { opacity: .5; cursor: not-allowed; }

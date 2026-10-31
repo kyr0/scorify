@@ -1587,9 +1587,14 @@ try {
       } catch (error) { showProblem(`${file.name} is not a scorify score`, [error.message, "Convert scores with the score-import skill (skills/score-import/ in the repository)."]); }
     }
   });
+  // The page's imported songs: a score, or a score with the chord chart written for it.
   for (const card of document.querySelectorAll("[data-score-url]")) {
-    try { addScore(await (await fetch(card.dataset.scoreUrl)).json(), { id: card.dataset.song, instrument: card.dataset.instrument, select: false, cacheBase: "assets/cache/" }); }
-    catch (error) { card.disabled = true; card.title = `Could not load: ${error.message}`; }
+    try {
+      const [score, chart] = await Promise.all([card.dataset.scoreUrl, card.dataset.chartUrl].map(async url => url && (await fetch(url)).json()));
+      const options = { id: card.dataset.song, instrument: card.dataset.instrument, cacheBase: "assets/cache/" };
+      if (chart) addChart(chart, score, options);
+      else addScore(score, { ...options, select: false });
+    } catch (error) { card.disabled = true; card.title = `Could not load: ${error.message}`; }
   }
   for (const data of stored()) {
     try { addScore(data, { select: false }); } catch { /* a stored score that no longer validates is skipped */ }

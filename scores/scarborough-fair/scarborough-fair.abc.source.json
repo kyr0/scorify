@@ -1,0 +1,10 @@
+{
+ "url": "https://en.wikipedia.org/w/index.php?title=Scarborough_Fair_%28ballad%29&action=raw&oldid=1379343994",
+ "page": "https://en.wikipedia.org/w/index.php?title=Scarborough_Fair_%28ballad%29&oldid=1379343994",
+ "retrievedAt": "2026-10-31T14:48:58+00:00",
+ "sourceSha256": "bd7f488ee14eecd91774ae3ede758293ba9498d8160d1a13d2e7cc368809a867",
+ "license": "Wikipedia article text, CC BY-SA 4.0 (the score is part of the article)",
+ "derivedFrom": "Scarborough_Fair_(ballad).wiki",
+ "derivedWith": "scripts/lilypond-abc.py (the melody and every verse of its words, transcribed from the LilyPond source)",
+ "sha256": "2541d4bff405b005321351752c0fdb174099385300a8a948c1937ea7b7f26022"
+}

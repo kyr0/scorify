@@ -1,0 +1,11 @@
+{
+ "url": "https://raw.githubusercontent.com/bbloomf/lilypond-songs/master/ly/Loch%20Lomond.ly",
+ "requested": "https://raw.githubusercontent.com/bbloomf/lilypond-songs/master/ly/Loch%20Lomond.ly",
+ "page": "https://github.com/bbloomf/lilypond-songs/blob/master/ly/Loch%20Lomond.ly",
+ "retrievedAt": "2026-10-31T14:48:55+00:00",
+ "status": 200,
+ "contentType": "text/plain; charset=utf-8",
+ "bytes": 7211,
+ "sha256": "c7039bb2378b1c966c26addd330e2ce364cc2b51f90110b5b219138451b1287e",
+ "license": "Songs from the Public Domain (github.com/bbloomf/lilypond-songs), LICENSE.md: public domain"
+}

@@ -1,0 +1,10 @@
+{
+ "url": "https://en.wikipedia.org/w/index.php?title=Happy_Birthday_to_You&action=raw&oldid=1382384043",
+ "page": "https://en.wikipedia.org/w/index.php?title=Happy_Birthday_to_You&oldid=1382384043",
+ "retrievedAt": "2026-10-31T14:48:58+00:00",
+ "sourceSha256": "36ebf8d01069358f5b22c1a5dedaab888ca7140ab1af71510a5f88fe8d91ff1e",
+ "license": "Wikipedia article text, CC BY-SA 4.0 (the score is part of the article)",
+ "derivedFrom": "Happy_Birthday_to_You.wiki",
+ "derivedWith": "scripts/lilypond-abc.py (the melody and every verse of its words, transcribed from the LilyPond source)",
+ "sha256": "89e5a1f3f07ce61c9a40f3ee6bab28b4e59c0b8f8e5d31796eed811fe081c78e"
+}

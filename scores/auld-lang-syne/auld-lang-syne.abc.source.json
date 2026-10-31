@@ -1,0 +1,10 @@
+{
+ "url": "https://raw.githubusercontent.com/bbloomf/lilypond-songs/master/ly/Auld%20Lang%20Syne.ly",
+ "page": "https://github.com/bbloomf/lilypond-songs/blob/master/ly/Auld%20Lang%20Syne.ly",
+ "retrievedAt": "2026-10-31T14:48:55+00:00",
+ "sourceSha256": "92c1c81eb779bfba38f0e429ab49194f3dd59262428fc9944b3040ad1b28b0ee",
+ "license": "Songs from the Public Domain (github.com/bbloomf/lilypond-songs), LICENSE.md: public domain",
+ "derivedFrom": "Auld Lang Syne.ly",
+ "derivedWith": "scripts/lilypond-abc.py (the melody and every verse of its words, transcribed from the LilyPond source)",
+ "sha256": "bdaebc7413359fe87c0362bccb4edb6c5059092b54607ce5fbefa30705a6f52f"
+}

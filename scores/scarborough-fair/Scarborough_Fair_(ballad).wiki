@@ -1,0 +1,367 @@
+{{Short description|Traditional English song}}
+{{Use British English|date=October 2013}}
+{{Use dmy dates|date=October 2020}}
+"'''Scarborough Fair'''" ({{English folk song|roud=12|child=2}}) is a traditional Northern English [[ballad]].<ref>{{Cite web |url=https://mainlynorfolk.info/martin.carthy/songs/scarboroughfair.html |title=The Elfin Knight / Scarborough Fair / Whittingham Fair|website=mainlynorfolk.info|access-date=2020-05-07}}</ref> The song lists a number of [[adynaton|impossible tasks]] given to a former lover who lives in [[Scarborough, North Yorkshire]]. The "Scarborough/Whittingham Fair" variant was most common in [[Yorkshire]] and [[Northumbria (modern)|Northumbria]], where it was sung to various melodies, often using [[Dorian mode]], with refrains resembling "parsley, sage, rosemary and thyme" and "Then she'll be a true love of mine."<ref>{{Cite web|title=Search: Scarborough Fair RN12|url=https://www.vwml.org/search?q=scarborough%20fair%20rn12&is=1|website=[[Vaughan Williams Memorial Library]]}}</ref> A version appears in ''Traditional Tunes'' (1891) by [[Frank Kidson]], who claims to have collected it from [[Whitby]].<ref name="Kidson">{{cite book |last=Kidson |first=Frank|author-link=Frank Kidson|chapter=Scarborough Fair|chapter-url=https://archive.org/details/imslp-tunes-kidson-frank/page/42/mode/2up|title=Traditional Tunes|publisher=Chas. Taphouse & Son |publication-place=Oxford |date=1891 |oclc=47625906 |pages=42–44 |hdl=2027/umn.31951001728562y?urlappend=%3Bseq=45}} Republished in 1999: {{ISBN|9781861430816}}</ref>
+
+The melody best known today was collected from Mark Anderson (1874–1953), a retired lead miner from [[Middleton-in-Teesdale]], [[County Durham]], England, by [[Ewan MacColl]] in 1947. This version was recorded by a number of musicians in the 20th century, including the 1966 arrangement in [[counterpoint]] by the American [[folk rock]] duo [[Simon & Garfunkel]], who learned the ballad from [[Martin Carthy]]. A slightly different rendition of the ballad (referred to as "The Cambric Shirt", or "Parsley, Sage, Rosemary and Thyme") had been recorded by [[John Lomax]] in 1939 in the United States. [[Sarah Brightman]] also performed it as part of her album ''[[La Luna (Sarah Brightman album)|La Luna]]'' from the year 2000.
+
+==History==
+The lyrics of "Scarborough Fair" appear to have something in common with a Scottish ballad titled "[[The Elfin Knight]]",<ref name="Kidson" /> collected by [[Francis James Child]] as [[Child Ballad]] #2,<ref>{{cite book |last=Child |first=Francis James |author-link=Francis James Child |title=The English and Scottish Popular Ballads, Part 9 |publisher=[[Houghton Mifflin Harcourt]]|location=Boston / Cambridge |year=1894 |volume=9 |page=206 |url=https://books.google.com/books?id=xNMVAAAAYAAJ}}</ref> which has been traced as far back as 1670. In this ballad, an [[elf]] threatens to abduct a young woman to be his lover unless she can perform an impossible task ("For thou must shape a [[wikt:sark|sark]] to me / Without any cut or heme, quoth he"); she responds with a list of tasks that he must first perform ("I have an [[acre|aiker]] of good ley-land / Which lyeth low by yon sea-strand").
+
+Dozens of versions existed by the end of the 18th century. A number of older versions refer to locations other than Scarborough Fair, including Wittingham Fair, Cape Ann, "twixt Berwik and Lyne", etc. Many versions do not mention a place name and are often generically titled ("The Lovers' Tasks", "My Father Gave Me an Acre of Land", etc.).{{citation needed|date=October 2021}}
+
+The references to the traditional English gathering "[[Scarborough Fair (fair)|Scarborough Fair]]", and the refrain "[[parsley]], [[salvia officinalis|sage]], [[rosemary]], and [[thyme]]", date to 19th-century versions, and may have been borrowed from the ballad ''[[Riddles Wisely Expounded]]'' ([[Child Ballad]] #1), which has a similar plot.{{citation needed|date=October 2021}}
+
+==Lyrics and melodies==
+{{image frame|content=<div style="zoom: 80%;">
+<score sound raw>
+\header { tagline = ##f
+  arranger = \markup { "One Hundred English Folk Songs" }
+  opus =  "Cecil J. Sharp (1916, no. 74, p. 167–169)"
+}
+global = { \key g \minor \time 6/8 }
+
+sopranoVoice = \relative c'' { \global \autoBeamOff \set Staff.midiInstrument = "clarinet"
+  R2. | R | g8\ff a g f g a | bes8. c16 bes8 a4 r8 |
+  g4 a8 bes ([a]) g | g bes c d4
+  g,8 | d'4 d8 e d c | d g, g f ([g])
+  a | bes ([c]) bes a a g | \time 3/8 d e fis | g4. \bar "|."
+}
+
+verse = \lyricmode {
+  Where are you go -- ing? To Scar -- bo -- rough Fair?
+  Pars -- ley, sage, rose -- ma -- ry and thyme,
+  re -- mem -- ber me to a bon -- ny lass there,
+  for once she was a true lov -- er of mine.
+}
+
+rightOne = \relative c' { \global \mergeDifferentlyDottedOn
+  d8 (g a bes c d) | d, (c d~) d (e fis) | bes,\pp (d g) a, (d f) | d (f bes) f (a d) |
+  bes (d e) r g (e) | r d (bes) r <a d,> (<g bes,>) |
+  r f (a) e (c' e) | d, (g4) f
+  c'8( | bes4. c) | \time 3/8 d,8 (g a bes4.) \bar "|."
+}
+
+rightTwo = \relative c' { \global
+  d4.~ d | g, g4 c8 | bes4.\pp a | d f |
+  bes r8 bes4 | r8 g4 r8 s4 |
+  r8 a,4 e'4. | d4 c8 f8 (c4) |
+  bes'8 f g a f e | \time 3/8 d4. | bes' \bar "|."
+}
+
+leftOne = \relative c { \global \mergeDifferentlyDottedOn
+  d8 e fis g a bes | g, a bes <c c,>4 <a d,>8 | g\pp (bes g') d, (a' d) | bes4. d8 ( f a) |
+  g (bes d \stemDown e4 d8 | bes4 g8 f4 e8) |
+  \stemUp d4 f8 c (g' c) | r bes e, r c f |
+  s4. f4 g8 | \time 3/8 d e fis | g4. \bar "|."
+}
+
+leftTwo = \relative c { \global
+  d4.~ d | g,4. s4. | g4.\pp d |
+  bes'8 (d bes') d,4. |
+  g4. s4. | s2. | d4. c | bes a | d8 d' bes f a, c | \time 3/8 d4. | g \bar "|."
+}
+
+\score {
+  <<
+    \new Staff \sopranoVoice \addlyrics \verse
+    \new PianoStaff \with { midiInstrument = "acoustic grand" }
+      <<
+        \new Staff = "right" \with { \consists "Merge_rests_engraver" }
+        << \rightOne \\ \rightTwo >>
+        \new Staff = "left"
+        { \clef bass << \leftOne \\ \leftTwo >> }
+      >>
+  >>
+  \layout { indent = 0
+  \context { \Score \remove "Bar_number_engraver" }
+  \context { \Voice \remove "Dynamic_engraver" }
+}
+  \midi { \tempo 4. = 45 }
+}
+</score><br />
+<score sound raw>
+\header { tagline = ##f arranger = \markup { "Kidson (1891) p. 43" } }
+
+global = { \key g \major \time 3/4 \partial 4 }
+
+sopranoVoice = \relative c' { \global \set Staff.midiInstrument = "clarinet"
+  d4 | g g g | a b c | d2 d4 | a2.
+  b4 b b | c (b) a | g g e | d2
+  d4 | g2 g4 | a b c | d d d | a2
+  b4 | c2 c4 | c (b) a | d, g g | g2 \bar "|."
+ \bar "|."
+}
+
+verse = \lyricmode {
+  Oh! where are you go -- ing? To Scar -- bro' fair,
+  sa -- vour -- y sage, rose -- ma -- ry and thyme:
+  Re -- mem -- ber me to a lass that lives there, for once she was a true love of mine.
+}
+
+\score {
+  << \new Staff \sopranoVoice \addlyrics \verse >>
+  \layout { indent = 0 \context { \Score \remove "Bar_number_engraver" } }
+  \midi { \tempo 4. = 90 }
+}
+</score><br />
+<score sound raw>
+% as used in File:Scarborough Fair.ogg at Commons
+\header { tagline = ##f arranger = "Version commonly used today" }
+
+global = { \key d \dorian \time 3/4 }
+
+chordNames = \chordmode { \global \set chordChanges = ##t
+  \set Staff.midiInstrument = "acoustic guitar (nylon)"
+  \transpose c c, {
+  d2.:min\ppp | q | a:min | d:min |
+  a:m | d:min | d4:min g2 | d2.:min |
+  d:min | a:min | d:min | a:min |
+  d:min | a:min7 | a:min7 | d:min \bar "|." }
+}
+
+sopranoVoice = \relative c' { \global \set Staff.midiInstrument = "clarinet"
+  d2 4 | a'8 a4. a4 | e4. f8 e4 | d2. |
+  r4 a' c4 | d2 c4 | a b g | a2 d4 |
+  2 4 | c2 a4 | a g f | e2. |
+  d2 a'4 | g2 f4 | e d c | d2. \bar "|."
+}
+
+verse = \lyricmode {
+  Are you go -- ing to Scar -- bor -- ough Fair?
+  Pars -- ley, sage, rose -- ma -- ry, and thyme.
+  Re -- mem -- ber me to one who lives there,
+  she once was a true love of mine.
+}
+
+\score {
+  <<
+    \new ChordNames \chordNames
+    \new Staff \sopranoVoice \addlyrics \verse
+  >>
+  \layout { indent = 0 \context { \Score \remove "Bar_number_engraver" } }
+  \midi { \tempo 4. = 90 }
+}
+</score></div>
+}}
+The lyrics published by Frank Kidson in 1891<ref name="Kidson" /> represent the most widely recognized version of the song. However, subsequent performers have frequently selected and rearranged verses. Martin Carthy, for example, replaced the final verse with a repetition of the opening stanza, while Simon and Garfunkel recorded a sequence consisting of verses 1, 2, 5, and 7, concluding with a reprise of the first verse. This latter arrangement has been widely adopted by later artists. The following are the lyrics as published by Kidson:
+<poem>{{0|—}}''The male:''
+O, where are you going? To Scarborough Fair?
+Savoury, sage, rosemary and thyme,
+Remember me to a lass that lives there,
+For she was once a true love of mine.
+
+And tell her to make me a cambric shirt,
+Savoury, sage, rosemary and thyme,
+Without any seam or needlework,
+And then she shall be a true love of mine.
+
+And tell her to wash it in yonder dry well,
+Savoury, sage, rosemary and thyme,
+Where no water sprung nor a drop of rain fell,
+And then she shall be a true love of mine.
+
+And tell her to dry it on yonder thorn,
+Savoury, sage, rosemary and thyme,
+Which never bore blossom since Adam was born,
+And then she shall be a true love of mine.
+
+{{0|—}}''The female:''
+O, will you find me an acre of land,
+Savoury, sage, rosemary and thyme,
+Between the sea foam and the sea sand,
+Or never you'll be a true love of mine.
+
+O, will you plough it with a ram's horn,
+Savoury, sage, rosemary and thyme,
+And sow it all over with one peppercorn,
+Or else you'll be a true love of mine.
+
+Or will you reap it with a sickle of leather,
+Savoury, sage, rosemary and thyme,
+And tie it all up with a peacock's feather,
+Or never you'll be a true love of mine.
+
+And when you have done and have finished your work,
+Savoury, sage, rosemary and thyme,
+You can come to me for your cambric shirt,
+And then you shall be a true love of mine.</poem>
+
+===Alternative refrains===
+The oldest versions of "[[The Elfin Knight]]" (circa 1650) contain the refrain "my plaid away, my plaid away, the wind shall not blow my plaid away." Slightly more recent versions often contain one of a group of related refrains:
+*"Sober and grave grows merry in time"
+*"Every rose grows merry with time"
+*"There's never a rose grows fairer with time"
+*"Whilst every grove rings with a merry antine"{{efn|1=For "antine", see the French word {{lang|fr|[[wikt:antienne#French|antienne]]}} ('chant' or 'refrain').}}<ref>{{cite book|first=Sabine|last=Baring-Gould|author-link=Sabine Baring-Gould|chapter=Riddles|title=Strange Survivals|year=1892|publisher=Methuen & Co.|publication-place=London|page=226|chapter-url=https://archive.org/details/strangesurvivals00bari/page/226}}</ref>
+
+These are usually paired with "Once (s)he was a true love of mine" or some variant. "Parsley, sage, rosemary and thyme" may simply be an alternate rhyming refrain to the original based on a corruption of "grows merry in time" into "rosemary and thyme".{{citation needed|reason=OR|date=October 2020}}
+
+===Anderson melody===
+
+The version of the melody best-known today was sung to [[Ewan MacColl]] in 1947 by Mark Anderson (1874–1953), a retired lead miner from [[Middleton-in-Teesdale]], [[County Durham]], England.<ref>{{Cite news|title=Famous song has roots in Dale folk|url=https://www.thenorthernecho.co.uk/news/9400217.famous-song-roots-dale-folk/|access-date=2020-08-29|newspaper=[[The Northern Echo]]|date=3 December 2011 |language=en}}</ref><ref name=":0">{{Cite web|title=Scarborough Fair (Roud Folksong Index S160453)|url=https://www.vwml.org/record/RoudFS/S160453|access-date=2020-08-29|website=[[Vaughan Williams Memorial Library]]}}</ref><ref>{{Cite book|last=Harvey |first=Todd|url=https://books.google.com/books?id=m9MHAQAAMAAJ&q=scarborough+fair+mark+anderson|title=The Formative Dylan: Transmission and Stylistic Influences, 1961–1963|date=2001|publisher=Scarecrow Press|isbn=978-0-8108-4115-4|pages=33|language=en}}</ref> No audio recording of Anderson's version was ever made, although [[Alan Lomax]] recorded Anderson singing other songs in 1951.<ref>{{Cite web |title=Mark Anderson |url=https://archive.culturalequity.org/person/anderson-mark |access-date=2022-07-12 |website=The Lomax Digital Archive |language=en}}</ref> MacColl printed the lyrics and melody in a book of Teesdale folk songs, and later included it on his and [[Peggy Seeger]]'s ''The Singing Island'' in 1960.<ref name=":0" />
+
+==Recordings==
+[[File:Scarborough Fair.ogg|thumb|Solo soprano voice]]
+===Field recordings===
+Early audio field recordings of the ballad include the following examples:
+* Georgia Ann Griffin of [[Newberry, Florida|Newberry]], [[Alachua County, Florida|Alachua]], [[Florida]]. Recorded by [[John Lomax]] in 1939.<ref>{{Cite web|title=The Cambric Shirt (Roud Folksong Index S230643)|url=https://www.vwml.org/record/RoudFS/S230643|access-date=2020-08-29|website=[[Vaughan Williams Memorial Library]]}}</ref>
+* Allie Long Parker of Hogscald Hollow, [[Eureka Springs, Arkansas|Eureka Springs]], [[Arkansas]]. Recorded by [[Mary Parler]] on 7 April 1958.<ref>{{Cite web|title=Rosemary and Thyme (child No. 2) (Roud Folksong Index S407682)|url=https://www.vwml.org/record/RoudFS/S407682|access-date=2020-08-29|website=[[Vaughan Williams Memorial Library]]}}</ref>
+* Sara Cleveland of [[Brant Lake, New York|Brant Lake]], [[New York (state)|New York]]. Recorded by [[Sandy Paton]] in 1966.<ref>{{Cite web|title=Every Rose Grows Merry in Time (Roud Folksong Index S204527)|url=https://www.vwml.org/record/RoudFS/S204527|access-date=2020-08-29|website=[[Vaughan Williams Memorial Library]]}}</ref>
+* Elizabeth "Liz" Jefferies. Recorded in [[Bristol]] by Barry and Chris Morgan in 1976.<ref>{{Cite web|title=Rosemary Lane (Roud Folksong Index S189118)|url=https://www.vwml.org/record/RoudFS/S189118|access-date=2020-08-29|website=[[Vaughan Williams Memorial Library]]}}</ref>
+
+===Commercial recordings===
+
+====1950s====
+The earliest commercial recording of the ballad was made by actors and singers [[Gordon Heath]] and [[Lee Payant]], Americans who ran a café and nightclub, L'Abbaye, on the [[Rive Gauche]] in Paris. The recording appeared on the 1955 [[Elektra Records|Elektra]] album ''Encores from the Abbaye''.<ref>{{AllMusic|last=Heath|first=Gordon|title=''Encores from the Abbaye''|class=album|id=mw0001446411}}</ref> The song was also included on the 1956 album ''The English and Scottish Popular Ballads vol IV'' by [[A. L. Lloyd]] and [[Ewan MacColl]], using Kidson's melody.<ref>{{cite web |last1=LLoyd |first1=A.L. |title=Ewan MacColl's Discography |url=http://ewan-maccoll.info/AlbumInfo.aspx?ID=105 |website=ewan-maccoll.Info |access-date=9 October 2022}}</ref>
+
+The first recorded version using the best-known melody was performed by Audrey Coppard on the 1956 album ''English Folk Songs''.<ref>{{Cite web|title=Scarborough Fair|url=https://folkways.si.edu/audrey-coppard/scarborough-fair/celtic-world/music/track/smithsonian|access-date=2020-08-29|website=Smithsonian Folkways Recordings|language=en-US}}</ref> A decade after collecting the song, MacColl released his own version, accompanied by [[Peggy Seeger]] on guitar, on the 1957 LP ''Matching Songs of the British Isles and America''<ref>{{Cite web|title=Matching Songs of the British Isles and America : Ewan MacColl at theBalladeers|url=https://www.theballadeers.com/eng/ewm_1957_rlp637_matching.htm|access-date=2020-10-31|website=www.theballadeers.com|archive-date=16 November 2020|archive-url=https://web.archive.org/web/20201116104029/https://www.theballadeers.com/eng/ewm_1957_rlp637_matching.htm|url-status=dead}}</ref> and an [[A cappella|a capella]] rendition another decade later on the 10-CD collection ''The Long Harvest'' (1967).<ref>{{Cite web|title=''The Long Harvest'' traditional English and Scottish ballads sung by Peggy Seeger and Ewan MacColl|type=track listing|url=https://www.peggyseeger.com/listen-buy/the-long-harvest/the-long-harvest|access-date=2025-12-04|website=peggyseeger.com}}</ref>
+
+[[Milt Okun]] and [[Ellen Stekert]] recorded the song as "The Cambric Shirt" on their 1957 album ''Traditional American Love Songs''.<ref>{{AllMusic|title=''Traditional American Love Songs'' – Milton Okun|class=album|id=mw0001494021|last=Eder|first=Bruce}}</ref> David Dicaire, in his 2011 book ''The Folk Music Revival. Biographies Of Fifty Performers And Other Influential People'', called Stekert and Okun's version a "folk classic".<ref name="Dicaire2011">{{cite book |last= Dicaire |first= David |author-link= |date=2011 |title= The Folk Music Revival. Biographies Of Fifty Performers And Other Influential People |url= https://archive.org/details/folkmusicrevival0000dica/ |location= Jefferson, North Carolina |publisher= McFarland & Co. |page=17 |isbn= 9780786463527 |access-date=2025-06-25}}</ref>
+
+====1960s====
+In 1965, [[Martin Carthy]] sang "Scarborough Fair" on his [[Martin Carthy (album)|eponymous debut album]] after having picked up the tune from the songbook by MacColl and Seeger.<ref name=Humphries>{{Cite web|last=Humphries|first=Patrick|date=2003|work=Sold on Song|title=Scarborough Fair, Martin Carthy|url=https://www.bbc.co.uk/radio2/soldonsong/songlibrary/indepth/scarborough.shtml|access-date=2025-12-04|publisher=[[BBC]]}}</ref>
+
+[[Marianne Faithfull]] recorded the song for her second American studio album ''[[Go Away from My World]]'', released in December 1965.
+
+"Scarborough Fair/Canticle" appeared as the lead track on the 1966 [[Simon & Garfunkel]] album ''[[Parsley, Sage, Rosemary and Thyme]]'' in [[counterpoint]] with "Canticle", a reworking of the lyrics from Simon's 1963 [[anti-war]] song "The Side of a Hill".<ref name="song_and_lyrics">{{cite web |url=http://www.paulsimon.com/song/scarborough-faircanticle/ |title=Song and Lyrics, Scarborough Fair/Canticle |author=<!--Staff writer(s); no by-line.--> |website=PaulSimon.com |publisher=[[Sony Music]] |access-date=10 July 2016}}</ref> The duo learned their arrangement of the song from Martin Carthy, but did not credit him as the arranger<ref name="acroutes">{{cite AV media |people=Jan Leman|date= 1992|title= Acoustic routes|language=en}} See at 46 min.</ref>. They later made a "pretty substantial" monetary settlement with Carthy's publisher when asked, but unbeknownst to them, Carthy himself did not receive anything from it.<ref>{{Cite web |date=2022-03-01 |title=The story behind Simon & Garfunkel's song 'Scarborough Fair' |url=https://faroutmagazine.co.uk/the-story-behind-simon-garfunkel-song-scarborough-fair/ |access-date=2024-11-11 |website=faroutmagazine.co.uk |language=en-US}}</ref>
+
+[[Sérgio Mendes]] and Brasil '66 scored a U.S. No. 16 hit (#2 AC) with their light jazz/samba/pop version in 1968, which was used in the 1973 animated film ''[[Heavy Traffic]]''.{{Citation needed|date=December 2024}}
+
+In 1969, [[Vicky Leandros]] recorded the song in several versions for release throughout Europe, Canada and Japan, singing in English, German, French ("Chèvrefeuille que tu es loin") and Greek ("Νά Θυμάσαι Πώς Μ' αγαπάς").{{citation needed|date=October 2021}}
+
+Dutch [[progressive rock]] band [[Brainbox (band)|Brainbox]] recorded a version of the song on their 1969 album ''Brainbox''.
+
+The song is the last track featured in [[Bobbie Gentry]]'s and [[Glen Campbell]]'s 1968 collaborative album ''[[Bobbie Gentry and Glen Campbell]]''.
+
+====1980s====
+American [[folk punk]] band [[Cordelia's Dad]] recorded a version for their 1989 self-titled debut album.<ref>{{Cite web |title=''Cordelia's Dad'', by Cordelia's Dad |url=https://cordeliasdad.bandcamp.com/album/cordelias-dad |access-date=2024-07-14 |website=CordeliasDad.bandcamp.com|language=en}}</ref>
+
+[[The Stone Roses]] set their own words to the melody for "Elizabeth My Dear", a track on their [[The Stone Roses (album)|eponymous debut album]] (1989).{{Citation needed|date=December 2024}}
+
+Philadelphia punk band Tons of Nuns recorded the song on their second demo and performed the song live on WXPN.<ref>{{Cite web |title=Tons of Nuns – Freedom Has No Bounds |url=https://freedomhasnobounds.com/category/philly-bands/tons-of-nuns/ |access-date=2025-10-05 |language=en-US}}</ref>
+
+====1990s====
+[[Queensrÿche]] included a version as the B-side of their single "Anybody Listening?" in 1992.<ref name="Honigmann 2020">{{cite web |last=Honigmann |first=David |title=Scarborough Fair — the ancient ballad that sparked a modern-day grudge |website=FT.com |date=August 9, 2020 |url=https://subs.ft.com/products?location=https%3A%2F%2F%2Flife-of-a-song%2Fscarborough-fair.html |access-date=2023-11-23}}</ref> It was later included as a bonus track on the 2003 reissue of their album ''[[Empire (Queensrÿche album)|Empire]]''.
+
+====2000s====
+[[Celtic Woman]] recorded a version of the song for their third album ''[[A New Journey]]'', released in January 2007.<ref>{{Cite web|url=https://www.celticwoman.com/|title=Celtic Woman Story|first=Granite|last=Digital|website=www.celticwoman.com}}</ref>
+
+English [[early music]] ensemble [[Mediæval Bæbes]] recorded a version entitled "Scarborough Fayre" for their 2005 album ''Mirabilis''.
+
+The English [[death-doom|death-doom metal]] band [[My Dying Bride]] recorded a version with two additional stanzas by its lead singer [[Aaron Stainthorpe]], which appears on its 2009 EP ''[[Bring Me Victory]]''.<ref>{{cite web|url=http://www.metalunderground.com/news/details.cfm?newsid=47728|work=Metal Underground|title=My Dying Bride Completes Recording New EP, "Bring Me Victory"|access-date=5 January 2025}}</ref>
+
+German/Norwegian [[symphonic metal]] band [[Leaves' Eyes]] recorded a version of this song on their 2009 album ''[[Njord (album)|Njord]]''.<ref>{{cite web|url=https://www.bbc.co.uk/music/reviews/93mq|work=[[BBC Music]]|title=Leaves' Eyes Njord review|first=Greg|last=Moffitt|year=2009|access-date=5 January 2025}}</ref>
+
+====2010s====
+
+[[Nox Arcana]] recorded a ghost-story version with all original lyrics by Joseph Vargo for the 2012 album ''[[Winter's Majesty]]''.<ref>{{YouTube|title='Scarborough Fair' by Nox Arcana with original lyrics|id=sgbo2QWLBzI}}</ref>
+
+In 2017, [[Aurora (singer)|Aurora]] recorded the song for the Brazilian [[telenovela]] ''[[Deus Salve o Rei]]'' along with an [[opening sequence]] for it.<ref>{{Cite web |url=https://gshow.globo.com/novelas/deus-salve-o-rei/noticia/aurora-cantora-norueguesa-grava-clipe-da-musica-de-abertura-de-deus-salve-o-rei-nos-estudios-globo.ghtml |title=Aurora, cantora norueguesa, grava clipe da música de abertura de 'Deus Salve o Rei' nos Estúdios Globo |access-date=22 November 2017 |date=23 October 2017 |website=Gshow |language=pt-BR |archive-date=24 October 2017 |archive-url=https://web.archive.org/web/20171024043707/https://gshow.globo.com/novelas/deus-salve-o-rei/noticia/aurora-cantora-norueguesa-grava-clipe-da-musica-de-abertura-de-deus-salve-o-rei-nos-estudios-globo.ghtml |url-status=live}}</ref>
+
+====2020s====
+In 2020, [[Dan Avidan]] & Super Guitar Bros released it as part of their first collaborative album.<ref>{{Cite web |title=Scarborough Fair|url=https://danavidan.bandcamp.com/track/scarborough-fair |access-date=2026-10-04 |website=danavidan.bandcamp.com}}</ref>
+
+In 2025, [[Oli Steadman]] included it on his song collection "365 Days Of Folk".<ref>{{cite web|url=https://airtable.com/app0wHIAKsGSxDfp8/shrZ0JeqDDGlBmXve|title=365 Days Of Folk: Song List|access-date=24 January 2026}}</ref>
+
+In 2026, [[Dorian Electra]] included it on their self-titled EP of covers.<ref>{{Cite web |title=Dorian Electra's Instagram |url=https://www.instagram.com/p/DW4NxoSjdkd/ |access-date=2026-04-19 |website=www.instagram.com}}</ref>
+
+===Simon & Garfunkel version===
+{{Infobox song
+| name       = Scarborough Fair/Canticle
+| image      = Scarborough Fair Canticle by Simon and Garfunkel US vinyl.png
+| alt        =
+| caption    = Side-A label of the 1968 US vinyl single
+| border     = yes
+| type       = single
+| artist     = [[Simon & Garfunkel]]
+| album      = [[Parsley, Sage, Rosemary and Thyme]]
+| B-side     = [[April Come She Will]]
+| released   = {{Start date|df=yes|1968|02}}
+| recorded   = 26 July 1966
+| studio     =
+| venue      =
+| genre      =
+* [[Folk music|Folk]]
+* [[baroque pop]]
+| length     =
+* {{Duration|m=3|s=10}} (album version and [[radio edit|single edit]])
+* {{Duration|m=6|s=22}} ([[The Graduate (soundtrack)|''The Graduate'' soundtrack]])
+| label      = [[Columbia Records|Columbia]]
+| writer     =
+* [[Paul Simon]]
+* [[Art Garfunkel]] ("Canticle")
+| producer   = [[Bob Johnston]]
+| prev_title = [[Fakin' It (Simon & Garfunkel song)|Fakin' It]]
+| prev_year  = 1967
+| next_title = [[Mrs. Robinson]]
+| next_year  = 1968
+| misc       = {{External music video|{{YouTube|-Jj4s9I-53g|"Scarborough Fair/Canticle" (audio)}}}}
+}}
+
+In London in 1965, [[Paul Simon]] learned the song from [[Martin Carthy]],<ref>{{Cite web|url=http://www.bbc.co.uk/radio2/soldonsong/songlibrary/indepth/scarborough.shtml |title=Sold on Song – Song Library – Scarborough Fair |publisher=[[BBC]] |website=bbc.co.uk/radio2 |language=en |access-date=2017-11-23}}</ref><ref>{{Cite web|url=https://tabs.ultimate-guitar.com/tab/simon-garfunkel/scarborough-fair-chords-2007315|title=Simon & Garfunkel – Scarborough Fair (Chords)|via=tabs.ultimate-guitar.com}}</ref> who had picked up the song from the songbook by MacColl and Seeger<ref name=Humphries /> and included it on [[Martin Carthy (album)|his eponymous 1965 album]]. [[Simon & Garfunkel]] set it in [[counterpoint]] with "Canticle", a reworking of the lyrics from Simon's 1963 [[anti-war]] song "The Side of a Hill";<ref name="song_and_lyrics" /> they used the tune score provided to Paul Simon by Carthy<ref name="acroutes" />, while Simon's anti-war lyrics were set to a new melody composed mainly by [[Art Garfunkel]].<ref name=Humphries /><ref name="Bennighof2007">{{cite book |last=Bennighof |first=James |title=The Words and Music of Paul Simon |url=https://books.google.com/books?id=ShBhKL-9SLIC&pg=PA21 |access-date=19 June 2015 |year=2007 |publisher=[[Greenwood Publishing Group]] |isbn=9780275991630 |pages=21–24}}</ref> "Scarborough Fair/Canticle" appeared as the lead track on the 1966 album ''[[Parsley, Sage, Rosemary and Thyme]]'', and was released as a single after it had been featured on [[The Graduate (soundtrack)|the soundtrack]] to ''[[The Graduate]]'' in 1968.<ref name=Humphries /> The [[copyright]] credited only Simon and Garfunkel as the authors, which upset Carthy, who felt that the "traditional" source should have been [[credit (creative arts)|credited]].<ref name=Humphries /> The rift persisted until Simon invited Carthy to perform the song with him as a duet in a concert at London's [[Hammersmith Apollo]] in October 2000.<ref name=Humphries /><ref>{{Cite web|url=https://www.setlist.fm/setlist/paul-simon/2000/hammersmith-apollo-london-england-33c83495.html|title=Paul Simon Setlist at Hammersmith Apollo, London|website=setlist.fm}}</ref> Simon performed the song with [[the Muppets]] when he guest-starred on season 5, episode 11 of ''[[The Muppet Show]]'' (October 18, 1980).
+
+Before Simon learned the song, [[Bob Dylan]] had borrowed the melody and several lines of lyrics from Carthy's arrangement to create his song "[[Girl from the North Country]]",<ref>{{Cite web |url= http://www.justanothertune.com/html/gotnc.html |title= "...She Once Was A True Love of Mine" – Some Notes About Bob Dylan's "Girl From The North Country" |author=Jürgen Kloss|website=justanothertune.com |access-date= 2017-11-23}}</ref> which is featured on ''[[The Freewheelin' Bob Dylan]]'' (1963), ''[[Nashville Skyline]]'' (1969) (with [[Johnny Cash]]), ''[[Real Live]]'' (1984) and ''[[The 30th Anniversary Concert Celebration]]'' (1993).
+
+====Charts====
+{| class="wikitable sortable plainrowheaders" style="text-align:center"
+|+Chart performance for "Scarborough Fair/Canticle"
+! scope="col"| Chart (1968)
+! scope="col"| Peak<br />position
+|-
+! scope="row"| Australia ([[Kent Music Report]])
+| 49
+|-
+! scope="row"| Canada Top Singles (''[[RPM (magazine)|RPM]]'')<ref>{{cite web|url=http://www.collectionscanada.gc.ca/obj/028020/f2/nlc008388.100191.pdf| title=RPM Top 100 – April 27, 1968}}</ref>
+| 5
+|-
+! scope="row"| US [[Billboard Hot 100|''Billboard'' Hot 100]]<ref>{{cite book |title=Joel Whitburn's Top Pop Singles, 14th Edition: 1955–2012 |last=Whitburn |first=Joel |author-link=Joel Whitburn |year=2013 |publisher=Record Research |page=767}}</ref>
+| 11
+|}
+
+====Certifications====
+{{Certification Table Top}}
+{{Certification Table Entry|region=United Kingdom|type=single|artist=Simon & Garfunkel|title=Scarborough Fair Canticle|award=Silver|relyear=2004|certyear=2023|id=19130-1749-1|access-date=July 7, 2023}}
+{{Certification Table Bottom|streaming=true|nosales=true|noshipments=true}}
+
+=== Soundtrack recordings ===
+
+The Simon and Garfunkel version of the song was featured on [[The Graduate (soundtrack)|the soundtrack]] to ''[[The Graduate]]'' in 1968.<ref name=Humphries />
+
+Instrumental versions of "Scarborough Fair" were arranged by [[Geoff Knorr]] for use in the video game ''[[Civilization VI]]'' as the main theme of the English civilization.<ref>{{YouTube|title=England Theme – Industrial (''Civilization 6'' OST) {{!}} Scarborough Fair|id=NG_AZky2Xkc}}</ref><ref>{{Cite web |date=2016-07-22 |title=''Civilization VI'' to feature an orchestral soundtrack led by Knorr and Tin |url=http://www.vgmonline.net/civilization-vi-to-feature-an-orchestral-soundtrack-led-by-knorr-and-tin/ |access-date=2022-08-04 |website=VGMO – Video Game Music Online}}</ref> As the themes of each civilization are played as different variations of the same song as the game progresses, four different variations of the song are included in the [[Music of the Civilization series|game's soundtrack]], with Phill Boucher assisting Knorr in the arrangement of the [[Atomic Era]] version of the song.<ref>{{Cite news |author=Tom Marks |date=2016-09-30 |title=''Civ 6''{{'}}s music evolves alongside your cities, and it's one of its best features|work=[[PC Gamer]]|url=https://www.pcgamer.com/how-civilization-6s-music-evolves-through-the-eras/ |access-date=2022-08-04}}</ref><ref>{{YouTube|title=''Civilization VI'' Official Game Soundtrack|id=eqJFVg05b8Q}}</ref>
+
+==Notes==
+{{Notelist}}
+
+==References==
+{{Reflist}}
+
+==Further reading==
+* [https://www.justanothertune.com/html/cambricshirt.html "...Tell Her To Make Me A Cambric Shirt" – From The "Elfin Knight" to "Scarborough Fair"] by Jürgen Kloss, 15 June 2012, justanothertune.com (wide-ranging article, 10 chapters, 42&thinsp;000 words)
+
+== External links==
+{{Commons category}}
+*{{Wikisource-inline|The Elfin Knight|"The Elfin Knight" / "Scarborough Fair"}}
+*{{YouTube|wnUIe-eIup0|"Scarborough Fair"}}, Martin Carthy from ''[[Martin Carthy (album)|Martin Carthy]]'' (1965)
+*[https://sites.google.com/view/evsn/ausgaben-konzertmusik Michael Sieberichs-Nau on the History of Scarborough Fair] as well as a detailed description of his "Fantasia on Scarborough Fair" (2024)
+
+{{Simon & Garfunkel singles}}
+{{Authority control}}
+
+{{DEFAULTSORT:Scarborough Fair}}
+[[Category:19th-century songs]]
+[[Category:English ballads]]
+[[Category:English folk songs]]
+[[Category:List songs]]
+[[Category:Northumbrian folklore]]
+[[Category:Folklore featuring impossible tasks]]
+[[Category:Scarborough, North Yorkshire]]
+[[Category:Songs about towns]]
+[[Category:Songs about England]]
+[[Category:Songs with unknown songwriters]]
+[[Category:Traditional ballads]]
+[[Category:Year of song unknown]]
+<!--Performances-->
+[[Category:Columbia Records singles]]
+[[Category:Simon & Garfunkel songs]]
+[[Category:Song recordings produced by Bob Johnston]]
+[[Category:1966 singles]]

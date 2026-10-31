@@ -876,13 +876,18 @@ export interface ChordChart {
 /**
  * A song from a chord chart (schema "scorify-chart-1") and the normalized score it was written for: the chart's
  * versions are played under the score's sung part, words and tempo map; its other parts are not played. The chart needs
- * a bar of chords for every bar of the score; `vocalTranspose` moves (and reports) a sung passage written in another key,
- * `sungLine` shows one sung part per span of bars (a tune passed between choir parts) instead of every sung part.
+ * a bar of chords for every bar of the score after its pickup, if it has one (a first bar shorter than the meter, as the
+ * score-import skill writes it); the pickup is sung without chords. `vocalTranspose` moves (and reports) a sung passage
+ * written in another key, `sungLine` shows one sung part per span of bars (a tune passed between choir parts) instead of
+ * every sung part. Bar numbers count from 1 after the pickup.
  */
 export function songFromChart(chart: ChordChart, score: Score, { id = chart?.id, instrument = chart?.instrument }: { id?: string | undefined; instrument?: string | undefined } = {}): ChordSong {
   if (chart?.schema !== CHART_SCHEMA) throw new RangeError(`Not a ${CHART_SCHEMA} chord chart`);
-  if (score.meterMap.length !== 1) throw new RangeError("A chord chart needs a score in one meter, without a pickup");
-  const { numerator, denominator } = score.meterMap[0]!,
+  const [opening, after] = score.meterMap,
+    length = (m: { numerator: number; denominator: number }) => (m.numerator * 4) / m.denominator;
+  const pickup = score.meterMap.length === 2 && value(after!.at) === length(opening!) && length(opening!) < length(after!) ? length(opening!) : 0;
+  if (score.meterMap.length !== (pickup ? 2 : 1)) throw new RangeError("A chord chart needs a score in one meter, after an optional pickup");
+  const { numerator, denominator } = pickup ? after! : opening!,
     bar = (numerator * 4) / denominator;
   const compound = denominator >= 8 && numerator % 3 === 0 && numerator > 3,
     beat = (4 / denominator) * (compound ? 3 : 1);
@@ -891,11 +896,11 @@ export function songFromChart(chart: ChordChart, score: Score, { id = chart?.id,
     verses = [info.lyrics ?? {}, ...(info.verses ?? [])];
   const line = chart.sungLine?.parts.map(({ part, bars: [first, last] }) => {
     if (!sung.has(part)) throw new RangeError(`The sung line names ${part}, which is not a sung part`);
-    return { part, from: (first - 1) * bar, to: last * bar };
+    return { part, from: pickup + (first - 1) * bar, to: pickup + last * bar };
   });
   const voice = score.notes.filter((n) => sung.has(n.partId) && (!line || line.some((p) => p.part === n.partId && value(n.onset) >= p.from && value(n.onset) < p.to)));
   if (!voice.length) throw new RangeError("A chord chart needs a score with a sung part");
-  const bars = Math.ceil(Math.max(...[...score.notes, ...score.rests].map((n) => value(n.onset) + value(n.duration))) / bar - 1e-9);
+  const bars = Math.ceil((Math.max(...[...score.notes, ...score.rests].map((n) => value(n.onset) + value(n.duration))) - pickup) / bar - 1e-9);
   for (const progression of [chart.progression, chart.simpleProgression ?? chart.progression]) {
     if (progression.length !== bars) throw new RangeError(`The chart has ${progression.length} bars, the score ${bars}`);
     for (const symbol of progression.flatMap((b) => b.trim().split(/\s+/))) if (symbol !== NO_CHORD) chordTones(symbol);
@@ -903,7 +908,7 @@ export function songFromChart(chart: ChordChart, score: Score, { id = chart?.id,
   for (const v of chart.versions)
     if (v.countStrokes && (v.bass || v.fill || ![...v.pattern, ...(v.hold ? [v.hold] : [])].every((hit) => hit.stroke)))
       throw new RangeError(`The ${v.difficulty} version counts strokes but does not only strum`);
-  const shifts = (chart.vocalTranspose ?? []).map((t) => ({ ...t, from: (t.bars[0] - 1) * bar, to: t.bars[1] * bar }));
+  const shifts = (chart.vocalTranspose ?? []).map((t) => ({ ...t, from: pickup + (t.bars[0] - 1) * bar, to: pickup + t.bars[1] * bar }));
   const vocal: VocalEntry[] = voice.map((n) => {
     const onset = value(n.onset),
       shift = shifts.find((t) => onset >= t.from && onset < t.to),
@@ -921,7 +926,9 @@ export function songFromChart(chart: ChordChart, score: Score, { id = chart?.id,
     mode: chart.mode,
     time: [numerator, denominator],
     beat,
-    pad: 0,
+    // A pickup shifts every bar line; the tab pads the first bar so they fall where they are written.
+    pad: pickup ? bar - pickup : 0,
+    ...(pickup ? { pickup } : {}),
     bpm: chart.bpm ?? Math.round(score.tempoMap[0]!.quarterBpm / beat),
     tempoMap: score.tempoMap,
     progression: chart.progression,

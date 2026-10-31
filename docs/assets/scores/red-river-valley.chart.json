@@ -1,0 +1,333 @@
+{
+ "schema": "scorify-chart-1",
+ "id": "red-river-valley",
+ "title": "Red River Valley",
+ "credit": "Traditional",
+ "instrument": "guitar",
+ "key": "G",
+ "mode": "major",
+ "lyricLanguages": [
+  "en"
+ ],
+ "description": "Two verses and the chorus, in G. Strummed up to semi-pro; pro picks a bass note under the strum, expert and maestro pick an arpeggio. The edition repeats the first eight bars for the second half of each verse: those words are its second and fourth rows.",
+ "chartSource": "Chords read from the edition's four-part setting: G, C and D7, with E7 and A7 leading back in bars 11–12. Baby and beginner play one chord a bar, D for D7.",
+ "progression": [
+  "G",
+  "C G",
+  "G",
+  "D7",
+  "G",
+  "C",
+  "G D7",
+  "G",
+  "G",
+  "C",
+  "G E7",
+  "A7 D7",
+  "G",
+  "C",
+  "G D7",
+  "G"
+ ],
+ "simpleProgression": [
+  "G",
+  "C",
+  "G",
+  "D",
+  "G",
+  "C",
+  "D",
+  "G",
+  "G",
+  "C",
+  "G",
+  "D",
+  "G",
+  "C",
+  "D",
+  "G"
+ ],
+ "holds": [
+  16
+ ],
+ "versions": [
+  {
+   "difficulty": "baby",
+   "label": "A down strum a bar",
+   "pattern": [
+    {
+     "at": 0,
+     "tones": [
+      -3,
+      -2,
+      -1
+     ],
+     "stroke": "down"
+    }
+   ],
+   "release": 1,
+   "countStrokes": true,
+   "simple": true
+  },
+  {
+   "difficulty": "beginner",
+   "label": "Down strums on every beat",
+   "pattern": [
+    {
+     "at": 0,
+     "tones": [
+      -4,
+      -3,
+      -2,
+      -1
+     ],
+     "stroke": "down"
+    },
+    {
+     "at": 1,
+     "tones": [
+      -4,
+      -3,
+      -2,
+      -1
+     ],
+     "stroke": "down"
+    },
+    {
+     "at": 2,
+     "tones": [
+      -4,
+      -3,
+      -2,
+      -1
+     ],
+     "stroke": "down"
+    },
+    {
+     "at": 3,
+     "tones": [
+      -4,
+      -3,
+      -2,
+      -1
+     ],
+     "stroke": "down"
+    }
+   ],
+   "release": 0.5,
+   "countStrokes": true,
+   "simple": true
+  },
+  {
+   "difficulty": "amateur",
+   "label": "D · · U D · · U",
+   "pattern": [
+    {
+     "at": 0,
+     "tones": [
+      -4,
+      -3,
+      -2,
+      -1
+     ],
+     "stroke": "down"
+    },
+    {
+     "at": 1.5,
+     "tones": [
+      -2,
+      -1
+     ],
+     "stroke": "up"
+    },
+    {
+     "at": 2,
+     "tones": [
+      -4,
+      -3,
+      -2,
+      -1
+     ],
+     "stroke": "down"
+    },
+    {
+     "at": 3.5,
+     "tones": [
+      -2,
+      -1
+     ],
+     "stroke": "up"
+    }
+   ],
+   "countStrokes": true
+  },
+  {
+   "difficulty": "semi-pro",
+   "label": "D · D U · U D U",
+   "pattern": [
+    {
+     "at": 0,
+     "tones": [
+      -4,
+      -3,
+      -2,
+      -1
+     ],
+     "stroke": "down"
+    },
+    {
+     "at": 1,
+     "tones": [
+      -4,
+      -3,
+      -2,
+      -1
+     ],
+     "stroke": "down"
+    },
+    {
+     "at": 1.5,
+     "tones": [
+      -2,
+      -1
+     ],
+     "stroke": "up"
+    },
+    {
+     "at": 2.5,
+     "tones": [
+      -2,
+      -1
+     ],
+     "stroke": "up"
+    },
+    {
+     "at": 3,
+     "tones": [
+      -4,
+      -3,
+      -2,
+      -1
+     ],
+     "stroke": "down"
+    },
+    {
+     "at": 3.5,
+     "tones": [
+      -2,
+      -1
+     ],
+     "stroke": "up"
+    }
+   ],
+   "release": 0.25,
+   "countStrokes": true
+  },
+  {
+   "difficulty": "pro",
+   "label": "Bass note on 1 and 3, strums on 2 and 4 (D U)",
+   "pattern": [
+    {
+     "at": 0,
+     "tones": [
+      0
+     ]
+    },
+    {
+     "at": 1,
+     "tones": [
+      -3,
+      -2,
+      -1
+     ],
+     "stroke": "down"
+    },
+    {
+     "at": 1.5,
+     "tones": [
+      -2,
+      -1
+     ],
+     "stroke": "up"
+    },
+    {
+     "at": 2,
+     "tones": [
+      0
+     ]
+    },
+    {
+     "at": 3,
+     "tones": [
+      -3,
+      -2,
+      -1
+     ],
+     "stroke": "down"
+    },
+    {
+     "at": 3.5,
+     "tones": [
+      -2,
+      -1
+     ],
+     "stroke": "up"
+    }
+   ]
+  },
+  {
+   "difficulty": "expert",
+   "label": "Arpeggio up and down in eighths",
+   "pattern": [],
+   "arpeggio": {
+    "direction": "up-down",
+    "at": [
+     0,
+     0.5,
+     1,
+     1.5,
+     2,
+     2.5,
+     3,
+     3.5
+    ]
+   },
+   "hold": {
+    "at": 0,
+    "tones": [
+     0,
+     -1
+    ]
+   },
+   "release": 0.25
+  },
+  {
+   "difficulty": "maestro",
+   "label": "Arpeggio with sixteenth pushes",
+   "pattern": [],
+   "arpeggio": {
+    "direction": "up-down",
+    "at": [
+     0,
+     0.5,
+     1,
+     1.5,
+     1.75,
+     2,
+     2.5,
+     3,
+     3.5,
+     3.75
+    ]
+   },
+   "hold": {
+    "at": 0,
+    "tones": [
+     0,
+     -1
+    ]
+   },
+   "release": 0.25
+  }
+ ]
+}

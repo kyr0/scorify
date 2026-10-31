@@ -60,6 +60,8 @@ class Source:
     file: str = ""
     sha256: str = ""
     format: str = ""
+    # The source's reuse terms as its page states them ("public domain", "CC BY-SA 4.0"), from the download sidecar.
+    license: str = ""
 
 
 @dataclass
@@ -331,7 +333,7 @@ def build_score(doc: Document, *, unfold_repeats: bool = True, role: Optional[Ro
     if source:
         notation["source"] = {k: v for k, v in {
             "url": source.url, "site": source.site, "retrievedAt": source.retrieved_at, "file": source.file,
-            "sha256": source.sha256, "format": source.format or doc.format}.items() if v}
+            "sha256": source.sha256, "format": source.format or doc.format, "license": source.license}.items() if v}
     return {
         "schemaVersion": 1, "temperament": "12-TET", "concertAHz": 440,
         "notes": sorted(notes, key=lambda n: (Fraction(*n["onset"]), n["id"])),

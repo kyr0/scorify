@@ -1,0 +1,1323 @@
+{
+ "schemaVersion": 1,
+ "temperament": "12-TET",
+ "concertAHz": 440,
+ "notes": [
+  {
+   "id": "P1-m1-v1-1",
+   "onset": [
+    0,
+    1
+   ],
+   "duration": [
+    1,
+    2
+   ],
+   "pitch": {
+    "step": "D",
+    "alter": 0,
+    "octave": 4
+   },
+   "partId": "P1",
+   "voiceId": "1",
+   "role": "melody"
+  },
+  {
+   "id": "P1-m2-v1-1",
+   "onset": [
+    1,
+    2
+   ],
+   "duration": [
+    3,
+    4
+   ],
+   "pitch": {
+    "step": "G",
+    "alter": 0,
+    "octave": 4
+   },
+   "partId": "P1",
+   "voiceId": "1",
+   "role": "melody"
+  },
+  {
+   "id": "P1-m2-v1-2",
+   "onset": [
+    5,
+    4
+   ],
+   "duration": [
+    1,
+    4
+   ],
+   "pitch": {
+    "step": "G",
+    "alter": 0,
+    "octave": 4
+   },
+   "partId": "P1",
+   "voiceId": "1",
+   "role": "melody"
+  },
+  {
+   "id": "P1-m2-v1-3",
+   "onset": [
+    3,
+    2
+   ],
+   "duration": [
+    1,
+    2
+   ],
+   "pitch": {
+    "step": "G",
+    "alter": 0,
+    "octave": 4
+   },
+   "partId": "P1",
+   "voiceId": "1",
+   "role": "melody"
+  },
+  {
+   "id": "P1-m2-v1-4",
+   "onset": [
+    2,
+    1
+   ],
+   "duration": [
+    1,
+    2
+   ],
+   "pitch": {
+    "step": "B",
+    "alter": 0,
+    "octave": 4
+   },
+   "partId": "P1",
+   "voiceId": "1",
+   "role": "melody"
+  },
+  {
+   "id": "P1-m3-v1-1",
+   "onset": [
+    5,
+    2
+   ],
+   "duration": [
+    3,
+    4
+   ],
+   "pitch": {
+    "step": "A",
+    "alter": 0,
+    "octave": 4
+   },
+   "partId": "P1",
+   "voiceId": "1",
+   "role": "melody"
+  },
+  {
+   "id": "P1-m3-v1-2",
+   "onset": [
+    13,
+    4
+   ],
+   "duration": [
+    1,
+    4
+   ],
+   "pitch": {
+    "step": "G",
+    "alter": 0,
+    "octave": 4
+   },
+   "partId": "P1",
+   "voiceId": "1",
+   "role": "melody"
+  },
+  {
+   "id": "P1-m3-v1-3",
+   "onset": [
+    7,
+    2
+   ],
+   "duration": [
+    1,
+    2
+   ],
+   "pitch": {
+    "step": "A",
+    "alter": 0,
+    "octave": 4
+   },
+   "partId": "P1",
+   "voiceId": "1",
+   "role": "melody"
+  },
+  {
+   "id": "P1-m3-v1-4",
+   "onset": [
+    4,
+    1
+   ],
+   "duration": [
+    1,
+    2
+   ],
+   "pitch": {
+    "step": "B",
+    "alter": 0,
+    "octave": 4
+   },
+   "partId": "P1",
+   "voiceId": "1",
+   "role": "melody"
+  },
+  {
+   "id": "P1-m4-v1-1",
+   "onset": [
+    9,
+    2
+   ],
+   "duration": [
+    3,
+    4
+   ],
+   "pitch": {
+    "step": "G",
+    "alter": 0,
+    "octave": 4
+   },
+   "partId": "P1",
+   "voiceId": "1",
+   "role": "melody"
+  },
+  {
+   "id": "P1-m4-v1-2",
+   "onset": [
+    21,
+    4
+   ],
+   "duration": [
+    1,
+    4
+   ],
+   "pitch": {
+    "step": "G",
+    "alter": 0,
+    "octave": 4
+   },
+   "partId": "P1",
+   "voiceId": "1",
+   "role": "melody"
+  },
+  {
+   "id": "P1-m4-v1-3",
+   "onset": [
+    11,
+    2
+   ],
+   "duration": [
+    1,
+    2
+   ],
+   "pitch": {
+    "step": "B",
+    "alter": 0,
+    "octave": 4
+   },
+   "partId": "P1",
+   "voiceId": "1",
+   "role": "melody"
+  },
+  {
+   "id": "P1-m4-v1-4",
+   "onset": [
+    6,
+    1
+   ],
+   "duration": [
+    1,
+    2
+   ],
+   "pitch": {
+    "step": "D",
+    "alter": 0,
+    "octave": 5
+   },
+   "partId": "P1",
+   "voiceId": "1",
+   "role": "melody"
+  },
+  {
+   "id": "P1-m5-v1-1",
+   "onset": [
+    13,
+    2
+   ],
+   "duration": [
+    3,
+    2
+   ],
+   "pitch": {
+    "step": "E",
+    "alter": 0,
+    "octave": 5
+   },
+   "partId": "P1",
+   "voiceId": "1",
+   "role": "melody"
+  },
+  {
+   "id": "P1-m5-v1-2",
+   "onset": [
+    8,
+    1
+   ],
+   "duration": [
+    1,
+    2
+   ],
+   "pitch": {
+    "step": "E",
+    "alter": 0,
+    "octave": 5
+   },
+   "partId": "P1",
+   "voiceId": "1",
+   "role": "melody"
+  },
+  {
+   "id": "P1-m6-v1-1",
+   "onset": [
+    17,
+    2
+   ],
+   "duration": [
+    3,
+    4
+   ],
+   "pitch": {
+    "step": "D",
+    "alter": 0,
+    "octave": 5
+   },
+   "partId": "P1",
+   "voiceId": "1",
+   "role": "melody"
+  },
+  {
+   "id": "P1-m6-v1-2",
+   "onset": [
+    37,
+    4
+   ],
+   "duration": [
+    1,
+    4
+   ],
+   "pitch": {
+    "step": "B",
+    "alter": 0,
+    "octave": 4
+   },
+   "partId": "P1",
+   "voiceId": "1",
+   "role": "melody"
+  },
+  {
+   "id": "P1-m6-v1-3",
+   "onset": [
+    19,
+    2
+   ],
+   "duration": [
+    1,
+    2
+   ],
+   "pitch": {
+    "step": "B",
+    "alter": 0,
+    "octave": 4
+   },
+   "partId": "P1",
+   "voiceId": "1",
+   "role": "melody"
+  },
+  {
+   "id": "P1-m6-v1-4",
+   "onset": [
+    10,
+    1
+   ],
+   "duration": [
+    1,
+    2
+   ],
+   "pitch": {
+    "step": "G",
+    "alter": 0,
+    "octave": 4
+   },
+   "partId": "P1",
+   "voiceId": "1",
+   "role": "melody"
+  },
+  {
+   "id": "P1-m7-v1-1",
+   "onset": [
+    21,
+    2
+   ],
+   "duration": [
+    3,
+    4
+   ],
+   "pitch": {
+    "step": "A",
+    "alter": 0,
+    "octave": 4
+   },
+   "partId": "P1",
+   "voiceId": "1",
+   "role": "melody"
+  },
+  {
+   "id": "P1-m7-v1-2",
+   "onset": [
+    45,
+    4
+   ],
+   "duration": [
+    1,
+    4
+   ],
+   "pitch": {
+    "step": "G",
+    "alter": 0,
+    "octave": 4
+   },
+   "partId": "P1",
+   "voiceId": "1",
+   "role": "melody"
+  },
+  {
+   "id": "P1-m7-v1-3",
+   "onset": [
+    23,
+    2
+   ],
+   "duration": [
+    1,
+    2
+   ],
+   "pitch": {
+    "step": "A",
+    "alter": 0,
+    "octave": 4
+   },
+   "partId": "P1",
+   "voiceId": "1",
+   "role": "melody"
+  },
+  {
+   "id": "P1-m7-v1-4",
+   "onset": [
+    12,
+    1
+   ],
+   "duration": [
+    1,
+    2
+   ],
+   "pitch": {
+    "step": "B",
+    "alter": 0,
+    "octave": 4
+   },
+   "partId": "P1",
+   "voiceId": "1",
+   "role": "melody"
+  },
+  {
+   "id": "P1-m8-v1-1",
+   "onset": [
+    25,
+    2
+   ],
+   "duration": [
+    3,
+    4
+   ],
+   "pitch": {
+    "step": "G",
+    "alter": 0,
+    "octave": 4
+   },
+   "partId": "P1",
+   "voiceId": "1",
+   "role": "melody"
+  },
+  {
+   "id": "P1-m8-v1-2",
+   "onset": [
+    53,
+    4
+   ],
+   "duration": [
+    1,
+    4
+   ],
+   "pitch": {
+    "step": "E",
+    "alter": 0,
+    "octave": 4
+   },
+   "partId": "P1",
+   "voiceId": "1",
+   "role": "melody"
+  },
+  {
+   "id": "P1-m8-v1-3",
+   "onset": [
+    27,
+    2
+   ],
+   "duration": [
+    1,
+    2
+   ],
+   "pitch": {
+    "step": "E",
+    "alter": 0,
+    "octave": 4
+   },
+   "partId": "P1",
+   "voiceId": "1",
+   "role": "melody"
+  },
+  {
+   "id": "P1-m8-v1-4",
+   "onset": [
+    14,
+    1
+   ],
+   "duration": [
+    1,
+    2
+   ],
+   "pitch": {
+    "step": "D",
+    "alter": 0,
+    "octave": 4
+   },
+   "partId": "P1",
+   "voiceId": "1",
+   "role": "melody"
+  },
+  {
+   "id": "P1-m9-v1-1",
+   "onset": [
+    29,
+    2
+   ],
+   "duration": [
+    1,
+    1
+   ],
+   "pitch": {
+    "step": "G",
+    "alter": 0,
+    "octave": 4
+   },
+   "partId": "P1",
+   "voiceId": "1",
+   "role": "melody"
+  },
+  {
+   "id": "P1-m9-v1-3",
+   "onset": [
+    16,
+    1
+   ],
+   "duration": [
+    1,
+    2
+   ],
+   "pitch": {
+    "step": "E",
+    "alter": 0,
+    "octave": 5
+   },
+   "partId": "P1",
+   "voiceId": "1",
+   "role": "melody"
+  },
+  {
+   "id": "P1-m10-v1-1",
+   "onset": [
+    33,
+    2
+   ],
+   "duration": [
+    3,
+    4
+   ],
+   "pitch": {
+    "step": "D",
+    "alter": 0,
+    "octave": 5
+   },
+   "partId": "P1",
+   "voiceId": "1",
+   "role": "melody"
+  },
+  {
+   "id": "P1-m10-v1-2",
+   "onset": [
+    69,
+    4
+   ],
+   "duration": [
+    1,
+    4
+   ],
+   "pitch": {
+    "step": "B",
+    "alter": 0,
+    "octave": 4
+   },
+   "partId": "P1",
+   "voiceId": "1",
+   "role": "melody"
+  },
+  {
+   "id": "P1-m10-v1-3",
+   "onset": [
+    35,
+    2
+   ],
+   "duration": [
+    1,
+    2
+   ],
+   "pitch": {
+    "step": "B",
+    "alter": 0,
+    "octave": 4
+   },
+   "partId": "P1",
+   "voiceId": "1",
+   "role": "melody"
+  },
+  {
+   "id": "P1-m10-v1-4",
+   "onset": [
+    18,
+    1
+   ],
+   "duration": [
+    1,
+    2
+   ],
+   "pitch": {
+    "step": "G",
+    "alter": 0,
+    "octave": 4
+   },
+   "partId": "P1",
+   "voiceId": "1",
+   "role": "melody"
+  },
+  {
+   "id": "P1-m11-v1-1",
+   "onset": [
+    37,
+    2
+   ],
+   "duration": [
+    3,
+    4
+   ],
+   "pitch": {
+    "step": "A",
+    "alter": 0,
+    "octave": 4
+   },
+   "partId": "P1",
+   "voiceId": "1",
+   "role": "melody"
+  },
+  {
+   "id": "P1-m11-v1-2",
+   "onset": [
+    77,
+    4
+   ],
+   "duration": [
+    1,
+    4
+   ],
+   "pitch": {
+    "step": "G",
+    "alter": 0,
+    "octave": 4
+   },
+   "partId": "P1",
+   "voiceId": "1",
+   "role": "melody"
+  },
+  {
+   "id": "P1-m11-v1-3",
+   "onset": [
+    39,
+    2
+   ],
+   "duration": [
+    1,
+    2
+   ],
+   "pitch": {
+    "step": "A",
+    "alter": 0,
+    "octave": 4
+   },
+   "partId": "P1",
+   "voiceId": "1",
+   "role": "melody"
+  },
+  {
+   "id": "P1-m11-v1-5",
+   "onset": [
+    81,
+    4
+   ],
+   "duration": [
+    1,
+    4
+   ],
+   "pitch": {
+    "step": "B",
+    "alter": 0,
+    "octave": 4
+   },
+   "partId": "P1",
+   "voiceId": "1",
+   "role": "melody"
+  },
+  {
+   "id": "P1-m12-v1-1",
+   "onset": [
+    41,
+    2
+   ],
+   "duration": [
+    3,
+    4
+   ],
+   "pitch": {
+    "step": "B",
+    "alter": 0,
+    "octave": 4
+   },
+   "partId": "P1",
+   "voiceId": "1",
+   "role": "melody"
+  },
+  {
+   "id": "P1-m12-v1-2",
+   "onset": [
+    85,
+    4
+   ],
+   "duration": [
+    1,
+    4
+   ],
+   "pitch": {
+    "step": "G",
+    "alter": 0,
+    "octave": 4
+   },
+   "partId": "P1",
+   "voiceId": "1",
+   "role": "melody"
+  },
+  {
+   "id": "P1-m12-v1-3",
+   "onset": [
+    43,
+    2
+   ],
+   "duration": [
+    3,
+    4
+   ],
+   "pitch": {
+    "step": "B",
+    "alter": 0,
+    "octave": 4
+   },
+   "partId": "P1",
+   "voiceId": "1",
+   "role": "melody"
+  },
+  {
+   "id": "P1-m12-v1-4",
+   "onset": [
+    89,
+    4
+   ],
+   "duration": [
+    1,
+    4
+   ],
+   "pitch": {
+    "step": "D",
+    "alter": 0,
+    "octave": 5
+   },
+   "partId": "P1",
+   "voiceId": "1",
+   "role": "melody"
+  },
+  {
+   "id": "P1-m13-v1-1",
+   "onset": [
+    45,
+    2
+   ],
+   "duration": [
+    3,
+    2
+   ],
+   "pitch": {
+    "step": "E",
+    "alter": 0,
+    "octave": 5
+   },
+   "partId": "P1",
+   "voiceId": "1",
+   "role": "melody"
+  },
+  {
+   "id": "P1-m13-v1-2",
+   "onset": [
+    24,
+    1
+   ],
+   "duration": [
+    1,
+    2
+   ],
+   "pitch": {
+    "step": "E",
+    "alter": 0,
+    "octave": 5
+   },
+   "partId": "P1",
+   "voiceId": "1",
+   "role": "melody"
+  },
+  {
+   "id": "P1-m14-v1-1",
+   "onset": [
+    49,
+    2
+   ],
+   "duration": [
+    3,
+    4
+   ],
+   "pitch": {
+    "step": "D",
+    "alter": 0,
+    "octave": 5
+   },
+   "partId": "P1",
+   "voiceId": "1",
+   "role": "melody"
+  },
+  {
+   "id": "P1-m14-v1-2",
+   "onset": [
+    101,
+    4
+   ],
+   "duration": [
+    1,
+    4
+   ],
+   "pitch": {
+    "step": "B",
+    "alter": 0,
+    "octave": 4
+   },
+   "partId": "P1",
+   "voiceId": "1",
+   "role": "melody"
+  },
+  {
+   "id": "P1-m14-v1-3",
+   "onset": [
+    51,
+    2
+   ],
+   "duration": [
+    1,
+    2
+   ],
+   "pitch": {
+    "step": "B",
+    "alter": 0,
+    "octave": 4
+   },
+   "partId": "P1",
+   "voiceId": "1",
+   "role": "melody"
+  },
+  {
+   "id": "P1-m14-v1-4",
+   "onset": [
+    26,
+    1
+   ],
+   "duration": [
+    1,
+    2
+   ],
+   "pitch": {
+    "step": "G",
+    "alter": 0,
+    "octave": 4
+   },
+   "partId": "P1",
+   "voiceId": "1",
+   "role": "melody"
+  },
+  {
+   "id": "P1-m15-v1-1",
+   "onset": [
+    53,
+    2
+   ],
+   "duration": [
+    3,
+    4
+   ],
+   "pitch": {
+    "step": "A",
+    "alter": 0,
+    "octave": 4
+   },
+   "partId": "P1",
+   "voiceId": "1",
+   "role": "melody"
+  },
+  {
+   "id": "P1-m15-v1-2",
+   "onset": [
+    109,
+    4
+   ],
+   "duration": [
+    1,
+    4
+   ],
+   "pitch": {
+    "step": "G",
+    "alter": 0,
+    "octave": 4
+   },
+   "partId": "P1",
+   "voiceId": "1",
+   "role": "melody"
+  },
+  {
+   "id": "P1-m15-v1-3",
+   "onset": [
+    55,
+    2
+   ],
+   "duration": [
+    1,
+    2
+   ],
+   "pitch": {
+    "step": "A",
+    "alter": 0,
+    "octave": 4
+   },
+   "partId": "P1",
+   "voiceId": "1",
+   "role": "melody"
+  },
+  {
+   "id": "P1-m15-v1-4",
+   "onset": [
+    28,
+    1
+   ],
+   "duration": [
+    1,
+    2
+   ],
+   "pitch": {
+    "step": "B",
+    "alter": 0,
+    "octave": 4
+   },
+   "partId": "P1",
+   "voiceId": "1",
+   "role": "melody"
+  },
+  {
+   "id": "P1-m16-v1-1",
+   "onset": [
+    57,
+    2
+   ],
+   "duration": [
+    3,
+    4
+   ],
+   "pitch": {
+    "step": "G",
+    "alter": 0,
+    "octave": 4
+   },
+   "partId": "P1",
+   "voiceId": "1",
+   "role": "melody"
+  },
+  {
+   "id": "P1-m16-v1-2",
+   "onset": [
+    117,
+    4
+   ],
+   "duration": [
+    1,
+    4
+   ],
+   "pitch": {
+    "step": "E",
+    "alter": 0,
+    "octave": 4
+   },
+   "partId": "P1",
+   "voiceId": "1",
+   "role": "melody"
+  },
+  {
+   "id": "P1-m16-v1-3",
+   "onset": [
+    59,
+    2
+   ],
+   "duration": [
+    1,
+    2
+   ],
+   "pitch": {
+    "step": "E",
+    "alter": 0,
+    "octave": 4
+   },
+   "partId": "P1",
+   "voiceId": "1",
+   "role": "melody"
+  },
+  {
+   "id": "P1-m16-v1-4",
+   "onset": [
+    30,
+    1
+   ],
+   "duration": [
+    1,
+    2
+   ],
+   "pitch": {
+    "step": "D",
+    "alter": 0,
+    "octave": 4
+   },
+   "partId": "P1",
+   "voiceId": "1",
+   "role": "melody"
+  },
+  {
+   "id": "P1-m17-v1-1",
+   "onset": [
+    61,
+    2
+   ],
+   "duration": [
+    1,
+    1
+   ],
+   "pitch": {
+    "step": "G",
+    "alter": 0,
+    "octave": 4
+   },
+   "partId": "P1",
+   "voiceId": "1",
+   "role": "melody"
+  }
+ ],
+ "rests": [
+  {
+   "id": "P1-m9-v1-2",
+   "onset": [
+    31,
+    2
+   ],
+   "duration": [
+    1,
+    2
+   ],
+   "partId": "P1",
+   "voiceId": "1"
+  },
+  {
+   "id": "P1-m11-v1-4",
+   "onset": [
+    20,
+    1
+   ],
+   "duration": [
+    1,
+    4
+   ],
+   "partId": "P1",
+   "voiceId": "1"
+  },
+  {
+   "id": "P1-m17-v1-2",
+   "onset": [
+    63,
+    2
+   ],
+   "duration": [
+    1,
+    2
+   ],
+   "partId": "P1",
+   "voiceId": "1"
+  }
+ ],
+ "parts": [
+  {
+   "id": "P1",
+   "name": "Auld Lang Syne",
+   "voices": [
+    "1"
+   ]
+  }
+ ],
+ "tempoMap": [
+  {
+   "at": [
+    0,
+    1
+   ],
+   "quarterBpm": 90.0
+  }
+ ],
+ "meterMap": [
+  {
+   "at": [
+    0,
+    1
+   ],
+   "numerator": 1,
+   "denominator": 8
+  },
+  {
+   "at": [
+    1,
+    2
+   ],
+   "numerator": 2,
+   "denominator": 4
+  }
+ ],
+ "keyMap": [
+  {
+   "at": [
+    0,
+    1
+   ],
+   "tonic": "G",
+   "mode": "major"
+  }
+ ],
+ "harmony": [],
+ "notation": {
+  "title": "Auld Lang Syne",
+  "composer": "Traditional · words by Robert Burns",
+  "converter": {
+   "name": "score-import skill",
+   "version": "0.1.0",
+   "input": "abc"
+  },
+  "assumptions": [
+   "first bar is a 1/2-quarter pickup, written as its own short meter"
+  ],
+  "warnings": [],
+  "dropped": {},
+  "lyrics": {
+   "P1-m1-v1-1": "Should",
+   "P1-m2-v1-1": "auld",
+   "P1-m2-v1-2": "ac-",
+   "P1-m2-v1-3": "quain-",
+   "P1-m2-v1-4": "tance",
+   "P1-m3-v1-1": "be",
+   "P1-m3-v1-2": "for-",
+   "P1-m3-v1-3": "got,",
+   "P1-m3-v1-4": "And",
+   "P1-m4-v1-1": "nev-",
+   "P1-m4-v1-2": "er",
+   "P1-m4-v1-3": "brought",
+   "P1-m4-v1-4": "to",
+   "P1-m5-v1-1": "mind?",
+   "P1-m5-v1-2": "Should",
+   "P1-m6-v1-1": "auld",
+   "P1-m6-v1-2": "ac-",
+   "P1-m6-v1-3": "quain-",
+   "P1-m6-v1-4": "tance",
+   "P1-m7-v1-1": "be",
+   "P1-m7-v1-2": "for-",
+   "P1-m7-v1-3": "got,",
+   "P1-m7-v1-4": "And",
+   "P1-m8-v1-1": "days",
+   "P1-m8-v1-2": "of",
+   "P1-m8-v1-3": "auld",
+   "P1-m8-v1-4": "lang",
+   "P1-m9-v1-1": "syne?"
+  },
+  "verses": [
+   {
+    "P1-m1-v1-1": "We",
+    "P1-m2-v1-1": "twa",
+    "P1-m2-v1-2": "ha’e",
+    "P1-m2-v1-3": "run",
+    "P1-m2-v1-4": "a-",
+    "P1-m3-v1-1": "boot",
+    "P1-m3-v1-2": "the",
+    "P1-m3-v1-3": "braes,",
+    "P1-m3-v1-4": "And",
+    "P1-m4-v1-1": "pu’d",
+    "P1-m4-v1-2": "the",
+    "P1-m4-v1-3": "gow-",
+    "P1-m4-v1-4": "ans",
+    "P1-m5-v1-1": "fine;",
+    "P1-m5-v1-2": "But we’ve",
+    "P1-m6-v1-1": "wan-",
+    "P1-m6-v1-2": "der’d",
+    "P1-m6-v1-3": "mon-",
+    "P1-m6-v1-4": "y‿a",
+    "P1-m7-v1-1": "wea-",
+    "P1-m7-v1-2": "ry",
+    "P1-m7-v1-3": "foot,",
+    "P1-m7-v1-4": "Sin’",
+    "P1-m8-v1-1": "auld",
+    "P1-m8-v1-3": "lang",
+    "P1-m9-v1-1": "syne.",
+    "P1-m9-v1-3": "For",
+    "P1-m10-v1-1": "auld",
+    "P1-m10-v1-3": "lang",
+    "P1-m11-v1-1": "syne,",
+    "P1-m11-v1-2": "my",
+    "P1-m11-v1-3": "dear,",
+    "P1-m11-v1-5": "For",
+    "P1-m12-v1-1": "auld",
+    "P1-m12-v1-3": "lang",
+    "P1-m13-v1-1": "syne;",
+    "P1-m13-v1-2": "We’ll",
+    "P1-m14-v1-1": "tak’",
+    "P1-m14-v1-2": "a",
+    "P1-m14-v1-3": "cup",
+    "P1-m14-v1-4": "o’",
+    "P1-m15-v1-1": "kind-",
+    "P1-m15-v1-2": "ness",
+    "P1-m15-v1-3": "yet",
+    "P1-m15-v1-4": "For",
+    "P1-m16-v1-1": "auld",
+    "P1-m16-v1-3": "lang",
+    "P1-m17-v1-1": "syne."
+   },
+   {
+    "P1-m1-v1-1": "We",
+    "P1-m2-v1-1": "twa",
+    "P1-m2-v1-2": "ha’e",
+    "P1-m2-v1-3": "sport-",
+    "P1-m2-v1-4": "ed",
+    "P1-m3-v1-1": "i’",
+    "P1-m3-v1-2": "the",
+    "P1-m3-v1-3": "burn,",
+    "P1-m3-v1-4": "Frae",
+    "P1-m4-v1-1": "morn-",
+    "P1-m4-v1-2": "in’",
+    "P1-m4-v1-3": "sun",
+    "P1-m4-v1-4": "till",
+    "P1-m5-v1-1": "dine,",
+    "P1-m5-v1-2": "But",
+    "P1-m6-v1-1": "seas",
+    "P1-m6-v1-2": "be-",
+    "P1-m6-v1-3": "tween",
+    "P1-m6-v1-4": "us",
+    "P1-m7-v1-1": "braid",
+    "P1-m7-v1-2": "ba’e",
+    "P1-m7-v1-3": "roared",
+    "P1-m7-v1-4": "Sin’",
+    "P1-m8-v1-1": "auld",
+    "P1-m8-v1-3": "lang",
+    "P1-m9-v1-1": "syne."
+   },
+   {
+    "P1-m1-v1-1": "And",
+    "P1-m2-v1-1": "here’s",
+    "P1-m2-v1-2": "a",
+    "P1-m2-v1-3": "hand,",
+    "P1-m2-v1-4": "my",
+    "P1-m3-v1-1": "trust-",
+    "P1-m3-v1-2": "y",
+    "P1-m3-v1-3": "frien’,",
+    "P1-m3-v1-4": "And",
+    "P1-m4-v1-1": "gie’s",
+    "P1-m4-v1-2": "a",
+    "P1-m4-v1-3": "hand",
+    "P1-m4-v1-4": "o’",
+    "P1-m5-v1-1": "thine;",
+    "P1-m5-v1-2": "We’ll",
+    "P1-m6-v1-1": "tak’",
+    "P1-m6-v1-2": "a",
+    "P1-m6-v1-3": "cup",
+    "P1-m6-v1-4": "o’",
+    "P1-m7-v1-1": "kind-",
+    "P1-m7-v1-2": "ness",
+    "P1-m7-v1-3": "yet,",
+    "P1-m7-v1-4": "For",
+    "P1-m8-v1-1": "auld",
+    "P1-m8-v1-3": "lang",
+    "P1-m9-v1-1": "syne."
+   }
+  ],
+  "vocal": [
+   "P1"
+  ],
+  "source": {
+   "url": "https://github.com/bbloomf/lilypond-songs/blob/master/ly/Auld%20Lang%20Syne.ly",
+   "site": "github.com",
+   "retrievedAt": "2026-10-31T14:48:55+00:00",
+   "file": "https://raw.githubusercontent.com/bbloomf/lilypond-songs/master/ly/Auld%20Lang%20Syne.ly",
+   "sha256": "bdaebc7413359fe87c0362bccb4edb6c5059092b54607ce5fbefa30705a6f52f",
+   "format": "abc",
+   "license": "Songs from the Public Domain (github.com/bbloomf/lilypond-songs), LICENSE.md: public domain"
+  }
+ }
+}

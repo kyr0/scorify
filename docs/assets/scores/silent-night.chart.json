@@ -1,0 +1,280 @@
+{
+ "schema": "scorify-chart-1",
+ "id": "silent-night",
+ "title": "Silent Night",
+ "credit": "Franz Xaver Gruber · words by Joseph Mohr, English by John Freeman Young",
+ "instrument": "uke-high-g",
+ "key": "Bb",
+ "mode": "major",
+ "lyricLanguages": [
+  "en"
+ ],
+ "description": "Four verses of the Open Hymnal's edition, in B♭, strummed in two long beats a bar up to semi-pro; pro picks a bass note on each beat, expert and maestro pick an arpeggio.",
+ "chartSource": "Chords read from the edition's four-part setting (Concordia Kinderchöre, 1908): B♭, E♭ and F7, F7 for the second half of bar 11. Baby and beginner play F for F7.",
+ "progression": [
+  "Bb",
+  "Bb",
+  "F7",
+  "Bb",
+  "Eb",
+  "Bb",
+  "Eb",
+  "Bb",
+  "F7",
+  "Bb",
+  "Bb F7",
+  "Bb"
+ ],
+ "simpleProgression": [
+  "Bb",
+  "Bb",
+  "F",
+  "Bb",
+  "Eb",
+  "Bb",
+  "Eb",
+  "Bb",
+  "F",
+  "Bb",
+  "Bb F",
+  "Bb"
+ ],
+ "holds": [
+  12
+ ],
+ "versions": [
+  {
+   "difficulty": "baby",
+   "label": "A down strum a bar",
+   "pattern": [
+    {
+     "at": 0,
+     "tones": [
+      -3,
+      -2,
+      -1
+     ],
+     "stroke": "down"
+    }
+   ],
+   "release": 1.5,
+   "countStrokes": true,
+   "simple": true
+  },
+  {
+   "difficulty": "beginner",
+   "label": "Down strums on 1 and 4",
+   "pattern": [
+    {
+     "at": 0,
+     "tones": [
+      -4,
+      -3,
+      -2,
+      -1
+     ],
+     "stroke": "down"
+    },
+    {
+     "at": 1.5,
+     "tones": [
+      -4,
+      -3,
+      -2,
+      -1
+     ],
+     "stroke": "down"
+    }
+   ],
+   "release": 0.75,
+   "countStrokes": true,
+   "simple": true
+  },
+  {
+   "difficulty": "amateur",
+   "label": "D · D D · D",
+   "pattern": [
+    {
+     "at": 0,
+     "tones": [
+      -4,
+      -3,
+      -2,
+      -1
+     ],
+     "stroke": "down"
+    },
+    {
+     "at": 1,
+     "tones": [
+      -3,
+      -2,
+      -1
+     ],
+     "stroke": "down"
+    },
+    {
+     "at": 1.5,
+     "tones": [
+      -4,
+      -3,
+      -2,
+      -1
+     ],
+     "stroke": "down"
+    },
+    {
+     "at": 2.5,
+     "tones": [
+      -3,
+      -2,
+      -1
+     ],
+     "stroke": "down"
+    }
+   ],
+   "countStrokes": true
+  },
+  {
+   "difficulty": "semi-pro",
+   "label": "D · U D D U",
+   "pattern": [
+    {
+     "at": 0,
+     "tones": [
+      -4,
+      -3,
+      -2,
+      -1
+     ],
+     "stroke": "down"
+    },
+    {
+     "at": 1,
+     "tones": [
+      -3,
+      -2,
+      -1
+     ],
+     "stroke": "up"
+    },
+    {
+     "at": 1.5,
+     "tones": [
+      -4,
+      -3,
+      -2,
+      -1
+     ],
+     "stroke": "down"
+    },
+    {
+     "at": 2,
+     "tones": [
+      -3,
+      -2,
+      -1
+     ],
+     "stroke": "down"
+    },
+    {
+     "at": 2.5,
+     "tones": [
+      -3,
+      -2,
+      -1
+     ],
+     "stroke": "up"
+    }
+   ],
+   "release": 0.25,
+   "countStrokes": true
+  },
+  {
+   "difficulty": "pro",
+   "label": "Bass note on 1 and 4, strums on 3 and 6",
+   "pattern": [
+    {
+     "at": 0,
+     "tones": [
+      0
+     ]
+    },
+    {
+     "at": 1,
+     "tones": [
+      -3,
+      -2,
+      -1
+     ],
+     "stroke": "down"
+    },
+    {
+     "at": 1.5,
+     "tones": [
+      0
+     ]
+    },
+    {
+     "at": 2.5,
+     "tones": [
+      -3,
+      -2,
+      -1
+     ],
+     "stroke": "down"
+    }
+   ]
+  },
+  {
+   "difficulty": "expert",
+   "label": "Arpeggio up and down in eighths",
+   "pattern": [],
+   "arpeggio": {
+    "direction": "up-down",
+    "at": [
+     0,
+     0.5,
+     1,
+     1.5,
+     2,
+     2.5
+    ]
+   },
+   "hold": {
+    "at": 0,
+    "tones": [
+     0,
+     -1
+    ]
+   },
+   "release": 0.25
+  },
+  {
+   "difficulty": "maestro",
+   "label": "Arpeggio with sixteenth pushes",
+   "pattern": [],
+   "arpeggio": {
+    "direction": "up-down",
+    "at": [
+     0,
+     0.5,
+     1,
+     1.25,
+     1.5,
+     2,
+     2.5,
+     2.75
+    ]
+   },
+   "hold": {
+    "at": 0,
+    "tones": [
+     0,
+     -1
+    ]
+   },
+   "release": 0.25
+  }
+ ]
+}

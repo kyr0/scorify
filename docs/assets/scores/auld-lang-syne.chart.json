@@ -1,0 +1,278 @@
+{
+ "schema": "scorify-chart-1",
+ "id": "auld-lang-syne",
+ "title": "Auld Lang Syne",
+ "credit": "Traditional · words by Robert Burns",
+ "instrument": "guitar",
+ "key": "G",
+ "mode": "major",
+ "bpm": 50,
+ "lyricLanguages": [
+  "en"
+ ],
+ "description": "Four verses and the chorus, in G and 2/4, at 50 BPM: the edition writes the tune in eighth notes, so this is the usual pace of the song in 4/4. Strummed up to semi-pro; pro picks a bass note under the strum, expert and maestro pick a sixteenth-note arpeggio.",
+ "chartSource": "Chords read from the edition's four-part setting: G, C and D, with C D (bars 7) and Em D (bar 15) closing the phrases and Bm in bar 14. Baby and beginner play C in bars 7 and 15. The edition's MIDI tempo, 90, is its collection's default for every song.",
+ "progression": [
+  "G",
+  "D",
+  "G",
+  "C",
+  "G",
+  "D",
+  "C D",
+  "G",
+  "G",
+  "D",
+  "G",
+  "C",
+  "G",
+  "D Bm",
+  "Em D",
+  "G"
+ ],
+ "simpleProgression": [
+  "G",
+  "D",
+  "G",
+  "C",
+  "G",
+  "D",
+  "C",
+  "G",
+  "G",
+  "D",
+  "G",
+  "C",
+  "G",
+  "D",
+  "C",
+  "G"
+ ],
+ "holds": [
+  16
+ ],
+ "versions": [
+  {
+   "difficulty": "baby",
+   "label": "A down strum a bar",
+   "pattern": [
+    {
+     "at": 0,
+     "tones": [
+      -3,
+      -2,
+      -1
+     ],
+     "stroke": "down"
+    }
+   ],
+   "release": 0.5,
+   "countStrokes": true,
+   "simple": true
+  },
+  {
+   "difficulty": "beginner",
+   "label": "Down strums on 1 and 2",
+   "pattern": [
+    {
+     "at": 0,
+     "tones": [
+      -4,
+      -3,
+      -2,
+      -1
+     ],
+     "stroke": "down"
+    },
+    {
+     "at": 1,
+     "tones": [
+      -4,
+      -3,
+      -2,
+      -1
+     ],
+     "stroke": "down"
+    }
+   ],
+   "release": 0.25,
+   "countStrokes": true,
+   "simple": true
+  },
+  {
+   "difficulty": "amateur",
+   "label": "D · D U",
+   "pattern": [
+    {
+     "at": 0,
+     "tones": [
+      -4,
+      -3,
+      -2,
+      -1
+     ],
+     "stroke": "down"
+    },
+    {
+     "at": 1,
+     "tones": [
+      -4,
+      -3,
+      -2,
+      -1
+     ],
+     "stroke": "down"
+    },
+    {
+     "at": 1.5,
+     "tones": [
+      -2,
+      -1
+     ],
+     "stroke": "up"
+    }
+   ],
+   "countStrokes": true
+  },
+  {
+   "difficulty": "semi-pro",
+   "label": "Sixteenths: D · · U D · D U",
+   "pattern": [
+    {
+     "at": 0,
+     "tones": [
+      -4,
+      -3,
+      -2,
+      -1
+     ],
+     "stroke": "down"
+    },
+    {
+     "at": 0.75,
+     "tones": [
+      -2,
+      -1
+     ],
+     "stroke": "up"
+    },
+    {
+     "at": 1,
+     "tones": [
+      -4,
+      -3,
+      -2,
+      -1
+     ],
+     "stroke": "down"
+    },
+    {
+     "at": 1.5,
+     "tones": [
+      -3,
+      -2,
+      -1
+     ],
+     "stroke": "down"
+    },
+    {
+     "at": 1.75,
+     "tones": [
+      -2,
+      -1
+     ],
+     "stroke": "up"
+    }
+   ],
+   "countStrokes": true
+  },
+  {
+   "difficulty": "pro",
+   "label": "Bass note and strum, twice a bar",
+   "pattern": [
+    {
+     "at": 0,
+     "tones": [
+      0
+     ]
+    },
+    {
+     "at": 0.5,
+     "tones": [
+      -3,
+      -2,
+      -1
+     ],
+     "stroke": "down"
+    },
+    {
+     "at": 1,
+     "tones": [
+      0
+     ]
+    },
+    {
+     "at": 1.5,
+     "tones": [
+      -3,
+      -2,
+      -1
+     ],
+     "stroke": "down"
+    }
+   ]
+  },
+  {
+   "difficulty": "expert",
+   "label": "Arpeggio up and down in sixteenths",
+   "pattern": [],
+   "arpeggio": {
+    "direction": "up-down",
+    "at": [
+     0,
+     0.25,
+     0.5,
+     0.75,
+     1,
+     1.25,
+     1.5,
+     1.75
+    ]
+   },
+   "hold": {
+    "at": 0,
+    "tones": [
+     0,
+     -1
+    ]
+   },
+   "release": 0.25
+  },
+  {
+   "difficulty": "maestro",
+   "label": "Arpeggio with sixteenth pushes",
+   "pattern": [],
+   "arpeggio": {
+    "direction": "up-down",
+    "at": [
+     0,
+     0.25,
+     0.5,
+     0.75,
+     1,
+     1.25,
+     1.5,
+     1.75
+    ]
+   },
+   "hold": {
+    "at": 0,
+    "tones": [
+     0,
+     -1
+    ]
+   },
+   "release": 0.25
+  }
+ ]
+}

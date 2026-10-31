@@ -1,0 +1,10 @@
+{
+ "url": "https://raw.githubusercontent.com/bbloomf/lilypond-songs/master/ly/Red%20River%20Valley.ly",
+ "page": "https://github.com/bbloomf/lilypond-songs/blob/master/ly/Red%20River%20Valley.ly",
+ "retrievedAt": "2026-10-31T14:48:55+00:00",
+ "sourceSha256": "ac52da7b4901024b11926aaf708914f0927db055003ae4c3c21024bcf766f119",
+ "license": "Songs from the Public Domain (github.com/bbloomf/lilypond-songs), LICENSE.md: public domain",
+ "derivedFrom": "Red River Valley.ly",
+ "derivedWith": "scripts/lilypond-abc.py (the melody and every verse of its words, transcribed from the LilyPond source)",
+ "sha256": "a8301d7d14aaeff4e7515bbe19eb3c811902ae257bb76533236275e932442290"
+}

@@ -1,0 +1,12 @@
+{
+ "url": "https://en.wikipedia.org/w/index.php?title=Scarborough_Fair_%28ballad%29&action=raw&oldid=1379343994",
+ "requested": "https://en.wikipedia.org/w/index.php?title=Scarborough_Fair_%28ballad%29&action=raw&oldid=1379343994",
+ "page": "https://en.wikipedia.org/w/index.php?title=Scarborough_Fair_%28ballad%29&oldid=1379343994",
+ "retrievedAt": "2026-10-31T14:48:58+00:00",
+ "status": 200,
+ "contentType": "text/x-wiki; charset=UTF-8",
+ "bytes": 31804,
+ "sha256": "bd7f488ee14eecd91774ae3ede758293ba9498d8160d1a13d2e7cc368809a867",
+ "license": "Wikipedia article text, CC BY-SA 4.0 (the score is part of the article)",
+ "revision": 1379343994
+}

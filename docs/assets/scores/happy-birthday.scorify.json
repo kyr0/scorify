@@ -1,0 +1,582 @@
+{
+ "schemaVersion": 1,
+ "temperament": "12-TET",
+ "concertAHz": 440,
+ "notes": [
+  {
+   "id": "P1-m1-v1-1",
+   "onset": [
+    0,
+    1
+   ],
+   "duration": [
+    3,
+    4
+   ],
+   "pitch": {
+    "step": "D",
+    "alter": 0,
+    "octave": 4
+   },
+   "partId": "P1",
+   "voiceId": "1",
+   "role": "melody"
+  },
+  {
+   "id": "P1-m1-v1-2",
+   "onset": [
+    3,
+    4
+   ],
+   "duration": [
+    1,
+    4
+   ],
+   "pitch": {
+    "step": "D",
+    "alter": 0,
+    "octave": 4
+   },
+   "partId": "P1",
+   "voiceId": "1",
+   "role": "melody"
+  },
+  {
+   "id": "P1-m2-v1-1",
+   "onset": [
+    1,
+    1
+   ],
+   "duration": [
+    1,
+    1
+   ],
+   "pitch": {
+    "step": "E",
+    "alter": 0,
+    "octave": 4
+   },
+   "partId": "P1",
+   "voiceId": "1",
+   "role": "melody"
+  },
+  {
+   "id": "P1-m2-v1-2",
+   "onset": [
+    2,
+    1
+   ],
+   "duration": [
+    1,
+    1
+   ],
+   "pitch": {
+    "step": "D",
+    "alter": 0,
+    "octave": 4
+   },
+   "partId": "P1",
+   "voiceId": "1",
+   "role": "melody"
+  },
+  {
+   "id": "P1-m2-v1-3",
+   "onset": [
+    3,
+    1
+   ],
+   "duration": [
+    1,
+    1
+   ],
+   "pitch": {
+    "step": "G",
+    "alter": 0,
+    "octave": 4
+   },
+   "partId": "P1",
+   "voiceId": "1",
+   "role": "melody"
+  },
+  {
+   "id": "P1-m3-v1-1",
+   "onset": [
+    4,
+    1
+   ],
+   "duration": [
+    2,
+    1
+   ],
+   "pitch": {
+    "step": "F",
+    "alter": 1,
+    "octave": 4
+   },
+   "partId": "P1",
+   "voiceId": "1",
+   "role": "melody"
+  },
+  {
+   "id": "P1-m3-v1-2",
+   "onset": [
+    6,
+    1
+   ],
+   "duration": [
+    3,
+    4
+   ],
+   "pitch": {
+    "step": "D",
+    "alter": 0,
+    "octave": 4
+   },
+   "partId": "P1",
+   "voiceId": "1",
+   "role": "melody"
+  },
+  {
+   "id": "P1-m3-v1-3",
+   "onset": [
+    27,
+    4
+   ],
+   "duration": [
+    1,
+    4
+   ],
+   "pitch": {
+    "step": "D",
+    "alter": 0,
+    "octave": 4
+   },
+   "partId": "P1",
+   "voiceId": "1",
+   "role": "melody"
+  },
+  {
+   "id": "P1-m4-v1-1",
+   "onset": [
+    7,
+    1
+   ],
+   "duration": [
+    1,
+    1
+   ],
+   "pitch": {
+    "step": "E",
+    "alter": 0,
+    "octave": 4
+   },
+   "partId": "P1",
+   "voiceId": "1",
+   "role": "melody"
+  },
+  {
+   "id": "P1-m4-v1-2",
+   "onset": [
+    8,
+    1
+   ],
+   "duration": [
+    1,
+    1
+   ],
+   "pitch": {
+    "step": "D",
+    "alter": 0,
+    "octave": 4
+   },
+   "partId": "P1",
+   "voiceId": "1",
+   "role": "melody"
+  },
+  {
+   "id": "P1-m4-v1-3",
+   "onset": [
+    9,
+    1
+   ],
+   "duration": [
+    1,
+    1
+   ],
+   "pitch": {
+    "step": "A",
+    "alter": 0,
+    "octave": 4
+   },
+   "partId": "P1",
+   "voiceId": "1",
+   "role": "melody"
+  },
+  {
+   "id": "P1-m5-v1-1",
+   "onset": [
+    10,
+    1
+   ],
+   "duration": [
+    2,
+    1
+   ],
+   "pitch": {
+    "step": "G",
+    "alter": 0,
+    "octave": 4
+   },
+   "partId": "P1",
+   "voiceId": "1",
+   "role": "melody"
+  },
+  {
+   "id": "P1-m5-v1-2",
+   "onset": [
+    12,
+    1
+   ],
+   "duration": [
+    3,
+    4
+   ],
+   "pitch": {
+    "step": "D",
+    "alter": 0,
+    "octave": 4
+   },
+   "partId": "P1",
+   "voiceId": "1",
+   "role": "melody"
+  },
+  {
+   "id": "P1-m5-v1-3",
+   "onset": [
+    51,
+    4
+   ],
+   "duration": [
+    1,
+    4
+   ],
+   "pitch": {
+    "step": "D",
+    "alter": 0,
+    "octave": 4
+   },
+   "partId": "P1",
+   "voiceId": "1",
+   "role": "melody"
+  },
+  {
+   "id": "P1-m6-v1-1",
+   "onset": [
+    13,
+    1
+   ],
+   "duration": [
+    1,
+    1
+   ],
+   "pitch": {
+    "step": "D",
+    "alter": 0,
+    "octave": 5
+   },
+   "partId": "P1",
+   "voiceId": "1",
+   "role": "melody"
+  },
+  {
+   "id": "P1-m6-v1-2",
+   "onset": [
+    14,
+    1
+   ],
+   "duration": [
+    1,
+    1
+   ],
+   "pitch": {
+    "step": "B",
+    "alter": 0,
+    "octave": 4
+   },
+   "partId": "P1",
+   "voiceId": "1",
+   "role": "melody"
+  },
+  {
+   "id": "P1-m6-v1-3",
+   "onset": [
+    15,
+    1
+   ],
+   "duration": [
+    1,
+    1
+   ],
+   "pitch": {
+    "step": "G",
+    "alter": 0,
+    "octave": 4
+   },
+   "partId": "P1",
+   "voiceId": "1",
+   "role": "melody"
+  },
+  {
+   "id": "P1-m7-v1-1",
+   "onset": [
+    16,
+    1
+   ],
+   "duration": [
+    1,
+    1
+   ],
+   "pitch": {
+    "step": "F",
+    "alter": 1,
+    "octave": 4
+   },
+   "partId": "P1",
+   "voiceId": "1",
+   "role": "melody"
+  },
+  {
+   "id": "P1-m7-v1-2",
+   "onset": [
+    17,
+    1
+   ],
+   "duration": [
+    1,
+    1
+   ],
+   "pitch": {
+    "step": "E",
+    "alter": 0,
+    "octave": 4
+   },
+   "partId": "P1",
+   "voiceId": "1",
+   "role": "melody"
+  },
+  {
+   "id": "P1-m7-v1-3",
+   "onset": [
+    18,
+    1
+   ],
+   "duration": [
+    3,
+    4
+   ],
+   "pitch": {
+    "step": "C",
+    "alter": 0,
+    "octave": 5
+   },
+   "partId": "P1",
+   "voiceId": "1",
+   "role": "melody"
+  },
+  {
+   "id": "P1-m7-v1-4",
+   "onset": [
+    75,
+    4
+   ],
+   "duration": [
+    1,
+    4
+   ],
+   "pitch": {
+    "step": "C",
+    "alter": 0,
+    "octave": 5
+   },
+   "partId": "P1",
+   "voiceId": "1",
+   "role": "melody"
+  },
+  {
+   "id": "P1-m8-v1-1",
+   "onset": [
+    19,
+    1
+   ],
+   "duration": [
+    1,
+    1
+   ],
+   "pitch": {
+    "step": "B",
+    "alter": 0,
+    "octave": 4
+   },
+   "partId": "P1",
+   "voiceId": "1",
+   "role": "melody"
+  },
+  {
+   "id": "P1-m8-v1-2",
+   "onset": [
+    20,
+    1
+   ],
+   "duration": [
+    1,
+    1
+   ],
+   "pitch": {
+    "step": "G",
+    "alter": 0,
+    "octave": 4
+   },
+   "partId": "P1",
+   "voiceId": "1",
+   "role": "melody"
+  },
+  {
+   "id": "P1-m8-v1-3",
+   "onset": [
+    21,
+    1
+   ],
+   "duration": [
+    1,
+    1
+   ],
+   "pitch": {
+    "step": "A",
+    "alter": 0,
+    "octave": 4
+   },
+   "partId": "P1",
+   "voiceId": "1",
+   "role": "melody"
+  },
+  {
+   "id": "P1-m9-v1-1",
+   "onset": [
+    22,
+    1
+   ],
+   "duration": [
+    2,
+    1
+   ],
+   "pitch": {
+    "step": "G",
+    "alter": 0,
+    "octave": 4
+   },
+   "partId": "P1",
+   "voiceId": "1",
+   "role": "melody"
+  }
+ ],
+ "rests": [],
+ "parts": [
+  {
+   "id": "P1",
+   "name": "Tune",
+   "voices": [
+    "1"
+   ]
+  }
+ ],
+ "tempoMap": [
+  {
+   "at": [
+    0,
+    1
+   ],
+   "quarterBpm": 90.0
+  }
+ ],
+ "meterMap": [
+  {
+   "at": [
+    0,
+    1
+   ],
+   "numerator": 1,
+   "denominator": 4
+  },
+  {
+   "at": [
+    1,
+    1
+   ],
+   "numerator": 3,
+   "denominator": 4
+  }
+ ],
+ "keyMap": [
+  {
+   "at": [
+    0,
+    1
+   ],
+   "tonic": "G",
+   "mode": "major"
+  }
+ ],
+ "harmony": [],
+ "notation": {
+  "title": "Happy Birthday to You",
+  "composer": "Mildred J. Hill and Patty Hill",
+  "converter": {
+   "name": "score-import skill",
+   "version": "0.1.0",
+   "input": "abc"
+  },
+  "assumptions": [
+   "first bar is a 1-quarter pickup, written as its own short meter"
+  ],
+  "warnings": [],
+  "dropped": {},
+  "lyrics": {
+   "P1-m1-v1-1": "Hap-",
+   "P1-m1-v1-2": "py",
+   "P1-m2-v1-1": "birth-",
+   "P1-m2-v1-2": "day",
+   "P1-m2-v1-3": "to",
+   "P1-m3-v1-1": "you,",
+   "P1-m3-v1-2": "Hap-",
+   "P1-m3-v1-3": "py",
+   "P1-m4-v1-1": "birth-",
+   "P1-m4-v1-2": "day",
+   "P1-m4-v1-3": "to",
+   "P1-m5-v1-1": "you,",
+   "P1-m5-v1-2": "Hap-",
+   "P1-m5-v1-3": "py",
+   "P1-m6-v1-1": "birth-",
+   "P1-m6-v1-2": "day",
+   "P1-m6-v1-3": "dear",
+   "P1-m7-v1-1": "[NAME],",
+   "P1-m7-v1-3": "Hap-",
+   "P1-m7-v1-4": "py",
+   "P1-m8-v1-1": "birth-",
+   "P1-m8-v1-2": "day",
+   "P1-m8-v1-3": "to",
+   "P1-m9-v1-1": "you."
+  },
+  "vocal": [
+   "P1"
+  ],
+  "source": {
+   "url": "https://en.wikipedia.org/w/index.php?title=Happy_Birthday_to_You&oldid=1382384043",
+   "site": "en.wikipedia.org",
+   "retrievedAt": "2026-10-31T14:48:58+00:00",
+   "file": "https://en.wikipedia.org/w/index.php?title=Happy_Birthday_to_You&action=raw&oldid=1382384043",
+   "sha256": "89e5a1f3f07ce61c9a40f3ee6bab28b4e59c0b8f8e5d31796eed811fe081c78e",
+   "format": "abc",
+   "license": "Wikipedia article text, CC BY-SA 4.0 (the score is part of the article)"
+  }
+ }
+}
