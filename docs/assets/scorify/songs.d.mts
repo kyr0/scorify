@@ -633,8 +633,8 @@ interface StrumPattern {
     /** Counted beats a minute it is fingered at. */
     readonly bpm: number;
     /**
-     * The easiest difficulty that plays it as written over I–IV–V–I on the instruments it is typical for (measured);
-     * easier ones play it simplified, as any song's easiest version.
+     * The easiest difficulty that plays it as written over I–IV–V–I and I–V–vi–IV on the instruments it is typical for
+     * (measured); easier ones play it simplified, as any song's easiest version.
      */
     readonly difficulty: Level;
     /** Where it is usually played. */

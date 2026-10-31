@@ -1,0 +1,2 @@
+import{installWorkerEndpoint as t}from"./worker.mjs";import"./arrange.mjs";import"./model.mjs";import"./pitch-Dph21XzR.mjs";import"./time-CU78HbUD.mjs";import"./profiles.mjs";import"./transforms.mjs";import"./analysis.mjs";import"./theory.mjs";import"./fretted.mjs";import"./fingering.mjs";import"./validate.mjs";const o=globalThis;typeof o.addEventListener=="function"&&typeof o.postMessage=="function"&&t(o);
+//# sourceMappingURL=worker-entry.mjs.map

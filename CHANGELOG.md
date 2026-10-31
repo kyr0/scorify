@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+- `STRUM_PATTERNS`: the pop strum, blues shuffle, waltz strum, waltz with a push and 6/8 ballad are written for amateur (were beginner). A pattern's difficulty is now measured over I–IV–V–I and I–V–vi–IV; on guitar, beginner cannot play these five over I–V–vi–IV.
+- Docs site: the page loads its modules from a directory per build named after their contents (`docs/assets/v/<hash>/`, made by `build:docs`; the last three are kept). Right after a deploy, a browser could combine a new `songs.mjs` with a cached library module from the deploy before and fail with "does not provide an export named 'PROGRESSION_STYLES'". `check:docs` refuses a build directory that does not hold the current sources.
+
 ## 0.4.0 — 2026-10-31
 
 - `scorify/theory`: spelled scales (`SCALES`, `TONICS`, `scaleById`, `scalePitches`): major, natural, harmonic and melodic minor, major and minor pentatonic, blues, Dorian, Phrygian, Lydian, Mixolydian, Locrian and chromatic.

@@ -14,12 +14,18 @@ Date: 2026-10-31. Version: `0.4.0` on npm.
   - The island strum plays as written at maestro on high-G ukulele, and simplified (reported) at baby.
   - A pattern in another meter or with an arpeggio throws.
 
-  Each difficulty is the easiest level that plays the pattern as written over I–IV–V–I, on the instruments it is typical for:
+  Each difficulty is the easiest level that plays the pattern as written over I–IV–V–I and I–V–vi–IV, on the instruments it is typical for:
 
   | Difficulty | Patterns |
   |---|---|
-  | Beginner | reggae skank, pop strum, blues shuffle, waltz strum, waltz with a push, 6/8 ballad |
-  | Amateur | island strum (beginner on ukulele), ska upstrokes, rock downstrokes, funk sixteenths, folk strum, swing strum, bluegrass chop (mandolin), boom-chick, boom-chicka, boom-chick-chick (beginner for boom-chick on 8-string guitar) |
+  | Beginner | reggae skank |
+  | Amateur | everything else: island strum, ska upstrokes, rock downstrokes, pop strum, funk sixteenths, folk strum, boom-chick, boom-chicka, bluegrass chop (on mandolin), swing strum, blues shuffle, waltz strum, waltz with a push, boom-chick-chick, 6/8 ballad |
+
+  The first measurement used I–IV–V–I alone and rated the pop strum, blues shuffle, both waltz strums and the 6/8 ballad beginner. On guitar they fail at beginner over I–V–vi–IV, so they are now amateur.
+- **Pattern survey.** Every pattern, on every instrument it fits (the three bass patterns on the four guitars), over I–IV–V–I and I–V–vi–IV, at all 7 levels, run with the first ratings: 1,624 runs.
+  - 1,248 played as written. 334 were simplified, 319 of them below the pattern's difficulty (232 at baby, 87 at beginner).
+  - At or above the pattern's difficulty, 15 runs were simplified: ten beginner runs on baritone ukulele, which is not among the instruments the patterns are typical for, and boom-chicka on drop-D guitar over I–V–vi–IV.
+  - 42 found nothing, all at beginner on guitars: eighth-note patterns that beginner cannot play as written, whose simplification ran out of search budget. The page reports this, and By difficulty plays.
 
   - The bass patterns play on all four guitars.
   - On high-G ukulele and mandolin they play at no level, and on low-G and baritone ukulele only at maestro, so they need six strings.

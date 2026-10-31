@@ -2,15 +2,26 @@
 // solver's assignments, compile a validated performance and play; Play/Pause/Resume, Space and the tab's loop must make
 // sound; lower difficulties must pick simpler versions; songs must re-arrange for other instruments and fall back to an
 // easier version honestly; score files and score sets opened from disk must arrange and be remembered; usual configurations
-// must replay the precomputed cache; the suggested capo must toggle; custom settings must re-compute, export, save and import. Needs `bun run build:docs` and
+// must replay the precomputed cache; the suggested capo must toggle; custom settings must re-compute, export, save and import. Needs `bun run build:docs` (the
+// page's versioned build directory must hold the current sources) and
 // network access to cdn.jsdelivr.net (defuss-shadcn is loaded from there, pinned by SRI). SCORIFY_DOCS_SHOTS=dir saves screenshots.
 import assert from "node:assert/strict";
-import { mkdir, mkdtemp, readFile, writeFile } from "node:fs/promises";
+import { mkdir, mkdtemp, readFile, readdir, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { chromium } from "playwright";
 import { docsServer } from "./serve-docs.mjs";
 
+// The page runs the build directory index.html names (assets/v/<hash>/); it must hold the current sources and library.
+{
+  const docs = new URL("../docs/", import.meta.url), html = await readFile(new URL("index.html", docs), "utf8");
+  const build = /src="(assets\/v\/[0-9a-f]+\/)app\.mjs"/.exec(html)?.[1];
+  assert.ok(build, "docs/index.html loads no versioned build; run bun run build:docs");
+  const same = async (source, copy) => (await readFile(new URL(source, docs))).equals(await readFile(new URL(copy, docs)).catch(() => Buffer.alloc(0)));
+  const library = (await readdir(new URL("assets/scorify/", docs))).filter((file) => file.endsWith(".mjs"));
+  for (const [source, copy] of [["assets/app.mjs", `${build}app.mjs`], ["assets/songs.mjs", `${build}songs.mjs`], ...library.map((file) => [`assets/scorify/${file}`, `${build}scorify/${file}`])])
+    assert.ok(await same(source, copy), `docs/${copy} is not docs/${source}: run bun run build:docs`);
+}
 const server = docsServer({ privateScoresRoot: null });
 await new Promise((resolve) => server.listen(0, "127.0.0.1", resolve));
 const origin = `http://127.0.0.1:${server.address().port}`;

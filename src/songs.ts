@@ -1751,8 +1751,8 @@ export interface StrumPattern {
   /** Counted beats a minute it is fingered at. */
   readonly bpm: number;
   /**
-   * The easiest difficulty that plays it as written over I–IV–V–I on the instruments it is typical for (measured);
-   * easier ones play it simplified, as any song's easiest version.
+   * The easiest difficulty that plays it as written over I–IV–V–I and I–V–vi–IV on the instruments it is typical for
+   * (measured); easier ones play it simplified, as any song's easiest version.
    */
   readonly difficulty: Level;
   /** Where it is usually played. */
@@ -1773,18 +1773,18 @@ export const STRUM_PATTERNS: readonly StrumPattern[] = [
   { id: "reggae", name: "Reggae skank", style: "Island and reggae", time: [4, 4], strokes: "· · D · · · D ·", pattern: shortened(writtenStrokes("··D···D·", 0.5, 1), 0.5), bpm: 76, difficulty: "beginner", typical: ["guitar", "ukulele"] },
   { id: "ska", name: "Ska upstrokes", style: "Island and reggae", time: [4, 4], strokes: "· U · U · U · U", pattern: shortened(writtenStrokes("·U·U·U·U", 0.5, 1, TOP3), 0.25), bpm: 140, difficulty: "amateur", typical: ["guitar"] },
   { id: "rock", name: "Rock downstrokes", style: "Pop, rock and funk", time: [4, 4], strokes: "D · D D · D D ·", pattern: writtenStrokes("D·DD·DD·", 0.5, 1), bpm: 120, difficulty: "amateur", typical: ["guitar"] },
-  { id: "pop", name: "Pop strum", style: "Pop, rock and funk", time: [4, 4], strokes: "D · D U · U D ·", pattern: writtenStrokes("D·DU·UD·", 0.5, 1, TOP3), bpm: 96, difficulty: "beginner", typical: ["guitar", "ukulele"] },
+  { id: "pop", name: "Pop strum", style: "Pop, rock and funk", time: [4, 4], strokes: "D · D U · U D ·", pattern: writtenStrokes("D·DU·UD·", 0.5, 1, TOP3), bpm: 96, difficulty: "amateur", typical: ["guitar", "ukulele"] },
   { id: "funk", name: "Funk sixteenths", style: "Pop, rock and funk", time: [4, 4], strokes: "D · · U · U D · · U D · D U · U", pattern: writtenStrokes("D··U·UD··UD·DU·U", 0.25, 1), bpm: 96, difficulty: "amateur", typical: ["guitar"] },
   { id: "folk", name: "Folk strum", style: "Folk and country", time: [4, 4], strokes: "D · D U D U · U", pattern: writtenStrokes("D·DUDU·U", 0.5, 1, TOP3), bpm: 100, difficulty: "amateur", typical: ["guitar", "ukulele", "mandolin"] },
   { id: "boom-chick", name: "Boom-chick", style: "Folk and country", time: [4, 4], strokes: "B · D · B · D ·", bass: [{ at: 0, tone: "root" }, { at: 2, tone: "fifth" }], pattern: [down(1, TOP3), down(3, TOP3)], bpm: 100, difficulty: "amateur", typical: ["guitar"], strings: 6 },
   { id: "boom-chicka", name: "Boom-chicka", style: "Folk and country", time: [4, 4], strokes: "B · D U B · D U", bass: [{ at: 0, tone: "root" }, { at: 2, tone: "fifth" }], pattern: [down(1, TOP3), up(1.5, TOP2), down(3, TOP3), up(3.5, TOP2)], bpm: 100, difficulty: "amateur", typical: ["guitar"], strings: 6 },
   { id: "chop", name: "Bluegrass chop", style: "Folk and country", time: [4, 4], strokes: "· · D · · · D ·", pattern: shortened(writtenStrokes("··D···D·", 0.5, 1), 0.25), bpm: 120, difficulty: "amateur", typical: ["mandolin"] },
   { id: "swing", name: "Swing strum", style: "Swing and blues", time: [4, 4], strokes: "D · U D · U D · U D · U (triplets)", pattern: writtenStrokes("D·UD·UD·UD·U", 1 / 3, 1, TOP3), bpm: 110, difficulty: "amateur", typical: ["guitar", "ukulele"] },
-  { id: "shuffle", name: "Blues shuffle", style: "Swing and blues", time: [12, 8], strokes: "D · U D · U D · U D · U", pattern: writtenStrokes("D·UD·UD·UD·U", 0.5, 1.5, TOP3), bpm: 60, difficulty: "beginner", typical: ["guitar"] },
-  { id: "waltz", name: "Waltz strum", style: "Waltz", time: [3, 4], strokes: "D · D U D U", pattern: writtenStrokes("D·DUDU", 0.5, 1), bpm: 96, difficulty: "beginner", typical: ["guitar", "ukulele", "mandolin"] },
-  { id: "waltz-push", name: "Waltz with a push", style: "Waltz", time: [3, 4], strokes: "D · D U · U", pattern: writtenStrokes("D·DU·U", 0.5, 1), bpm: 96, difficulty: "beginner", typical: ["guitar", "ukulele"] },
+  { id: "shuffle", name: "Blues shuffle", style: "Swing and blues", time: [12, 8], strokes: "D · U D · U D · U D · U", pattern: writtenStrokes("D·UD·UD·UD·U", 0.5, 1.5, TOP3), bpm: 60, difficulty: "amateur", typical: ["guitar"] },
+  { id: "waltz", name: "Waltz strum", style: "Waltz", time: [3, 4], strokes: "D · D U D U", pattern: writtenStrokes("D·DUDU", 0.5, 1), bpm: 96, difficulty: "amateur", typical: ["guitar", "ukulele", "mandolin"] },
+  { id: "waltz-push", name: "Waltz with a push", style: "Waltz", time: [3, 4], strokes: "D · D U · U", pattern: writtenStrokes("D·DU·U", 0.5, 1), bpm: 96, difficulty: "amateur", typical: ["guitar", "ukulele"] },
   { id: "waltz-boom", name: "Boom-chick-chick", style: "Waltz", time: [3, 4], strokes: "B · D · D ·", bass: [{ at: 0, tone: "root" }], pattern: [down(1, TOP3), down(2, TOP3)], bpm: 96, difficulty: "amateur", typical: ["guitar"], strings: 6 },
-  { id: "ballad-68", name: "6/8 ballad", style: "Ballad", time: [6, 8], strokes: "D · U D · U", pattern: writtenStrokes("D·UD·U", 0.5, 1.5, TOP3), bpm: 60, difficulty: "beginner", typical: ["guitar", "ukulele"] },
+  { id: "ballad-68", name: "6/8 ballad", style: "Ballad", time: [6, 8], strokes: "D · U D · U", pattern: writtenStrokes("D·UD·U", 0.5, 1.5, TOP3), bpm: 60, difficulty: "amateur", typical: ["guitar", "ukulele"] },
 ];
 /** A strumming pattern by id. */
 export function strumPattern(id: string): StrumPattern {
