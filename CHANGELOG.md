@@ -3,6 +3,9 @@
 ## Unreleased
 
 - `STRUM_PATTERNS`: the pop strum, blues shuffle, waltz strum, waltz with a push and 6/8 ballad are written for amateur (were beginner). A pattern's difficulty is now measured over I–IV–V–I and I–V–vi–IV; on guitar, beginner cannot play these five over I–V–vi–IV.
+- `PROGRESSIONS` are 25 progressions chosen for recognizability, harmonic variety and practice value (was the 13 most common of the McGill Billboard corpus; I–IV–I–V, I–V–IV–I, I–V–I–IV and I–V–IV–V are no longer listed). New fields: `bars` (explicit durations: the 12-bar blues 4–2–2–1–1–1–1, three-chord progressions 1–1–2), `ending`, `related` (I–V–vi–IV and i–♭VI–♭III–♭VII) and `sources` (Hooktheory, Hutchinson). `note` is required. `songs` stays the McGill count, now for every progression: `scripts/billboard-progressions.py` counts all 25 the same way. `chordOfNumeral` reads sevenths (`ii7`, `Imaj7`, `I7`), half-diminished `ø7`, diminished `°` and secondary dominants (`V/vi`, `V7/ii`); chord symbols take `m7b5`.
+- Docs playground: 25 progression cards with their chords, notes and counts where the corpus has them; the selected progression's sources and related progression are linked under the cards.
+- Docs playground: a score without chord symbols hides the voicing card, and the neck takes the whole row. Progression cards sit two to a row on phones.
 - Docs site: the page loads its modules from a directory per build named after their contents (`docs/assets/v/<hash>/`, made by `build:docs`; the last three are kept). Right after a deploy, a browser could combine a new `songs.mjs` with a cached library module from the deploy before and fail with "does not provide an export named 'PROGRESSION_STYLES'". `check:docs` refuses a build directory that does not hold the current sources.
 
 ## 0.4.0 — 2026-10-31

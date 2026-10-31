@@ -2,6 +2,40 @@
 
 Date: 2026-10-31. Version: `0.4.0` on npm.
 
+## 25 chord progressions and per-build docs, 2026-10-31
+
+- **Catalog.** `tests/practice.test.ts` checks:
+  - all 25 example chord lines as listed, from C F G C to C7 F7 C7 G7 F7 C7 G7;
+  - every numeral form: `ii7` Dm7, `Imaj7` Cmaj7, `I7` C7, borrowed `iv` Fm, `V/vi` E and `V7/ii` A7 in C; `iiø7` Bm7b5, `ii°` Bdim, `bIII` C, Dorian `IV` D and `v` Em in A;
+  - the spelling of Bm7b5 (B D F A);
+  - the durations (the blues 4–2–2–1–1–1–1, the jazz ii–V–I 1–1–2);
+  - endings (Imaj⁷ held, IV–V–iii–vi ends on Am);
+  - the link between I–V–vi–IV and i–♭VI–♭III–♭VII;
+  - that source links are https URLs without tracking parameters.
+
+  All 13 source links resolved (HTTP 200) on 2026-10-31.
+- **Counts.** `scripts/billboard-progressions.py` counts all 25 in the McGill corpus with one method. It reproduces every earlier count: I–IV–V–I 42, I–vi–IV–V 28, the blues 23, I–♭VII–IV–I 22, I–vi–ii–V 17, I–♭III–IV–I 12, I–V–vi–IV 7, i–♭VI–♭VII–i 5, i–♭VII–♭VI–V 4. Counts for the new progressions:
+  - ii–V–I 39, i–IV–i 16, IV–iv–I 9;
+  - IV–V–iii–vi 3, i–♭VII–♭VI–♭VII 4;
+  - I–IV–vi–IV, i–iv–♭VI–♭VII and Imaj⁷–V⁷/ii–ii⁷–V⁷ 2 each; i–v–IV and vi–IV–V–I–IV–V 1 each;
+  - 0 for i–♭VI–♭III–♭VII, I–IV–vi–V, the Creep progression, the minor jazz ii–V–i, the minor circle of fifths and the Pachelbel-style sequence.
+- **Survey.** All 25 progressions with their strum versions: 2,450 arrangements, every one plays, and 2,359 play the version written for the level. The slowest took 29 s. The runs are all 8 instruments at all 7 levels in 4/4, and guitar and high-G ukulele in 3/4, 6/8 and 12/8. Of the other 91:
+  - 56 are baby on the four seventh-chord progressions (the blues and the three jazz ones). Baby cannot voice four-note chords, so these play simplified, reported.
+  - 35 ran out of budget from pro to maestro and play the next easier version: minor and Dorian progressions on high-G ukulele, IV–V–iii–vi and vi–IV–V–I–IV–V there, and the 4/4 blues on guitar and drop-D guitar.
+- **Page.** `check:docs` covers:
+  - 25 cards;
+  - Em7 A7 Dmaj7 and its count in D, and D F♯ G Gm with no count;
+  - the minor jazz ii–V–i playing C♯m7b5, F♯7 and Bm, with Hutchinson linked;
+  - I–V–vi–IV's related link;
+  - the blues titled by its numerals.
+
+  At phone width the cards sit two to a row (they were one, the base rule winning over the phone rule). A score without chord symbols hides the voicing card and the neck takes the whole row; Greensleeves checks it.
+- **Per-build modules.** Right after the 0.4.0 deploy, the live playground failed with "The requested module './scorify/songs.mjs' does not provide an export named 'PROGRESSION_STYLES'". The deployed files were correct. GitHub Pages serves each file with `cache-control: max-age=600` under a stable URL, so a browser combined the new `songs.mjs` with the previous deploy's `scorify/songs.mjs`.
+  - `build:docs` now copies the page's modules and the library into `docs/assets/v/<content hash>/` and points `index.html` at it, keeping the last three builds.
+  - `check:docs` fails when that directory does not hold the current sources.
+  - The stylesheet link carries its content hash.
+- `bun run check` passes **246 tests in 18 files**. `check:docs` and `check:cache` (0 of 5,502 stale) pass.
+
 ## Strum, arpeggios and inversions, 2026-10-31
 
 - **Strum strums.** Every hit of every `PROGRESSION_VERSIONS` version is a strum, with no bass, fill or arpeggio (`tests/practice.test.ts`). Before, Strum picked from pro on: in 4/4 maestro played an alternating bass with fills, 3/4 picked arpeggios from pro and at amateur, 6/8 from pro, and 12/8 from expert, so scale chords and progressions played arpeggios under "Strum". `check:docs` asserts that the story of a strummed scale's chords and of a strummed progression names no arpeggio or bass.

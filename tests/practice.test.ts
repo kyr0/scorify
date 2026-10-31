@@ -26,6 +26,7 @@ import {
   strumPattern,
   arrangeFor,
   chordOfNumeral,
+  chordTones,
   down,
   instrumentFor,
   keyName,
@@ -120,13 +121,30 @@ describe("chord progressions", () => {
   it("reads roman numerals in a key", () => {
     expect(["I", "ii", "iii", "IV", "V", "vi", "bVII", "bIII", "bVI", "V7"].map((n) => chordOfNumeral(n, "C"))).toEqual(["C", "Dm", "Em", "F", "G", "Am", "Bb", "Eb", "Ab", "G7"]);
     expect(["i", "bVI", "bVII", "V"].map((n) => chordOfNumeral(n, "A"))).toEqual(["Am", "F", "G", "E"]);
+    // Sevenths, half-diminished and diminished chords, borrowed chords and secondary dominants.
+    expect(["ii7", "Imaj7", "I7", "iv", "V/vi", "V7/ii"].map((n) => chordOfNumeral(n, "C"))).toEqual(["Dm7", "Cmaj7", "C7", "Fm", "E", "A7"]);
+    expect(["iiø7", "ii°", "bIII", "IV", "v"].map((n) => chordOfNumeral(n, "A"))).toEqual(["Bm7b5", "Bdim", "C", "D", "Em"]);
+    expect(chordTones("Bm7b5").names).toEqual(["B", "D", "F", "A"]);
     expect(() => chordOfNumeral("VIII", "C")).toThrow(RangeError);
   });
 
-  it("ranks the progressions by the Billboard songs that start a phrase with them", () => {
+  it("lists 25 progressions with their example chords, durations and separately sourced counts", () => {
     expect(BILLBOARD_SONGS).toBe(739);
-    expect(PROGRESSIONS.map((p) => p.songs)).toEqual([...PROGRESSIONS.map((p) => p.songs)].sort((a, b) => b - a));
-    expect(PROGRESSIONS[0]).toMatchObject({ name: "I–IV–V–I", songs: 42 });
+    expect(PROGRESSIONS).toHaveLength(25);
+    expect(new Set(PROGRESSIONS.map((p) => p.id)).size).toBe(25);
+    // The chords of each in C major or A minor, as listed.
+    const examples = PROGRESSIONS.map((p) => p.numerals.map((n) => chordOfNumeral(n, p.mode === "minor" ? "A" : "C")).join(" "));
+    expect(examples).toEqual([
+      "C F G C", "C G Am F", "Am F C G", "C Am F G", "C Am Dm G", "C F Am G", "C F Am F", "F G Em Am", "C Bb F C", "C Eb F C",
+      "Am F G Am", "Am G F E", "Am Dm F G", "Am G F G", "Am D Am", "Am Em D", "F Fm C", "C E F Fm", "Dm7 G7 Cmaj7",
+      "Bm7b5 E7 Am", "Cmaj7 A7 Dm7 G7", "Am F G C F G", "Am Dm G C F Bdim E Am", "C G Am Em F C F G", "C7 F7 C7 G7 F7 C7 G7",
+    ]);
+    // McGill Billboard counts, by scripts/billboard-progressions.py; other sources are linked, not counted.
+    expect(PROGRESSIONS.map((p) => p.songs)).toEqual([42, 7, 0, 28, 17, 0, 2, 3, 22, 12, 5, 4, 2, 4, 16, 1, 9, 0, 39, 0, 2, 1, 0, 0, 23]);
+    expect(PROGRESSIONS.filter((p) => p.sources).every((p) => p.sources!.every((s) => s.url.startsWith("https://") && !s.url.includes("utm_")))).toBe(true);
+    const byId = (id: string) => PROGRESSIONS.find((p) => p.id === id)!;
+    expect([byId("I-V-vi-IV").related, byId("i-bVI-bIII-bVII").related]).toEqual(["i-bVI-bIII-bVII", "I-V-vi-IV"]);
+    expect([byId("12-bar-blues").bars, byId("ii7-V7-Imaj7").bars, byId("iio7-V7-i").bars]).toEqual([[4, 2, 2, 1, 1, 1, 1], [1, 1, 2], [1, 1, 2]]);
     expect(Object.keys(PROGRESSION_VERSIONS)).toEqual(["4/4", "3/4", "6/8", "12/8"]);
     for (const versions of Object.values(PROGRESSION_VERSIONS)) expect(versions.map((v) => v.difficulty)).toEqual([...levels]);
     // The strum style strums at every difficulty, the hardest included: no picked bass, fill or arpeggio.
@@ -138,13 +156,20 @@ describe("chord progressions", () => {
   });
 
   it("plays a loop twice and the blues once, then the tonic, in any key", () => {
-    const loop = progressionSong(PROGRESSIONS[1]!, [3, 4]);
+    const loop = progressionSong(PROGRESSIONS.find((p) => p.id === "I-vi-IV-V")!, [3, 4]);
     expect([...loop.progression, loop.ending]).toEqual(["C", "Am", "F", "G", "C", "Am", "F", "G", "C"]);
     expect(loop).toMatchObject({ key: "C", mode: "major", time: [3, 4], beat: 1 });
     const blues = progressionSong(PROGRESSIONS.find((p) => p.id === "12-bar-blues")!, [12, 8]);
-    expect(blues.progression).toHaveLength(12);
+    expect([...blues.progression, blues.ending]).toEqual(["C7", "C7", "C7", "C7", "F7", "F7", "C7", "C7", "G7", "F7", "C7", "G7", "C7"]);
     expect(blues.beat).toBe(1.5);
-    const minor = progressionSong(PROGRESSIONS.find((p) => p.mode === "minor")!, [6, 8]);
+    // Three chords in four bars, twice, then the jazz tonic; a progression resolving to vi ends there.
+    const jazz = progressionSong(PROGRESSIONS.find((p) => p.id === "ii7-V7-Imaj7")!, [4, 4]);
+    expect([...jazz.progression, jazz.ending]).toEqual(["Dm7", "G7", "Cmaj7", "Cmaj7", "Dm7", "G7", "Cmaj7", "Cmaj7", "Cmaj7"]);
+    expect(jazz.description).toBe("The major jazz ii–V–I (counted as ii–V–I triads). Dm7 G7 Cmaj7 (2 bars) in C major.");
+    expect(progressionSong(PROGRESSIONS.find((p) => p.id === "IV-V-iii-vi")!, [4, 4]).ending).toBe("Am");
+    const pachelbel = progressionSong(PROGRESSIONS.find((p) => p.id === "I-V-vi-iii-IV-I-IV-V")!, [4, 4]);
+    expect([pachelbel.progression.length, pachelbel.ending]).toEqual([8, "C"]);
+    const minor = progressionSong(PROGRESSIONS.find((p) => p.id === "i-bVI-bVII-i")!, [6, 8]);
     expect(minor.progression.slice(0, 4)).toEqual(["Am", "F", "G", "Am"]);
     expect(keyName(minor, 3)).toBe("C minor");
     expect(transposeSong(loop, -1).progression.slice(0, 4)).toEqual(["B", "G#m", "E", "F#"]);

@@ -109,9 +109,12 @@ try {
         assert.equal(total, 235, "greensleeves: totals count the whole imported score");
         assert.ok(kept === 130, `greensleeves: melody and bass are kept (${state.notes})`);
         assert.match(state.message, /left out 105 notes of the other voices/);
+        // No chord symbols, no voicings: the chart card is hidden and the neck takes the row.
+        assert.deepEqual(await page.evaluate(() => [document.getElementById("board").dataset.charts, getComputedStyle(document.querySelector(".sc-charts-panel")).display]), ["none", "none"]);
       } else {
         assert.ok(total > 0 && kept === total, `${song}: every note of the version is kept (${state.notes})`);
         assert.ok(state.charts > 0, `${song}: chord charts render`);
+        assert.equal(await page.evaluate(() => getComputedStyle(document.querySelector(".sc-charts-panel")).display), "flex");
         assert.match(state.message, /the version written for maestro/);
       }
       assert.ok(state.items > 0 && state.hits > 0, `${song}: the tab draws the solver's notes`);
@@ -717,7 +720,7 @@ try {
       await settled();
       practiced = await snapshot();
       assert.equal(practiced.status, "success", practiced.problem);
-      assert.equal(await page.locator("#progression-list .sc-progression").count(), 13);
+      assert.equal(await page.locator("#progression-list .sc-progression").count(), 25);
       assert.deepEqual([await page.textContent("#song-title"), await page.inputValue("#key")], ["I–IV–V–I", "0"]);
       assert.deepEqual([await page.inputValue("#style"), /arpeggio|bass/i.test(practiced.message)], ["strum", false]);
       // Pattern: the versions by difficulty, or a strumming pattern of the meter; a bass under the strum needs a guitar.
@@ -734,9 +737,22 @@ try {
       practiced = await choose("#key", "2");
       assert.equal(practiced.status, "success", practiced.problem);
       assert.match(await page.textContent('[data-progression="I-bVII-IV-I"]'), /D C G D/);
+      // Sevenths and secondary dominants on the cards, a count only where the corpus has one, and sources linked.
+      assert.match(await page.textContent('[data-progression="ii7-V7-Imaj7"]'), /Em7 A7 Dmaj7.*39 of 739 songs/);
+      assert.doesNotMatch(await page.textContent('[data-progression="I-V/vi-IV-iv"]'), /of 739 songs/);
+      assert.match(await page.textContent('[data-progression="I-V/vi-IV-iv"]'), /D F# G Gm/);
+      await page.click('[data-progression="iio7-V7-i"]');
+      await settled();
+      practiced = await snapshot();
+      assert.equal(practiced.status, "success", practiced.problem);
+      assert.deepEqual([await page.textContent("#song-title"), (await chordNames()).slice(0, 3)], ["iiø⁷–V⁷–i", ["C#m7b5", "F#7", "Bm"]]);
+      assert.match(await page.textContent("#progression-sources"), /Hutchinson/);
+      await page.click('[data-progression="I-V-vi-IV"]');
+      await settled();
+      assert.match(await page.textContent("#progression-sources"), /Related: i–♭VI–♭III–♭VII/);
       await page.click('[data-progression="12-bar-blues"]');
       await settled();
-      assert.deepEqual([await page.textContent("#song-title"), await page.inputValue("#key"), await page.getAttribute('[data-progression="12-bar-blues"]', "aria-pressed")], ["12-bar blues", "2", "true"]);
+      assert.deepEqual([await page.textContent("#song-title"), await page.inputValue("#key"), await page.getAttribute('[data-progression="12-bar-blues"]', "aria-pressed")], ["I⁷–IV⁷–I⁷–V⁷–IV⁷–I⁷–V⁷", "2", "true"]);
       practiced = await choose("#meter", "12/8");
       assert.deepEqual([practiced.status, await page.textContent("#rhythm-badge"), await page.inputValue("#tempo")], ["success", "Progression · 12/8 · 7 versions", "72"]);
       // Played as an arpeggio, and a chord of it inverted.
@@ -763,7 +779,7 @@ try {
       await page.click("#song-tab .fretboard-chord >> nth=0 >> .sc-invert-reset");
       await settled();
       assert.deepEqual([(await snapshot()).status, (await chordNames())[0]], ["success", "C"]);
-      report.practice = "scale tab (tonic, spelling, neck fit and highest fret, Time and Play next to Key, directions, chords strummed without arpeggios, baby's shortest note), progression tab (Billboard cards, key, strum without arpeggios, strumming patterns, blues, 12/8, arpeggio), inversion buttons in scales, progressions and songs, remembered choices, back to songs";
+      report.practice = "scale tab (tonic, spelling, neck fit and highest fret, Time and Play next to Key, directions, chords strummed without arpeggios, baby's shortest note), progression tab (25 cards, sevenths and secondary dominants, counts and sources, key, strum without arpeggios, strumming patterns, blues, 12/8, arpeggio), inversion buttons in scales, progressions and songs, remembered choices, back to songs";
     }
 
     // The API tabs and the theme switch are wired by defuss-shadcn and app.mjs.

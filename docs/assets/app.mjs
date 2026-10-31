@@ -763,7 +763,7 @@ try {
     for (const button of document.querySelectorAll("[data-song]")) button.setAttribute("aria-pressed", String(button.dataset.song === piece.id));
     $("window-note").textContent = piece.exercise ? "Scale exercise made by scorify: spelled degrees, at the lowest octave the neck holds"
       : kind === "Scale chords" ? "A scale's chords made by scorify: the triad on every degree, up and back down"
-      : kind === "Progression" ? `Chord progression from the McGill Billboard corpus (Hot 100, 1958–1991), ${piece.origin.pattern ? "in a strumming pattern" : "with versions written for the playground"}`
+      : kind === "Progression" ? `One of 25 practice progressions, ${piece.origin.pattern ? "in a strumming pattern" : "with versions written for the playground"}; ${piece.credit}`
       : piece.kind === "chart" ? "Chord chart under an imported voice part" : piece.kind === "score" ? "Imported score" : STUDIES_NOTE;
   }
 
@@ -920,7 +920,8 @@ try {
     chordTimeline = (data.scores[0].tracks.find(t => t.kind === "chords")?.items ?? [])
       .map(i => ({ at: (i.measure - 1) * piece.time[0] + i.beat - 1, name: i.name ?? i.text })).sort((a, b) => a.at - b.at);
     charts.style.setProperty("--sc-beat", `${60 / data.scores[0].bpm}s`);
-    $("charts-empty").hidden = Object.keys(data.chords).length > 0;
+    // A score without chord symbols has no voicings to chart: the neck takes the whole row.
+    $("board").dataset.charts = Object.keys(data.chords).length ? "some" : "none";
     $("tab-title").textContent = `${piece.title} · ${instruments.find(i => i.id === instrumentId).name}${current.custom?.tuning?.length ? ` · ${current.custom.tuning.join(" ")}` : ""}${current.capo ? ` · capo ${current.capo}` : ""}`;
     $("fact-tuning").textContent = instrument.strings.map(s => s.openPitch).join(" · ") + (current.capo ? ` · capo ${current.capo}` : "");
     $("fact-level").textContent = simplify ? `${level} · simplified` : version.difficulty === level ? level : `${level} · ${version.difficulty} version`;
@@ -972,7 +973,7 @@ try {
     const name = instruments.find(i => i.id === instrumentId).short;
     stopAudio(); result = plan = arranged = undefined; buttons();
     describe();
-    $("problem").hidden = $("charts-empty").hidden = true;
+    $("problem").hidden = true;
     playground.dataset.status = "searching";
     playground.dataset.song = piece.id;
     playground.dataset.instrument = instrumentId;
@@ -1271,18 +1272,30 @@ try {
   function showProgressions() {
     const transpose = Number($("key").value) || 0, top = Math.max(...PROGRESSIONS.map(p => p.songs));
     $("progression-list").replaceChildren(...PROGRESSIONS.map(p => {
-      const song = transposeSong(progressionSong(p, [4, 4]), transpose), chords = p.numerals.map((_, k) => song.progression[k]);
+      // Each entry's chord in the key on show: the first bar it lasts.
+      const song = transposeSong(progressionSong(p, [4, 4]), transpose);
+      const chords = p.numerals.map((_, k) => song.progression[p.numerals.slice(0, k).reduce((at, _n, j) => at + (p.bars?.[j] ?? 1), 0)]);
       const card = Object.assign(document.createElement("button"), { type: "button", className: "sc-progression" });
       card.dataset.progression = p.id;
       card.setAttribute("aria-pressed", String(p.id === library.progression.id));
       const part = (className, text) => Object.assign(document.createElement("span"), { className, textContent: text });
-      const count = part("sc-progression-count", `${p.songs} of ${BILLBOARD_SONGS} songs`);
-      const bar = part("sc-progression-bar", "");
-      bar.style.setProperty("--share", String(p.songs / top));
-      count.prepend(bar);
-      card.append(part("sc-progression-name", p.name), part("sc-progression-chords", chords.filter((c, k) => c !== chords[k - 1]).join(" ")), count, ...(p.note ? [part("sc-progression-note", p.note)] : []));
+      // The McGill Billboard count where the corpus has the progression; other sources are linked below the list.
+      const count = p.songs ? part("sc-progression-count", `${p.songs} of ${BILLBOARD_SONGS} songs`) : null;
+      if (count) {
+        const bar = part("sc-progression-bar", "");
+        bar.style.setProperty("--share", String(p.songs / top));
+        count.prepend(bar);
+      }
+      card.append(part("sc-progression-name", p.name), part("sc-progression-chords", chords.join(" ")), ...(count ? [count] : []), part("sc-progression-note", p.note));
       return card;
     }));
+    const chosen = PROGRESSIONS.find(p => p.id === library.progression.id) ?? PROGRESSIONS[0], related = PROGRESSIONS.find(p => p.id === chosen.related);
+    const link = ({ name, url }) => Object.assign(document.createElement("a"), { href: url, target: "_blank", rel: "noopener", textContent: name });
+    $("progression-sources").replaceChildren(...[
+      ...(chosen.sources?.length ? [`${chosen.name}: `, ...chosen.sources.flatMap((s, k) => [...(k ? ["; "] : []), link(s)]), "."] : []),
+      ...(related ? [`${chosen.sources?.length ? " " : `${chosen.name}: `}Related: ${related.name}.`] : []),
+    ]);
+    $("progression-sources").hidden = !chosen.sources?.length && !related;
   }
   function showProgression({ fresh = false } = {}) {
     const keep = fresh ? 0 : Number($("key").value) || 0, meterChanged = piece?.origin?.type !== "progression" || piece.time.join("/") !== library.progression.time.join("/"), before = piece;

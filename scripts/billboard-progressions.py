@@ -11,7 +11,7 @@ https://ddmal.ca/research/The_McGill_Billboard_Project_(Chord_Analysis_Dataset)/
 Chords are read relative to the annotated tonic (a new "# tonic" line changes it), as roman numerals: lower case for
 minor and half-diminished chords, "°" for diminished ones, "b" for lowered degrees; sevenths, inversions and
 suspensions count as their triad. Repeated chords are merged. A song counts once per progression: when one of its
-phrases (an annotation line) starts with the four chords. The 12-bar blues counts the songs with twelve bars on
+phrases (an annotation line) starts with the four chords. It then counts scorify's PROGRESSIONS (any length) alike. The 12-bar blues counts the songs with twelve bars on
 I I I I IV IV I I V (IV or V) I (I or V), read from the first chord of each bar. It prints the blues and the
 progressions that start on the tonic in at least four songs. Standard library only.
 """
@@ -79,11 +79,28 @@ def songs(root):
         yield phrases, bars
 
 
+# scorify's PROGRESSIONS in this script's chord vocabulary: sevenths count as their triad, a half-diminished seventh as
+# a minor chord (iiø7 is "ii"), a secondary dominant as its major triad (V/vi in C is E, "III"; V7/ii is A, "VI").
+PRACTISED = [
+    ("I-IV-V-I", "I IV V I"), ("I-V-vi-IV", "I V vi IV"), ("i-bVI-bIII-bVII", "i bVI bIII bVII"), ("I-vi-IV-V", "I vi IV V"),
+    ("I-vi-ii-V", "I vi ii V"), ("I-IV-vi-V", "I IV vi V"), ("I-IV-vi-IV", "I IV vi IV"), ("IV-V-iii-vi", "IV V iii vi"),
+    ("I-bVII-IV-I", "I bVII IV I"), ("I-bIII-IV-I", "I bIII IV I"), ("i-bVI-bVII-i", "i bVI bVII i"),
+    ("i-bVII-bVI-V", "i bVII bVI V"), ("i-iv-bVI-bVII", "i iv bVI bVII"), ("i-bVII-bVI-bVII", "i bVII bVI bVII"),
+    ("i-IV-i", "i IV i"), ("i-v-IV", "i v IV"), ("IV-iv-I", "IV iv I"), ("I-V/vi-IV-iv", "I III IV iv"),
+    ("ii7-V7-Imaj7", "ii V I"), ("iio7-V7-i", "ii V i"), ("Imaj7-V7/ii-ii7-V7", "I VI ii V"),
+    ("vi-IV-V-I-IV-V", "vi IV V I IV V"), ("i-iv-bVII-bIII-bVI-iio-V-i", "i iv bVII bIII bVI ii° V i"),
+    ("I-V-vi-iii-IV-I-IV-V", "I V vi iii IV I IV V"),
+]
+
+
 def main(root):
     starts, blues, total = collections.Counter(), 0, 0
+    practised = collections.Counter()
     for phrases, bars in songs(root):
         total += 1
         starts.update({tuple(p[:4]) for p in phrases if len(p) >= 4 and None not in p[:4] and len(set(p[:4])) >= 3})
+        # A song counts once per progression: when one of its phrases starts with the progression's chords.
+        practised.update({pid for pid, chords in PRACTISED for p in phrases if p[:len(chords.split())] == chords.split()})
         fits = lambda b, w: b in w if isinstance(w, tuple) else b == w
         blues += any(all(fits(b, w) for b, w in zip(bars[i:i + 12], BLUES)) for i in range(len(bars) - 11))
     print(f"{total} distinct songs")
@@ -92,6 +109,9 @@ def main(root):
     for progression, count in starts.most_common():
         if count >= 4 and progression[0] in ("I", "i"):
             print(f"{count:4d}  {' – '.join(progression)}")
+    print("scorify's progressions (songs with a phrase that starts with them):")
+    for pid, chords in PRACTISED:
+        print(f"{practised[pid]:4d}  {pid}  ({chords})")
 
 
 if __name__ == "__main__":

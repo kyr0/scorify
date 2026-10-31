@@ -36,7 +36,10 @@ const kept = [...earlier.filter((b) => b !== id), id].slice(-KEEP);
 for (const entry of await readdir(versions)) if (entry !== "builds.json" && !kept.includes(entry)) await rm(new URL(`${entry}/`, versions), { recursive: true, force: true });
 await writeFile(manifest, `${JSON.stringify(kept, null, 2)}\n`);
 const page = new URL("../docs/index.html", import.meta.url), html = await readFile(page, "utf8");
-const script = /<script type="module" src="assets\/(?:v\/[0-9a-f]+\/)?app\.mjs"><\/script>/;
-if (!script.test(html)) throw new Error("docs/index.html has no app.mjs module script to point at the build");
-await writeFile(page, html.replace(script, `<script type="module" src="assets/v/${id}/app.mjs"></script>`));
+const script = /<script type="module" src="assets\/(?:v\/[0-9a-f]+\/)?app\.mjs"><\/script>/,
+  styles = /href="assets\/site\.css(?:\?v=[0-9a-f]+)?"/;
+if (!script.test(html) || !styles.test(html)) throw new Error("docs/index.html has no app.mjs module script or site.css link to point at the build");
+// The stylesheet's query only avoids a cached copy: the new page fetches the new stylesheet.
+const css = createHash("sha256").update(await readFile(new URL("site.css", assets))).digest("hex").slice(0, 12);
+await writeFile(page, html.replace(script, `<script type="module" src="assets/v/${id}/app.mjs"></script>`).replace(styles, `href="assets/site.css?v=${css}"`));
 console.log(`Built docs/ with local ESM, worker and audio modules (page modules in assets/v/${id}/). Serve with bun run dev:docs.`);

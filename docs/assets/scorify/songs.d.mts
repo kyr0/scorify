@@ -200,7 +200,7 @@ interface ChordTones {
     readonly bass: number;
     readonly required: readonly number[];
 }
-/** The spelled tones of a chord symbol (triads, sevenths, sixths, sus, dim, aug, slash bass). */
+/** The spelled tones of a chord symbol (triads, sevenths, half-diminished sevenths, sixths, sus, dim, aug, slash bass). */
 declare function chordTones(symbol: string): ChordTones;
 type Fret = number | "x";
 interface Proposal {
@@ -568,26 +568,44 @@ declare function scalePiece(exercise: ScaleExercise, instrument: FrettedInstrume
     id?: string;
 }): ScorePiece;
 /**
- * A chord progression by scale degree, a bar each: roman numerals over the tonic, lower case minor, ♭ as "b", "7" a
- * dominant seventh. `songs` is how many of the 739 distinct songs of the McGill Billboard corpus (Billboard Hot 100,
- * 1958–1991; Burgoyne, Wild and Fujinaga 2011, CC0) start a phrase with it (the 12-bar blues: have a 12-bar blues
- * chorus), counted by scripts/billboard-progressions.py over the corpus's chord annotations.
+ * A chord progression by scale degree: roman numerals over the tonic (C major, A minor), upper case major, lower case
+ * minor, "b" a degree lowered against the parallel major (bIII is C in A minor), "°" diminished, "ø7" half-diminished
+ * seventh, "7" a dominant (upper case) or minor (lower case) seventh, "maj7" a major seventh, and "V/vi" or "V7/ii" a
+ * secondary dominant. Each entry lasts `bars` bars (one each unless given); `ending` is the chord held at the end
+ * (the tonic unless given). `songs` is how many of the 739 distinct songs of the McGill Billboard corpus (Billboard
+ * Hot 100, 1958–1991; Burgoyne, Wild and Fujinaga 2011, CC0) start a phrase with its chords (sevenths counted as
+ * triads; the 12-bar blues: have a 12-bar blues chorus), counted by scripts/billboard-progressions.py; other sources'
+ * popularity is not mixed into it.
  */
 interface Progression {
     readonly id: string;
+    /** The numerals as written ("ii⁷–V⁷–Imaj⁷"). */
     readonly name: string;
     readonly numerals: readonly string[];
+    readonly bars?: readonly number[];
+    readonly ending?: string;
     readonly mode: "major" | "minor";
     readonly songs: number;
-    readonly note?: string;
+    /** What it is and why it is practised. */
+    readonly note: string;
+    /** A progression of the same family (I–V–vi–IV and its minor-centred rotation). */
+    readonly related?: string;
+    readonly sources?: readonly {
+        readonly name: string;
+        readonly url: string;
+    }[];
 }
 declare const BILLBOARD_SONGS = 739;
 /**
- * Every progression that starts on the tonic in at least 12 songs, the 12-bar blues, I–V–vi–IV and the most common
- * minor ones: i–♭VI–♭VII–i, and of the two at four songs the Andalusian cadence (i–♭VII–♭VI–♭VII has four too).
+ * Twenty-five progressions chosen for recognizability, harmonic variety and practice value, in that order: the
+ * fundamental and pop loops, rock and minor progressions, Dorian vamps, borrowed and secondary chords, jazz ii–V–I
+ * progressions, longer sequences and the 12-bar blues.
  */
 declare const PROGRESSIONS: readonly Progression[];
-/** A roman numeral's chord symbol in a key: "bVII" in C is Bb, "vi" Am, "V7" G7 (spelled plainly). */
+/**
+ * A roman numeral's chord symbol in a key: "bVII" in C is Bb, "vi" Am, "V7" G7, "ii7" Dm7, "Imaj7" Cmaj7, "ii°" Ddim,
+ * "iiø7" Dm7b5, "V/vi" E, "V7/ii" A7 (spelled plainly).
+ */
 declare function chordOfNumeral(numeral: string, key: string): string;
 type PracticeVersion = Omit<SongVersion, "id">;
 /**
@@ -653,8 +671,9 @@ declare const STRUM_PATTERNS: readonly StrumPattern[];
 /** A strumming pattern by id. */
 declare function strumPattern(id: string): StrumPattern;
 /**
- * A progression as a chord song in C major (A minor for a minor one), the key selector moving it: a four-bar loop
- * twice, the 12-bar blues once, then the tonic held a bar; one version per difficulty for the meter.
+ * A progression as a chord song in C major (A minor for a minor one), the key selector moving it: each chord its
+ * bars, a loop shorter than eight bars twice, a longer one (the 12-bar blues) once, then its ending held a bar; one
+ * version per difficulty for the meter, or a strumming pattern.
  */
 declare function progressionSong(progression: Progression, time: readonly [number, number], { instrument, style, pattern }?: {
     instrument?: string;

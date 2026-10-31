@@ -333,7 +333,7 @@ function hitsIn(song: SongSpec, b: number, segment: Segment, size = 1): Hit[] {
 const QUALITIES: Readonly<Record<string, readonly string[]>> = {
   "": ["1P", "3M", "5P"], m: ["1P", "3m", "5P"], 7: ["1P", "3M", "5P", "7m"], m7: ["1P", "3m", "5P", "7m"],
   maj7: ["1P", "3M", "5P", "7M"], dim: ["1P", "3m", "5d"], aug: ["1P", "3M", "5A"], sus2: ["1P", "2M", "5P"],
-  sus4: ["1P", "4P", "5P"], 6: ["1P", "3M", "5P", "6M"], m6: ["1P", "3m", "5P", "6M"],
+  sus4: ["1P", "4P", "5P"], 6: ["1P", "3M", "5P", "6M"], m6: ["1P", "3m", "5P", "6M"], m7b5: ["1P", "3m", "5d", "7m"],
 };
 export interface ChordTones {
   readonly names: readonly string[];
@@ -341,9 +341,9 @@ export interface ChordTones {
   readonly bass: number;
   readonly required: readonly number[];
 }
-/** The spelled tones of a chord symbol (triads, sevenths, sixths, sus, dim, aug, slash bass). */
+/** The spelled tones of a chord symbol (triads, sevenths, half-diminished sevenths, sixths, sus, dim, aug, slash bass). */
 export function chordTones(symbol: string): ChordTones {
-  const m = /^([A-G](?:#|b)?)(m|7|m7|maj7|dim|aug|sus2|sus4|6|m6)?(?:\/([A-G](?:#|b)?))?$/.exec(symbol);
+  const m = /^([A-G](?:#|b)?)(m7b5|m|7|m7|maj7|dim|aug|sus2|sus4|6|m6)?(?:\/([A-G](?:#|b)?))?$/.exec(symbol);
   if (!m) throw new RangeError(`Unsupported chord symbol: ${symbol}`);
   const names = QUALITIES[m[2] ?? ""]!.map((i) => transposePitch(`${m[1]}4`, i).replace(/-?\d+$/, ""));
   const classes = names.map((n) => pc(pitchToMidi(`${n}4`)));
@@ -1574,51 +1574,100 @@ export function scalePiece(exercise: ScaleExercise, instrument: FrettedInstrumen
 }
 
 /**
- * A chord progression by scale degree, a bar each: roman numerals over the tonic, lower case minor, ♭ as "b", "7" a
- * dominant seventh. `songs` is how many of the 739 distinct songs of the McGill Billboard corpus (Billboard Hot 100,
- * 1958–1991; Burgoyne, Wild and Fujinaga 2011, CC0) start a phrase with it (the 12-bar blues: have a 12-bar blues
- * chorus), counted by scripts/billboard-progressions.py over the corpus's chord annotations.
+ * A chord progression by scale degree: roman numerals over the tonic (C major, A minor), upper case major, lower case
+ * minor, "b" a degree lowered against the parallel major (bIII is C in A minor), "°" diminished, "ø7" half-diminished
+ * seventh, "7" a dominant (upper case) or minor (lower case) seventh, "maj7" a major seventh, and "V/vi" or "V7/ii" a
+ * secondary dominant. Each entry lasts `bars` bars (one each unless given); `ending` is the chord held at the end
+ * (the tonic unless given). `songs` is how many of the 739 distinct songs of the McGill Billboard corpus (Billboard
+ * Hot 100, 1958–1991; Burgoyne, Wild and Fujinaga 2011, CC0) start a phrase with its chords (sevenths counted as
+ * triads; the 12-bar blues: have a 12-bar blues chorus), counted by scripts/billboard-progressions.py; other sources'
+ * popularity is not mixed into it.
  */
 export interface Progression {
   readonly id: string;
+  /** The numerals as written ("ii⁷–V⁷–Imaj⁷"). */
   readonly name: string;
   readonly numerals: readonly string[];
+  readonly bars?: readonly number[];
+  readonly ending?: string;
   readonly mode: "major" | "minor";
   readonly songs: number;
-  readonly note?: string;
+  /** What it is and why it is practised. */
+  readonly note: string;
+  /** A progression of the same family (I–V–vi–IV and its minor-centred rotation). */
+  readonly related?: string;
+  readonly sources?: readonly { readonly name: string; readonly url: string }[];
 }
 export const BILLBOARD_SONGS = 739;
+const HOOKTHEORY_SEARCH = (chords: string) => ({ name: "Hooktheory TheoryTab search", url: `https://www.hooktheory.com/theorytab/advanced-search?chordString=${chords}` });
+const HOOKTHEORY_00S = { name: "Hooktheory: chord progressions of the 2000s", url: "https://s3.amazonaws.com/cdn.hooktheory.com/assets/infographics/decades/2000s/hooktheory-00s-chord-progressions.pdf" };
+const HOOKTHEORY_10S = { name: "Hooktheory: chord progressions of the 2010s", url: "https://s3.amazonaws.com/cdn.hooktheory.com/assets/infographics/decades/2010s/hooktheory-10s-chord-progressions.pdf" };
+const HOOKTHEORY_JAZZ = { name: "Hooktheory: jazz chord progressions", url: "https://www.hooktheory.com/blog/jazz-chord-progressions/" };
+const HUTCHINSON = (page: string, title: string) => ({ name: `Hutchinson, Music Theory for the 21st-Century Classroom: ${title}`, url: `https://musictheory.pugetsound.edu/mt21c/${page}.html` });
 /**
- * Every progression that starts on the tonic in at least 12 songs, the 12-bar blues, I–V–vi–IV and the most common
- * minor ones: i–♭VI–♭VII–i, and of the two at four songs the Andalusian cadence (i–♭VII–♭VI–♭VII has four too).
+ * Twenty-five progressions chosen for recognizability, harmonic variety and practice value, in that order: the
+ * fundamental and pop loops, rock and minor progressions, Dorian vamps, borrowed and secondary chords, jazz ii–V–I
+ * progressions, longer sequences and the 12-bar blues.
  */
 export const PROGRESSIONS: readonly Progression[] = [
-  { id: "I-IV-V-I", name: "I–IV–V–I", numerals: ["I", "IV", "V", "I"], mode: "major", songs: 42 },
-  { id: "I-vi-IV-V", name: "I–vi–IV–V", numerals: ["I", "vi", "IV", "V"], mode: "major", songs: 28, note: "the fifties or doo-wop progression" },
-  { id: "I-IV-I-V", name: "I–IV–I–V", numerals: ["I", "IV", "I", "V"], mode: "major", songs: 28 },
-  { id: "I-V-IV-I", name: "I–V–IV–I", numerals: ["I", "V", "IV", "I"], mode: "major", songs: 23 },
+  { id: "I-IV-V-I", name: "I–IV–V–I", numerals: ["I", "IV", "V", "I"], mode: "major", songs: 42, note: "the fundamental major-key progression" },
   {
-    id: "12-bar-blues", name: "12-bar blues", mode: "major", songs: 23,
-    numerals: ["I7", "I7", "I7", "I7", "IV7", "IV7", "I7", "I7", "V7", "IV7", "I7", "V7"],
+    id: "I-V-vi-IV", name: "I–V–vi–IV", numerals: ["I", "V", "vi", "IV"], mode: "major", songs: 7, related: "i-bVI-bIII-bVII",
+    note: "four-chord pop, the leading pattern of Hooktheory's analysis; rare before 1992, the McGill corpus's last year",
+    sources: [{ name: "Hooktheory: analysis of 1,300 songs", url: "https://www.hooktheory.com/blog/music-theory-analysis-1300-songs-for-songwriting-part2/" }],
   },
-  { id: "I-bVII-IV-I", name: "I–♭VII–IV–I", numerals: ["I", "bVII", "IV", "I"], mode: "major", songs: 22, note: "the Mixolydian rock progression" },
-  { id: "I-V-I-IV", name: "I–V–I–IV", numerals: ["I", "V", "I", "IV"], mode: "major", songs: 18 },
-  { id: "I-vi-ii-V", name: "I–vi–ii–V", numerals: ["I", "vi", "ii", "V"], mode: "major", songs: 17, note: "the turnaround" },
-  { id: "I-V-IV-V", name: "I–V–IV–V", numerals: ["I", "V", "IV", "V"], mode: "major", songs: 12 },
-  { id: "I-bIII-IV-I", name: "I–♭III–IV–I", numerals: ["I", "bIII", "IV", "I"], mode: "major", songs: 12 },
-  { id: "I-V-vi-IV", name: "I–V–vi–IV", numerals: ["I", "V", "vi", "IV"], mode: "major", songs: 7, note: "rare before 1992, the corpus's last year, and far more common in later hits" },
-  { id: "i-bVI-bVII-i", name: "i–♭VI–♭VII–i", numerals: ["i", "bVI", "bVII", "i"], mode: "minor", songs: 5 },
-  { id: "i-bVII-bVI-V", name: "i–♭VII–♭VI–V", numerals: ["i", "bVII", "bVI", "V"], mode: "minor", songs: 4, note: "the Andalusian cadence" },
+  {
+    id: "i-bVI-bIII-bVII", name: "i–♭VI–♭III–♭VII", numerals: ["i", "bVI", "bIII", "bVII"], mode: "minor", songs: 0, related: "I-V-vi-IV",
+    note: "the minor-centred version of the same cyclic family as I–V–vi–IV",
+    sources: [{ name: "Hooktheory: parallel and relative keys", url: "https://api.hooktheory.com/support/musicreference?concept=music-concepts-parallel-vs-relative" }],
+  },
+  { id: "I-vi-IV-V", name: "I–vi–IV–V", numerals: ["I", "vi", "IV", "V"], mode: "major", songs: 28, note: "the fifties or doo-wop progression" },
+  { id: "I-vi-ii-V", name: "I–vi–ii–V", numerals: ["I", "vi", "ii", "V"], mode: "major", songs: 17, note: "the diatonic turnaround" },
+  { id: "I-IV-vi-V", name: "I–IV–vi–V", numerals: ["I", "IV", "vi", "V"], mode: "major", songs: 0, note: "an alternate pop loop (Shut Up and Dance)", sources: [HOOKTHEORY_SEARCH("I+IV+vi+V")] },
+  { id: "I-IV-vi-IV", name: "I–IV–vi–IV", numerals: ["I", "IV", "vi", "IV"], mode: "major", songs: 2, note: "a pop loop returning through IV (I Gotta Feeling)", sources: [HOOKTHEORY_00S] },
+  { id: "IV-V-iii-vi", name: "IV–V–iii–vi", numerals: ["IV", "V", "iii", "vi"], ending: "vi", mode: "major", songs: 3, note: "a major-key progression resolving to vi (Love Takes Time)", sources: [HOOKTHEORY_SEARCH("IV+V+iii+vi")] },
+  { id: "I-bVII-IV-I", name: "I–♭VII–IV–I", numerals: ["I", "bVII", "IV", "I"], mode: "major", songs: 22, note: "Mixolydian rock, double-plagal motion" },
+  { id: "I-bIII-IV-I", name: "I–♭III–IV–I", numerals: ["I", "bIII", "IV", "I"], mode: "major", songs: 12, note: "a rock progression with a borrowed ♭III" },
+  { id: "i-bVI-bVII-i", name: "i–♭VI–♭VII–i", numerals: ["i", "bVI", "bVII", "i"], mode: "minor", songs: 5, note: "the natural-minor ascent back to the tonic" },
+  { id: "i-bVII-bVI-V", name: "i–♭VII–♭VI–V", numerals: ["i", "bVII", "bVI", "V"], mode: "minor", songs: 4, note: "the Andalusian cadence: descending roots to a major dominant" },
+  { id: "i-iv-bVI-bVII", name: "i–iv–♭VI–♭VII", numerals: ["i", "iv", "bVI", "bVII"], mode: "minor", songs: 2, note: "minor dance-pop (Shape of You)", sources: [HOOKTHEORY_10S] },
+  { id: "i-bVII-bVI-bVII", name: "i–♭VII–♭VI–♭VII", numerals: ["i", "bVII", "bVI", "bVII"], mode: "minor", songs: 4, note: "minor rock and pop (Rolling in the Deep)", sources: [HOOKTHEORY_10S] },
+  { id: "i-IV-i", name: "i–IV–i", numerals: ["i", "IV", "i"], bars: [1, 1, 2], mode: "minor", songs: 16, note: "a Dorian vamp: the major IV supplies the raised sixth (F♯ in A)" },
+  { id: "i-v-IV", name: "i–v–IV", numerals: ["i", "v", "IV"], bars: [1, 1, 2], mode: "minor", songs: 1, note: "a Dorian three-chord loop (Let Me Love You)", sources: [HOOKTHEORY_00S] },
+  { id: "IV-iv-I", name: "IV–iv–I", numerals: ["IV", "iv", "I"], bars: [1, 1, 2], mode: "major", songs: 9, note: "the minor-plagal cadence: A, A♭, G in the voices", sources: [HOOKTHEORY_SEARCH("IV+iv+I")] },
+  { id: "I-V/vi-IV-iv", name: "I–V/vi–IV–iv", numerals: ["I", "V/vi", "IV", "iv"], mode: "major", songs: 0, note: "the Creep progression: a secondary dominant and a borrowed minor iv", sources: [HOOKTHEORY_SEARCH("I+V%2Fvi+IV+iv")] },
+  { id: "ii7-V7-Imaj7", name: "ii⁷–V⁷–Imaj⁷", numerals: ["ii7", "V7", "Imaj7"], bars: [1, 1, 2], ending: "Imaj7", mode: "major", songs: 39, note: "the major jazz ii–V–I (counted as ii–V–I triads)", sources: [HOOKTHEORY_JAZZ] },
+  { id: "iio7-V7-i", name: "iiø⁷–V⁷–i", numerals: ["iiø7", "V7", "i"], bars: [1, 1, 2], mode: "minor", songs: 0, note: "the minor jazz ii–V–i, prepared by a half-diminished seventh", sources: [HUTCHINSON("StandardChordProgressions", "standard chord progressions")] },
+  { id: "Imaj7-V7/ii-ii7-V7", name: "Imaj⁷–V⁷/ii–ii⁷–V⁷", numerals: ["Imaj7", "V7/ii", "ii7", "V7"], ending: "Imaj7", mode: "major", songs: 2, note: "a jazz turnaround with a secondary dominant", sources: [HOOKTHEORY_JAZZ] },
+  { id: "vi-IV-V-I-IV-V", name: "vi–IV–V–I–IV–V", numerals: ["vi", "IV", "V", "I", "IV", "V"], mode: "major", songs: 1, note: "an extended pop phrase, from Hooktheory I", sources: [{ name: "Hooktheory I: combining chords and melody", url: "https://book-one.hooktheory.com/section/combining-chords-and-melody" }] },
+  { id: "i-iv-bVII-bIII-bVI-iio-V-i", name: "i–iv–♭VII–♭III–♭VI–ii°–V–i", numerals: ["i", "iv", "bVII", "bIII", "bVI", "ii°", "V", "i"], mode: "minor", songs: 0, note: "the minor circle-of-fifths sequence, Baroque harmonic vocabulary", sources: [HUTCHINSON("CircleOfFifths", "the circle-of-fifths progression")] },
+  { id: "I-V-vi-iii-IV-I-IV-V", name: "I–V–vi–iii–IV–I–IV–V", numerals: ["I", "V", "vi", "iii", "IV", "I", "IV", "V"], mode: "major", songs: 0, note: "the Pachelbel-style eight-chord sequence", sources: [{ name: "Hooktheory forum: popular chord progressions", url: "https://forum.hooktheory.com/t/popular-chord-progressions-dont-match-examples/4668" }] },
+  {
+    id: "12-bar-blues", name: "I⁷–IV⁷–I⁷–V⁷–IV⁷–I⁷–V⁷", numerals: ["I7", "IV7", "I7", "V7", "IV7", "I7", "V7"], bars: [4, 2, 2, 1, 1, 1, 1], ending: "I7", mode: "major", songs: 23,
+    note: "the 12-bar blues with a dominant turnaround (counted: songs with a 12-bar blues chorus)", sources: [HOOKTHEORY_JAZZ],
+  },
 ];
 const DEGREES: Readonly<Record<string, string>> = { I: "1P", II: "2M", III: "3M", IV: "4P", V: "5P", VI: "6M", VII: "7M" };
-/** A roman numeral's chord symbol in a key: "bVII" in C is Bb, "vi" Am, "V7" G7 (spelled plainly). */
+const NUMERAL = /^(b?)(I{1,3}|IV|VI{0,2}|V|i{1,3}|iv|vi{0,2}|v)(°|ø7|maj7|7)?(?:\/(b?)(I{1,3}|IV|VI{0,2}|V|i{1,3}|iv|vi{0,2}|v))?$/;
+/** The root a degree names in a key, a "b" lowering it against the major scale. */
+function degreeRoot(flat: string, degree: string, key: string): string {
+  const interval = DEGREES[degree.toUpperCase()]!,
+    lowered = flat ? `${interval[0]}${interval[1] === "P" ? "d" : "m"}` : interval;
+  return transposePitch(`${key}4`, lowered);
+}
+/**
+ * A roman numeral's chord symbol in a key: "bVII" in C is Bb, "vi" Am, "V7" G7, "ii7" Dm7, "Imaj7" Cmaj7, "ii°" Ddim,
+ * "iiø7" Dm7b5, "V/vi" E, "V7/ii" A7 (spelled plainly).
+ */
 export function chordOfNumeral(numeral: string, key: string): string {
-  const [, flat, degree, seventh] = /^(b?)(i{1,3}|iv|vi{0,2}|v|I{1,3}|IV|VI{0,2}|V)(7?)$/.exec(numeral) ?? [];
-  const interval = degree && DEGREES[degree.toUpperCase()];
-  if (!interval) throw new RangeError(`Invalid roman numeral: ${numeral}`);
-  const lowered = flat ? `${interval[0]}${interval[1] === "P" ? "d" : "m"}` : interval;
-  const root = plainName(transposePitch(`${key}4`, lowered).replace(/-?\d+$/, ""));
-  return `${root}${degree === degree.toLowerCase() ? "m" : ""}${seventh}`;
+  const [, flat = "", degree, quality = "", ofFlat = "", of] = NUMERAL.exec(numeral) ?? [];
+  if (!degree) throw new RangeError(`Invalid roman numeral: ${numeral}`);
+  // A secondary chord counts its degree from the chord it leads to: V/vi in C is the V of A minor's root, E.
+  const tonic = of ? degreeRoot(ofFlat, of, key).replace(/-?\d+$/, "") : key;
+  const root = plainName(degreeRoot(flat, degree, tonic).replace(/-?\d+$/, "")),
+    minor = degree === degree.toLowerCase();
+  const suffix = quality === "°" ? "dim" : quality === "ø7" ? "m7b5" : quality === "maj7" ? "maj7" : quality === "7" ? (minor ? "m7" : "7") : minor ? "m" : "";
+  return `${root}${suffix}`;
 }
 const TOP2 = [-2, -1],
   TOP3 = [-3, -2, -1],
@@ -1799,8 +1848,9 @@ const patternVersion = (p: StrumPattern): PracticeVersion => ({
   ...(p.bass ? { bass: p.bass } : { countStrokes: true }),
 });
 /**
- * A progression as a chord song in C major (A minor for a minor one), the key selector moving it: a four-bar loop
- * twice, the 12-bar blues once, then the tonic held a bar; one version per difficulty for the meter.
+ * A progression as a chord song in C major (A minor for a minor one), the key selector moving it: each chord its
+ * bars, a loop shorter than eight bars twice, a longer one (the 12-bar blues) once, then its ending held a bar; one
+ * version per difficulty for the meter, or a strumming pattern.
  */
 export function progressionSong(
   progression: Progression,
@@ -1814,20 +1864,23 @@ export function progressionSong(
   const versions = strum ? [patternVersion(strum)] : versionsOf(time, style);
   const key = progression.mode === "minor" ? "A" : "C",
     chords = progression.numerals.map((n) => chordOfNumeral(n, key)),
+    // Each chord its bars (one unless the progression says otherwise): a practice arrangement, not part of the harmony.
+    bars = chords.flatMap((chord, k) => Array.from({ length: progression.bars?.[k] ?? 1 }, () => chord)),
+    held = chords.map((chord, k) => ((progression.bars?.[k] ?? 1) > 1 ? `${chord} (${progression.bars![k]} bars)` : chord)),
     m = compoundMeter(time) ? 3 : 1;
   return {
     id: `progression-${progression.id}-${time[0]}-${time[1]}${style === "strum" ? "" : `-${style}`}${strum ? `-${strum.id}` : ""}`,
     title: progression.name,
-    credit: `${progression.songs} of ${BILLBOARD_SONGS} Billboard Hot 100 songs, 1958–1991`,
-    description: `${progression.note ? `${progression.note[0]!.toUpperCase()}${progression.note.slice(1)}. ` : ""}${chords.join(" ")} in ${key} ${progression.mode}, a bar each.`,
+    credit: progression.songs ? `${progression.songs} of ${BILLBOARD_SONGS} Billboard Hot 100 songs, 1958–1991` : (progression.sources?.[0]?.name ?? "Chord progression"),
+    description: `${progression.note[0]!.toUpperCase()}${progression.note.slice(1)}. ${held.join(" ")} in ${key} ${progression.mode}${progression.bars ? "" : ", a bar each"}.`,
     instrument,
     key,
     mode: progression.mode,
     time: [time[0], time[1]],
     beat: (4 * m) / time[1],
     bpm: strum?.bpm ?? PROGRESSION_BPM[meter]!,
-    progression: chords.length >= 8 ? chords : [...chords, ...chords],
-    ending: chordOfNumeral(progression.mode === "minor" ? "i" : "I", key),
+    progression: bars.length >= 8 ? bars : [...bars, ...bars],
+    ending: chordOfNumeral(progression.ending ?? (progression.mode === "minor" ? "i" : "I"), key),
     versions: versions.map((v) => ({ ...v, id: v.difficulty })),
   };
 }

@@ -22,7 +22,7 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/kyr0/defuss-shadcn@v0.9.11/dist/components/core.min.css" integrity="sha384-qUQCm/MM2DNkdT3uEdx8Mpocj+GwXlgLat0FnWv657c16tHWOouZFT2nV7kg5pBE" crossorigin="anonymous">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/kyr0/defuss-shadcn@v0.9.11/dist/theme/utils/shapes.min.css" integrity="sha384-ZmqJOMYRZyhvc1zR5eOVub6RQoBcnL3oe8ubon6JcjkLJK/0Fy3THAhfLP8K3C71" crossorigin="anonymous">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/kyr0/defuss-shadcn@v0.9.11/dist/components/all.min.css" integrity="sha384-D6ChEYfIRnfJpWB03vSS4b4b1ZdHsnCNUwg2VBFrBkjDVHIVvdVDXaJ1M2hFAdK2" crossorigin="anonymous">
-  <link rel="stylesheet" href="assets/site.css">
+  <link rel="stylesheet" href="assets/site.css?v=c5f61fe2ebc1">
   <link rel="modulepreload" href="assets/scorify/index.mjs">
 </head>
 <body>
@@ -255,9 +255,10 @@
       </div>
       <div class="tab-content" role="tabpanel" id="library-progressions" aria-labelledby="library-tab-progressions" tabindex="0" hidden>
         <div class="sc-practice">
-          <p class="sc-practice-intro">The most common chord progressions of Billboard Hot 100 hits: how many of 739 songs from 1958 to 1991 start a phrase with each. A bar per chord, strummed or as an arpeggio, seven versions per time signature, or in a strumming pattern: the island strum, reggae skank, boom-chick, a waltz, a blues shuffle and more; <strong>Key</strong>, <strong>Time</strong>, <strong>Play</strong> and <strong>Pattern</strong> below set the key, the time signature, how it is played and the pattern. The small buttons by each chord name in the tab turn that chord to its next inversion, or back.</p>
+          <p class="sc-practice-intro">Twenty-five chord progressions chosen for recognizability, harmonic variety and practice value: pop and rock loops, minor and Dorian progressions, borrowed chords and secondary dominants, jazz ii–V–I, longer sequences and the 12-bar blues, with how many of 739 Billboard Hot 100 songs from 1958 to 1991 start a phrase with each. A bar per chord unless the progression says otherwise (three chords in four bars, the blues in twelve), strummed or as an arpeggio, seven versions per time signature, or in a strumming pattern: the island strum, reggae skank, boom-chick, a waltz, a blues shuffle and more; <strong>Key</strong>, <strong>Time</strong>, <strong>Play</strong> and <strong>Pattern</strong> below set the key, the time signature, how it is played and the pattern. The small buttons by each chord name in the tab turn that chord to its next inversion, or back.</p>
           <div class="sc-progressions" role="group" aria-label="Chord progressions" id="progression-list"></div>
-          <p class="sc-practice-note">Counted by scorify's own script over the chord annotations of the <a href="https://ddmal.ca/research/The_McGill_Billboard_Project_(Chord_Analysis_Dataset)/" target="_blank" rel="noopener">McGill Billboard corpus<svg class="sc-icon sc-ext" aria-hidden="true"><use href="#i-external"/></svg><span class="sr-only"> (opens in a new tab)</span></a> (Burgoyne, Wild and Fujinaga 2011; CC0): songs with a phrase that starts with the progression, and for the 12-bar blues, songs with a 12-bar blues chorus. The corpus ends in 1991, before I–V–vi–IV became common in hits.</p>
+          <p class="sc-practice-note" id="progression-sources" hidden></p>
+          <p class="sc-practice-note">Counted by scorify's own script over the chord annotations of the <a href="https://ddmal.ca/research/The_McGill_Billboard_Project_(Chord_Analysis_Dataset)/" target="_blank" rel="noopener">McGill Billboard corpus<svg class="sc-icon sc-ext" aria-hidden="true"><use href="#i-external"/></svg><span class="sr-only"> (opens in a new tab)</span></a> (Burgoyne, Wild and Fujinaga 2011; CC0): songs with a phrase that starts with the progression's chords (sevenths counted as triads), and for the 12-bar blues, songs with a 12-bar blues chorus. The corpus ends in 1991, before I–V–vi–IV and many minor pop loops became common in hits; a progression it does not contain shows no count. Other sources are linked, not counted.</p>
         </div>
       </div>
     </div>
@@ -461,7 +462,7 @@
         <script type="application/json" class="fretboard-source">{"version":1,"title":"Loading","scores":[{"id":"loading","measures":1,"tracks":[]}]}</script>
       </div>
 
-      <div class="sc-board">
+      <div class="sc-board" id="board">
         <div class="sc-panel sc-neck-panel">
           <span class="sc-panel-label">On the neck <small>filled: sounding · outlined: next</small></span>
           <div class="fretboard-neck" id="live-neck" data-fretboard-for="song-tab" aria-label="The fingering sounding now"></div>
@@ -469,7 +470,6 @@
         <div class="sc-panel sc-charts-panel">
           <span class="sc-panel-label">Voicings as played <small>x = string not played</small></span>
           <div class="sc-charts" data-fretboard-for="song-tab" data-fretboard-outlet="chords" data-orientation="vertical"></div>
-          <p class="sc-charts-empty" id="charts-empty" hidden>This score has no chord symbols, so there are no voicings to chart. The tab and the neck show every fretted note.</p>
         </div>
       </div>
 
@@ -846,7 +846,7 @@
 </div>
 
 <script type="module" src="https://cdn.jsdelivr.net/gh/kyr0/defuss-shadcn@v0.9.11/dist/components/all.min.js" integrity="sha384-smU3aE2UPGvVE+nQS/ekmmE86ccjq2yap/zPMBoITba6SOq71Fil6vo4HZHaFZRY" crossorigin="anonymous"></script>
-<script type="module" src="assets/v/9a09fa515bea/app.mjs"></script>
+<script type="module" src="assets/v/3c9ea6dd7945/app.mjs"></script>
   <div class="sc-print" id="print-sheet" aria-hidden="true"></div>
 </body>
 </html>

@@ -44,7 +44,6 @@
   @media (max-width: 48rem) {
     .tabs.sc-library { flex-direction: column; align-items: stretch; }
     .sc-library > .tab-list { max-inline-size: none; grid-auto-flow: column; grid-auto-columns: 1fr; overflow-x: auto; }
-    .sc-progressions { grid-template-columns: repeat(auto-fill, minmax(min(100%, 9.5rem), 1fr)); }
     .sc-progression-note { display: none; }
   }
   .sc-songs { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fit, minmax(min(100%, 19rem), 1fr)); }
@@ -59,11 +58,16 @@
   .sc-progression:hover { box-shadow: var(--shadow-md); }
   .sc-progression:focus-visible { outline: 2px solid var(--ring); outline-offset: 2px; }
   .sc-progression[aria-pressed="true"] { border-color: color-mix(in oklch, var(--chart-1) 70%, var(--border)); box-shadow: 0 0 0 1px color-mix(in oklch, var(--chart-1) 70%, transparent); }
-  .sc-progression-name { font-weight: 600; }
+  .sc-progression-name { font-weight: 600; overflow-wrap: anywhere; }
   .sc-progression-chords { font: 500 .8125rem/1.4 var(--font-mono); color: var(--foreground); overflow-wrap: anywhere; }
   .sc-progression-count { display: flex; align-items: center; gap: .5rem; font-size: .75rem; color: var(--muted-foreground); }
   .sc-progression-bar { flex: none; inline-size: calc(var(--share) * 5rem); min-inline-size: 2px; block-size: .375rem; border-radius: 999px; background: var(--chart-1); }
   .sc-progression-note { font-size: .75rem; color: var(--muted-foreground); }
+  /* Two cards a row on phones: after the base rule, which would otherwise win. */
+  @media (max-width: 48rem) {
+    .sc-progressions { grid-template-columns: repeat(auto-fill, minmax(min(100%, 9.5rem), 1fr)); }
+    .sc-progression-bar { inline-size: calc(var(--share) * 2.5rem); }
+  }
   /* Inversion buttons inside the tab's chord names: the next inversion and back as written, extra small. */
   .sc-inversion { display: inline-flex; gap: 1px; margin-inline-start: .125rem; vertical-align: middle; }
   .sc-inversion .btn { inline-size: 1rem; block-size: 1rem; min-inline-size: 0; min-block-size: 0; padding: 0; border-radius: var(--radius-sm); color: inherit; opacity: .6; }
@@ -148,7 +152,6 @@
   .sc-saved-text { flex: 1 1 16rem; min-width: 0; font-size: .8125rem; color: var(--muted-foreground); overflow-wrap: anywhere; }
   .sc-saved-text strong { color: var(--foreground); }
   .sc-saved-empty { margin: 0; font-size: .8125rem; color: var(--muted-foreground); }
-  .sc-charts-empty { margin: 0; font-size: .875rem; color: var(--muted-foreground); text-wrap: pretty; }
   .sc-tempo .label { display: flex; justify-content: space-between; gap: .5rem; }
   .sc-tempo-value { font-family: var(--font-mono); font-weight: 500; color: var(--muted-foreground); }
   .sc-tempo .slider { display: block; margin-block: .875rem 1.375rem; }
@@ -198,6 +201,9 @@
   .sc-tab { min-width: 0; }
   .sc-window[data-status="searching"] .sc-tab, .sc-window[data-status="searching"] .sc-board { opacity: .45; transition: opacity .2s; }
   .sc-board { display: grid; gap: 1rem; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); }
+  /* No chord symbols, no voicings to chart: the neck takes the whole row. */
+  .sc-board[data-charts="none"] { grid-template-columns: minmax(0, 1fr); }
+  .sc-board[data-charts="none"] .sc-charts-panel { display: none; }
   .sc-panel { display: flex; flex-direction: column; gap: .75rem; min-width: 0; padding: 1rem; border: 1px solid var(--border); border-radius: var(--radius-lg); }
   .sc-panel-label { display: flex; flex-wrap: wrap; justify-content: space-between; gap: .25rem 1rem; }
   .sc-panel-label small { font-weight: 400; letter-spacing: 0; text-transform: none; font-family: var(--font-sans); font-size: .75rem; }
